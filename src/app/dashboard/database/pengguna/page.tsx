@@ -14,7 +14,7 @@ export default function DatabasePenggunaPage() {
   const [newUser, setNewUser] = useState({
     nama: '',
     email: '',
-    nik: '',
+    nip: '',
     role: 'verifikator' as any,
     instansi: 'Badan Kesbangpol Kabupaten Mimika',
   });
