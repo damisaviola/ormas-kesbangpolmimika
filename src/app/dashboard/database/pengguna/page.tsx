@@ -59,14 +59,14 @@ export default function DatabasePenggunaPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
               Database Master
             </span>
           </div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight mt-1">
+          <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             Manajemen Pengguna (User Accounts)
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Daftar akun pengelola sistem, verifikator Kesbangpol, dan admin Ormas.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function DatabasePenggunaPage() {
       </div>
 
       {/* Search Input */}
-      <div className="p-4 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+      <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs transition-colors">
         <div className="w-full md:w-80 relative">
           <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -93,16 +93,16 @@ export default function DatabasePenggunaPage() {
             placeholder="Cari nama, email, NIK..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
           />
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
+          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">Pengguna</th>
                 <th className="py-3.5 px-4">NIK</th>
@@ -112,32 +112,32 @@ export default function DatabasePenggunaPage() {
                 <th className="py-3.5 px-4 text-right">Terakhir Login</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filtered.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="py-4 px-4 sm:px-6">
-                    <p className="font-bold text-slate-900">{u.nama}</p>
-                    <p className="text-[11px] text-slate-400 font-medium">{u.email}</p>
+                    <p className="font-bold text-slate-900 dark:text-white">{u.nama}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{u.email}</p>
                   </td>
-                  <td className="py-4 px-4 font-mono text-slate-700">{u.nik}</td>
+                  <td className="py-4 px-4 font-mono text-slate-700 dark:text-amber-400 font-bold">{u.nik}</td>
                   <td className="py-4 px-4">
                     <span
                       className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase tracking-wider ${
                         u.role === 'superadmin'
-                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                          ? 'bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
                           : u.role === 'verifikator'
-                          ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                          : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                          ? 'bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+                          : 'bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
                       }`}
                     >
                       {u.role}
                     </span>
                   </td>
-                  <td className="py-4 px-4 font-medium text-slate-800">{u.instansi}</td>
+                  <td className="py-4 px-4 font-medium text-slate-800 dark:text-slate-200">{u.instansi}</td>
                   <td className="py-4 px-4">
                     <TableBadge status={u.status} />
                   </td>
-                  <td className="py-4 px-4 text-right text-slate-500">{u.terakhirLogin}</td>
+                  <td className="py-4 px-4 text-right text-slate-500 dark:text-slate-400">{u.terakhirLogin}</td>
                 </tr>
               ))}
             </tbody>
@@ -147,17 +147,17 @@ export default function DatabasePenggunaPage() {
 
       {/* Add User Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <form
             onSubmit={handleAddUser}
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4"
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-extrabold text-slate-900">Tambah Pengguna Baru</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Tambah Pengguna Baru</h3>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 ✕
               </button>
@@ -165,35 +165,35 @@ export default function DatabasePenggunaPage() {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
                 <input
                   type="text"
                   required
                   placeholder="Contoh: Ahmad Yani, S.IP"
                   value={newUser.nama}
                   onChange={(e) => setNewUser({ ...newUser, nama: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Email</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
                 <input
                   type="email"
                   required
                   placeholder="ahmad@mimikakab.go.id"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Peran (Role)</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Peran (Role)</label>
                 <select
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-semibold text-slate-800 dark:text-slate-200 outline-none"
                 >
                   <option value="verifikator">Verifikator Kesbangpol</option>
                   <option value="superadmin">Superadmin</option>
@@ -202,21 +202,21 @@ export default function DatabasePenggunaPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Instansi / Organisasi</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Instansi / Organisasi</label>
                 <input
                   type="text"
                   value={newUser.instansi}
                   onChange={(e) => setNewUser({ ...newUser, instansi: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg"
+                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
               >
                 Batal
               </button>

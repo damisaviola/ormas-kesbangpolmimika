@@ -38,14 +38,14 @@ export default function DatabaseJenisOrmasPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
               Database Master
             </span>
           </div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight mt-1">
+          <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             Master Data Jenis Ormas
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Kategori klasifikasi jenis organisasi kemasyarakatan di Kabupaten Mimika.
           </p>
         </div>
@@ -62,10 +62,10 @@ export default function DatabaseJenisOrmasPage() {
       </div>
 
       {/* Categories Table */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
+          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">Kode</th>
                 <th className="py-3.5 px-4">Nama Kategori</th>
@@ -74,15 +74,15 @@ export default function DatabaseJenisOrmasPage() {
                 <th className="py-3.5 px-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {categories.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-bold text-blue-700 bg-blue-50/50 px-2 rounded w-fit">
+                <tr key={c.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-4 px-4 sm:px-6 font-mono font-bold text-blue-700 dark:text-amber-400 bg-blue-50/50 dark:bg-amber-950/40 px-2 rounded w-fit border border-transparent dark:border-amber-900/60">
                     {c.kode}
                   </td>
-                  <td className="py-4 px-4 font-bold text-slate-900">{c.namaJenis}</td>
-                  <td className="py-4 px-4 text-slate-500 max-w-xs">{c.deskripsi}</td>
-                  <td className="py-4 px-4 font-bold text-slate-800">{c.jumlahOrmas} Ormas</td>
+                  <td className="py-4 px-4 font-bold text-slate-900 dark:text-white">{c.namaJenis}</td>
+                  <td className="py-4 px-4 text-slate-500 dark:text-slate-400 max-w-xs">{c.deskripsi}</td>
+                  <td className="py-4 px-4 font-bold text-slate-800 dark:text-slate-200">{c.jumlahOrmas} Ormas</td>
                   <td className="py-4 px-4">
                     <TableBadge status={c.status} />
                   </td>
@@ -95,17 +95,17 @@ export default function DatabaseJenisOrmasPage() {
 
       {/* Add Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <form
             onSubmit={handleAddCategory}
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4"
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-extrabold text-slate-900">Tambah Jenis Ormas</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Tambah Jenis Ormas</h3>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 ✕
               </button>
@@ -113,46 +113,46 @@ export default function DatabaseJenisOrmasPage() {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Kode Kategori</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Kode Kategori</label>
                 <input
                   type="text"
                   required
                   placeholder="KAG, KBD, PRF..."
                   value={newKode}
                   onChange={(e) => setNewKode(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-mono uppercase"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none font-mono uppercase text-slate-900 dark:text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Nama Jenis Ormas</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Jenis Ormas</label>
                 <input
                   type="text"
                   required
                   placeholder="Contoh: Pendidikan & Riset"
                   value={newNama}
                   onChange={(e) => setNewNama(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Deskripsi</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Deskripsi</label>
                 <textarea
                   rows={3}
                   placeholder="Ruang lingkup kegiatan organisasi..."
                   value={newDeskripsi}
                   onChange={(e) => setNewDeskripsi(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg"
+                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
               >
                 Batal
               </button>
