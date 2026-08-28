@@ -427,10 +427,12 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   onChange={(e) => setApprovalStatus(e.target.value as StatusPengajuan)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="menunggu">Diajukan (Belum Diproses)</option>
-                  <option value="proses">Dalam Proses Verifikasi Lapangan</option>
-                  <option value="disetujui">Disetujui (Terbitkan SKT)</option>
-                  <option value="ditolak">Ditolak / Perlu Revisi Berkas</option>
+                  <option value="Disiapkan">Disiapkan</option>
+                  <option value="Diajukan">Diajukan</option>
+                  <option value="Ditolak">Ditolak</option>
+                  <option value="Resmi">Resmi</option>
+                  <option value="Bubar">Bubar</option>
+                  <option value="Ditangguhkan">Ditangguhkan</option>
                 </select>
               </div>
 
