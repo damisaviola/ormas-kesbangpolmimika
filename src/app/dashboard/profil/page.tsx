@@ -18,7 +18,7 @@ export default function ProfilPage() {
   };
 
   return (
-    <div className="space-y-8 w-full max-w-6xl pb-10">
+    <div className="space-y-6 w-full pb-10">
       {/* Header Title */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
