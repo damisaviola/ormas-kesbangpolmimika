@@ -335,38 +335,38 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               </span>
             </div>
 
-            <div className="space-y-3 text-xs divide-y divide-slate-100 dark:divide-slate-800/60">
-              <div className="pt-2 grid grid-cols-3 gap-2">
+            <div className="text-xs divide-y divide-slate-100 dark:divide-slate-800/80">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Organisasi</span>
-                <span className="col-span-2 font-black text-slate-900 dark:text-white">{metadata.namaOrmas}</span>
+                <span className="font-black text-slate-900 dark:text-white">{metadata.namaOrmas}</span>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Singkat</span>
-                <span className="col-span-2 font-bold text-slate-800 dark:text-slate-200">{metadata.namaSingkat}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{metadata.namaSingkat}</span>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Alamat Kantor / Sekretariat</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200">{metadata.alamat}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.alamat}</span>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kode Pos</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono">{metadata.kodePos}</span>
+                <span className="font-mono text-slate-800 dark:text-slate-200">{metadata.kodePos}</span>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">No. Telepon</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-semibold">{metadata.telepon}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.telepon}</span>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2 items-center">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Status</span>
-                <span className="col-span-2">
+                <div>
                   <TableBadge status={currentStatus} />
-                </span>
+                </div>
               </div>
-              <div className="pt-2 grid grid-cols-3 gap-2 items-center">
+              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kelengkapan Data</span>
-                <div className="col-span-2 flex items-center gap-3">
-                  <span className="font-black text-amber-600 dark:text-amber-400">58 %</span>
-                  <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div className="flex items-center gap-3 w-full">
+                  <span className="font-black text-amber-600 dark:text-amber-400 whitespace-nowrap shrink-0">58%</span>
+                  <div className="flex-1 bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
                     <div className="bg-amber-500 h-full w-[58%]" />
                   </div>
                 </div>
