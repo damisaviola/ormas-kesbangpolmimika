@@ -23,7 +23,7 @@ export default function DatabasePenggunaPage() {
     return (
       u.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.nik.includes(searchTerm)
+      u.nip.includes(searchTerm)
     );
   });
 
@@ -35,7 +35,7 @@ export default function DatabasePenggunaPage() {
       id: `USR-${String(users.length + 1).padStart(3, '0')}`,
       nama: newUser.nama,
       email: newUser.email,
-      nik: newUser.nik || '9109019909990001',
+      nip: newUser.nip || '',
       role: newUser.role,
       status: 'aktif',
       instansi: newUser.instansi,
@@ -46,7 +46,7 @@ export default function DatabasePenggunaPage() {
     setNewUser({
       nama: '',
       email: '',
-      nik: '',
+      nip: '',
       role: 'verifikator',
       instansi: 'Badan Kesbangpol Kabupaten Mimika',
     });
@@ -90,7 +90,7 @@ export default function DatabasePenggunaPage() {
           </svg>
           <input
             type="text"
-            placeholder="Cari nama, email, NIK..."
+            placeholder="Cari nama, email, NIP..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
@@ -105,7 +105,7 @@ export default function DatabasePenggunaPage() {
             <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">Pengguna</th>
-                <th className="py-3.5 px-4">NIK</th>
+                <th className="py-3.5 px-4">NIP</th>
                 <th className="py-3.5 px-4">Peran (Role)</th>
                 <th className="py-3.5 px-4">Instansi / Organisasi</th>
                 <th className="py-3.5 px-4">Status</th>
@@ -119,7 +119,7 @@ export default function DatabasePenggunaPage() {
                     <p className="font-bold text-slate-900 dark:text-white">{u.nama}</p>
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{u.email}</p>
                   </td>
-                  <td className="py-4 px-4 font-mono text-slate-700 dark:text-amber-400 font-bold">{u.nik}</td>
+                  <td className="py-4 px-4 font-mono text-slate-700 dark:text-amber-400 font-bold">{u.nip}</td>
                   <td className="py-4 px-4">
                     <span
                       className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase tracking-wider ${
@@ -173,6 +173,17 @@ export default function DatabasePenggunaPage() {
                   value={newUser.nama}
                   onChange={(e) => setNewUser({ ...newUser, nama: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">NIP (Nomor Induk Pegawai)</label>
+                <input
+                  type="text"
+                  placeholder="19850423 201001 1 002"
+                  value={newUser.nip}
+                  onChange={(e) => setNewUser({ ...newUser, nip: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100 font-mono"
                 />
               </div>
 

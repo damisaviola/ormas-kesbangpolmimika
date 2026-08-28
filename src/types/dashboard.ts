@@ -32,7 +32,7 @@ export interface UserAccount {
   id: string;
   nama: string;
   email: string;
-  nik: string;
+  nip: string;
   role: UserRole;
   status: 'aktif' | 'nonaktif';
   instansi: string;

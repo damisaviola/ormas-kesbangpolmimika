@@ -6,7 +6,7 @@ export default function ProfilPage() {
   const [saved, setSaved] = useState(false);
   const [nama, setNama] = useState('Administrator Utama');
   const [email, setEmail] = useState('admin.kesbangpol@mimikakab.go.id');
-  const [nik, setNik] = useState('9109012304850001');
+  const [nip, setNip] = useState('19850423 201001 1 002');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,11 +60,11 @@ export default function ProfilPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">NIK (Nomor Induk Kependudukan)</label>
+            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">NIP (Nomor Induk Pegawai)</label>
             <input
               type="text"
-              value={nik}
-              onChange={(e) => setNik(e.target.value)}
+              value={nip}
+              onChange={(e) => setNip(e.target.value)}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none font-mono"
             />
           </div>
