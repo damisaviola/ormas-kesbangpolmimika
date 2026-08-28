@@ -194,7 +194,9 @@ export default function DashboardSidebar() {
             >
               <div className="flex items-center gap-2.5">
                 <svg className="w-4 h-4 text-blue-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                  <ellipse cx="12" cy="5" rx="8" ry="2.5" strokeWidth={2} />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5v14c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5V5" />
                 </svg>
                 <span>Database</span>
               </div>
@@ -216,7 +218,9 @@ export default function DashboardSidebar() {
                 className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-amber-950/60 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-200/60 dark:border-amber-800/60 shadow-2xs"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                  <ellipse cx="12" cy="5" rx="8" ry="2.5" strokeWidth={2} />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5v14c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5V5" />
                 </svg>
               </div>
             </div>
