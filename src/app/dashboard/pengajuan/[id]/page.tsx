@@ -151,48 +151,50 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
         </div>
       )}
 
-      {/* Header Banner Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
-        <div className="space-y-2">
+      {/* Page Header */}
+      <div className="space-y-3">
+        {/* Top Breadcrumb Nav & ID */}
+        <div className="flex items-center justify-between px-1">
           <Link
             href="/dashboard/pengajuan"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-amber-400 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-amber-400 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Kembali ke Daftar Pengajuan
           </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded border border-blue-200/80 dark:border-blue-800">
-                Pendaftaran Organisasi
-              </span>
-              <span className="text-xs font-mono text-slate-400 font-bold">ID: {id}</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
-              {metadata.namaOrmas} <span className="text-slate-400 text-lg font-bold">({metadata.namaSingkat})</span>
-            </h1>
-          </div>
+
+          <span className="text-xs font-mono font-bold text-slate-400">
+            ID: {id}
+          </span>
         </div>
 
-        {/* Status Indicator & Completion Meter */}
-        <div className="bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-5 shrink-0">
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status Pengajuan</p>
-            <div className="mt-1">
-              <TableBadge status={currentStatus} />
+        {/* Title & Header Summary Card */}
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-2xs transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 rounded border border-blue-200/80 dark:border-blue-800">
+                  Pendaftaran Organisasi
+                </span>
+                <TableBadge status={currentStatus} />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                {metadata.namaOrmas} <span className="text-slate-400 text-base font-bold">({metadata.namaSingkat})</span>
+              </h1>
             </div>
-          </div>
 
-          <div className="w-px h-8 bg-slate-200 dark:bg-slate-800" />
-
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kelengkapan Data</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-base font-black text-amber-600 dark:text-amber-400">58%</span>
-              <div className="w-24 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-amber-500 h-full w-[58%]" />
+            {/* Kelengkapan Berkas Progress Pill */}
+            <div className="bg-slate-50 dark:bg-slate-950/60 px-4 py-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shrink-0 self-start sm:self-auto">
+              <div className="flex items-center gap-3">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kelengkapan Berkas</p>
+                  <p className="text-sm font-black text-amber-600 dark:text-amber-400">58% Selesai</p>
+                </div>
+                <div className="w-20 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div className="bg-amber-500 h-full w-[58%]" />
+                </div>
               </div>
             </div>
           </div>
