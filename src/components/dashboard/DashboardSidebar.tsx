@@ -28,7 +28,7 @@ export default function DashboardSidebar() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.75}
+            strokeWidth={2}
             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
           />
         </svg>
@@ -43,7 +43,7 @@ export default function DashboardSidebar() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.75}
+            strokeWidth={2}
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
@@ -57,7 +57,7 @@ export default function DashboardSidebar() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.75}
+            strokeWidth={2}
             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
           />
         </svg>
@@ -71,7 +71,7 @@ export default function DashboardSidebar() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.75}
+            strokeWidth={2}
             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           />
         </svg>
@@ -85,7 +85,7 @@ export default function DashboardSidebar() {
       href: '/dashboard/database/pengguna',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       ),
     },
@@ -94,7 +94,7 @@ export default function DashboardSidebar() {
       href: '/dashboard/database/jenis-ormas',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M7 7h.01M7 11h.01M7 15h.01M11 7h8M11 11h8M11 15h8M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 11h.01M7 15h.01M11 7h8M11 11h8M11 15h8M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z" />
         </svg>
       ),
     },
@@ -103,7 +103,7 @@ export default function DashboardSidebar() {
       href: '/dashboard/database/jabatan',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
     },
@@ -111,13 +111,13 @@ export default function DashboardSidebar() {
 
   const sidebarContent = (
     <div
-      className={`flex flex-col h-full bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 select-none border-r border-slate-200/90 dark:border-slate-800 transition-all duration-300 ease-in-out shadow-xs ${
+      className={`flex flex-col h-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 select-none border-r border-slate-200/90 dark:border-slate-800 transition-all duration-300 ease-in-out shadow-xs ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Brand Header */}
       <div
-        className={`h-16 px-4 flex items-center border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 ${
+        className={`h-16 px-4 flex items-center border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-950/80 ${
           isCollapsed ? 'justify-center' : 'justify-start gap-3'
         }`}
       >
@@ -133,7 +133,7 @@ export default function DashboardSidebar() {
             <span className="text-xs font-black tracking-wider text-slate-900 dark:text-white uppercase">
               KESBANGPOL
             </span>
-            <span className="text-[10px] text-blue-700 dark:text-amber-400 font-bold tracking-widest uppercase">
+            <span className="text-[10px] text-blue-700 dark:text-amber-400 font-extrabold tracking-widest uppercase">
               SI-ORMAS ADMIN
             </span>
           </div>
@@ -141,9 +141,9 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Navigation List */}
-      <div className="flex-1 px-3 py-5 overflow-y-auto space-y-1.5 scrollbar-thin">
+      <div className="flex-1 px-3 py-5 overflow-y-auto space-y-2 scrollbar-thin">
         {!isCollapsed && (
-          <div className="px-3 pb-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+          <div className="px-3 pb-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Navigasi Utama
           </div>
         )}
@@ -157,15 +157,21 @@ export default function DashboardSidebar() {
               onClick={() => setMobileOpen(false)}
               title={isCollapsed ? item.label : undefined}
               className={`flex items-center ${
-                isCollapsed ? 'justify-center py-3' : 'justify-between px-3 py-2.5'
+                isCollapsed ? 'justify-center py-2' : 'justify-between px-3.5 py-2.5'
               } rounded-xl text-xs font-bold transition-all group ${
                 active
-                  ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-md shadow-blue-500/20 dark:shadow-blue-900/40'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 dark:shadow-blue-900/50'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
               }`}
             >
               <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-                <span className={active ? 'text-white' : 'text-slate-400 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-white transition-colors'}>
+                <span className={`flex items-center justify-center shrink-0 ${
+                  isCollapsed ? 'w-10 h-10 rounded-xl' : ''
+                } ${
+                  active
+                    ? 'text-white'
+                    : 'text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white'
+                }`}>
                   {item.icon}
                 </span>
                 {!isCollapsed && <span>{item.label}</span>}
@@ -174,7 +180,7 @@ export default function DashboardSidebar() {
                 <span
                   className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
                     active
-                      ? 'bg-white text-blue-900'
+                      ? 'bg-white text-blue-900 shadow-2xs'
                       : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30'
                   }`}
                 >
@@ -190,7 +196,7 @@ export default function DashboardSidebar() {
           {!isCollapsed ? (
             <button
               onClick={() => setIsDatabaseOpen(!isDatabaseOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl transition-all group"
+              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl transition-all group"
             >
               <div className="flex items-center gap-2.5">
                 <svg className="w-4 h-4 text-blue-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +204,7 @@ export default function DashboardSidebar() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5v14c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5V5" />
                 </svg>
-                <span>Database</span>
+                <span>DATABASE</span>
               </div>
               <svg
                 className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-transform duration-200 ${
@@ -212,10 +218,11 @@ export default function DashboardSidebar() {
               </svg>
             </button>
           ) : (
-            <div className="flex justify-center py-2">
+            <div className="flex flex-col items-center py-2 space-y-2">
+              <div className="w-10 border-t border-slate-200 dark:border-slate-800" />
               <div
                 title="Database Master"
-                className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-amber-950/60 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-200/60 dark:border-amber-800/60 shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-amber-950/70 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-200/80 dark:border-amber-800/80 shadow-2xs"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <ellipse cx="12" cy="5" rx="8" ry="2.5" strokeWidth={2} />
@@ -227,7 +234,7 @@ export default function DashboardSidebar() {
           )}
 
           {(isDatabaseOpen || isCollapsed) && (
-            <div className={isCollapsed ? 'space-y-1 mt-1' : 'mt-1 ml-3 pl-3 space-y-1 border-l border-slate-200 dark:border-slate-800'}>
+            <div className={isCollapsed ? 'space-y-2 mt-1 flex flex-col items-center' : 'mt-1 ml-3 pl-3 space-y-1.5 border-l border-slate-200 dark:border-slate-800'}>
               {databaseSubItems.map((sub) => {
                 const subActive = pathname === sub.href;
                 return (
@@ -237,14 +244,14 @@ export default function DashboardSidebar() {
                     onClick={() => setMobileOpen(false)}
                     title={isCollapsed ? sub.label : undefined}
                     className={`flex items-center ${
-                      isCollapsed ? 'justify-center py-2.5' : 'gap-2.5 px-3 py-2'
-                    } rounded-lg text-xs font-semibold transition-all ${
+                      isCollapsed ? 'justify-center w-10 h-10' : 'gap-2.5 px-3 py-2'
+                    } rounded-xl text-xs font-bold transition-all ${
                       subActive
-                        ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-500/30'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                        ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-500/40 shadow-2xs'
+                        : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     }`}
                   >
-                    <span className={subActive ? 'text-amber-600 dark:text-amber-300' : 'text-slate-400 dark:text-slate-400'}>{sub.icon}</span>
+                    <span className={subActive ? 'text-amber-700 dark:text-amber-300' : 'text-slate-600 dark:text-slate-400'}>{sub.icon}</span>
                     {!isCollapsed && <span>{sub.label}</span>}
                   </Link>
                 );
@@ -255,15 +262,15 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Footer Profile / Return */}
-      <div className="p-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60">
+      <div className="p-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-950/80">
         <Link
           href="/"
           title={isCollapsed ? 'Kembali ke Portal Web' : undefined}
           className={`flex items-center ${
-            isCollapsed ? 'justify-center p-2' : 'gap-2 px-3 py-2'
-          } text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800/50 transition-colors`}
+            isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'gap-2 px-3 py-2.5'
+          } text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-200/70 dark:hover:bg-slate-800/60 transition-colors`}
         >
-          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           {!isCollapsed && <span>Portal Web</span>}
@@ -281,7 +288,7 @@ export default function DashboardSidebar() {
         {/* Floating Expand/Collapse Button on Sidebar Border */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-md items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-amber-400 hover:scale-110 active:scale-95 transition-all"
+          className="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-md items-center justify-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-amber-400 hover:scale-110 active:scale-95 transition-all"
           title={isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'}
           aria-label="Toggle Sidebar"
         >
