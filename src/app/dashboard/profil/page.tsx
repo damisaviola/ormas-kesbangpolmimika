@@ -40,7 +40,7 @@ export default function ProfilPage() {
       )}
 
       {/* Profile Overview Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6 transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-8 sm:p-10 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6 transition-colors">
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-blue-600 dark:bg-blue-600 text-white font-black text-3xl sm:text-4xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 select-none">
           AU
         </div>
@@ -57,9 +57,9 @@ export default function ProfilPage() {
       </div>
 
       {/* Main Account Form */}
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-8 sm:p-10 shadow-xs space-y-8 transition-colors">
         <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-          <h2 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wider">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">
             Informasi Pribadi & Pegawai
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -76,7 +76,7 @@ export default function ProfilPage() {
               type="text"
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
 
@@ -88,7 +88,7 @@ export default function ProfilPage() {
               type="text"
               value={nip}
               onChange={(e) => setNip(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function ProfilPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
 
@@ -112,7 +112,7 @@ export default function ProfilPage() {
               type="text"
               value={telepon}
               onChange={(e) => setTelepon(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
 
@@ -124,7 +124,7 @@ export default function ProfilPage() {
               type="text"
               value={instansi}
               onChange={(e) => setInstansi(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
 
@@ -136,7 +136,7 @@ export default function ProfilPage() {
               type="text"
               value={jabatan}
               onChange={(e) => setJabatan(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             />
           </div>
         </div>
