@@ -14,6 +14,18 @@ export default function PengajuanPage() {
   // Modal details state
   const [activeItem, setActiveItem] = useState<OrmasSubmission | null>(null);
 
+  const [sortField, setSortField] = useState<keyof OrmasSubmission>('namaOrmas');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: keyof OrmasSubmission) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
   const filtered = submissions.filter((item) => {
     const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
     const matchesSearch =
@@ -21,6 +33,16 @@ export default function PengajuanPage() {
       item.ketuaUmum.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.id.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    let valA = (a[sortField] || '') as string;
+    let valB = (b[sortField] || '') as string;
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
   });
 
   const handleUpdateStatus = (id: string, newStatus: StatusPengajuan) => {
@@ -107,19 +129,59 @@ export default function PengajuanPage() {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6 w-12 text-center">No</th>
-                <th className="py-3.5 px-4">Nama</th>
-                <th className="py-3.5 px-4">Alamat</th>
-                <th className="py-3.5 px-4">Pendaftar</th>
-                <th className="py-3.5 px-4">Jenis</th>
+                <th
+                  onClick={() => handleSort('namaOrmas')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Nama</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'namaOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('alamat')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Alamat</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'alamat' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('ketuaUmum')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Pendaftar</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'ketuaUmum' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('jenisOrmas')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Jenis</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'jenisOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filtered.length > 0 ? (
-                filtered.map((item, idx) => (
+              {sorted.length > 0 ? (
+                sorted.map((item, idx) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-4 sm:px-6 text-center font-bold text-slate-500 dark:text-slate-400">
                       {idx + 1}

@@ -139,6 +139,29 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     showToast('Data anggota dihapus!');
   };
 
+  // Anggota sorting state
+  const [memberSortField, setMemberSortField] = useState<keyof MemberItem>('nama');
+  const [memberSortOrder, setMemberSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleMemberSort = (field: keyof MemberItem) => {
+    if (memberSortField === field) {
+      setMemberSortOrder(memberSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setMemberSortField(field);
+      setMemberSortOrder('asc');
+    }
+  };
+
+  const sortedMembers = [...members].sort((a, b) => {
+    let valA = (a[memberSortField] || '') as string;
+    let valB = (b[memberSortField] || '') as string;
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return memberSortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return memberSortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
@@ -964,18 +987,58 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+                <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
                     <th className="py-3 px-4 w-12 text-center">No</th>
-                    <th className="py-3 px-4">Nama</th>
-                    <th className="py-3 px-4">JK</th>
-                    <th className="py-3 px-4">Tanggal Lahir</th>
-                    <th className="py-3 px-4">Jabatan</th>
+                    <th
+                      onClick={() => handleMemberSort('nama')}
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Nama</span>
+                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                          {memberSortField === 'nama' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleMemberSort('jk')}
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>JK</span>
+                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                          {memberSortField === 'jk' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleMemberSort('tanggalLahir')}
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Tanggal Lahir</span>
+                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                          {memberSortField === 'tanggalLahir' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleMemberSort('jabatan')}
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Jabatan</span>
+                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                          {memberSortField === 'jabatan' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </div>
+                    </th>
                     <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {members.map((m, idx) => (
+                  {sortedMembers.map((m, idx) => (
                     <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-3.5 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
                       <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">{m.nama}</td>

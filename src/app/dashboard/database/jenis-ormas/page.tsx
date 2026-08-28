@@ -12,6 +12,28 @@ export default function DatabaseJenisOrmasPage() {
   const [newNama, setNewNama] = useState('');
   const [newDeskripsi, setNewDeskripsi] = useState('');
 
+  const [sortField, setSortField] = useState<keyof JenisOrmasItem>('namaJenis');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: keyof JenisOrmasItem) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sorted = [...categories].sort((a, b) => {
+    let valA = a[sortField] ?? '';
+    let valB = b[sortField] ?? '';
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNama || !newKode) return;
@@ -65,17 +87,57 @@ export default function DatabaseJenisOrmasPage() {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6">Kode</th>
-                <th className="py-3.5 px-4">Nama Kategori</th>
-                <th className="py-3.5 px-4">Deskripsi / Ruang Lingkup</th>
-                <th className="py-3.5 px-4">Jumlah Ormas</th>
+                <th
+                  onClick={() => handleSort('kode')}
+                  className="py-3.5 px-4 sm:px-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Kode</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'kode' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('namaJenis')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Nama Kategori</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'namaJenis' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('deskripsi')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Deskripsi / Ruang Lingkup</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'deskripsi' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('jumlahOrmas')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Jumlah Ormas</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'jumlahOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {categories.map((c) => (
+              {sorted.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="py-4 px-4 sm:px-6 font-mono font-bold text-blue-700 dark:text-amber-400 bg-blue-50/50 dark:bg-amber-950/40 px-2 rounded w-fit border border-transparent dark:border-amber-900/60">
                     {c.kode}

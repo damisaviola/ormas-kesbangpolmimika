@@ -10,6 +10,18 @@ export default function OrganisasiPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
+  const [sortField, setSortField] = useState<keyof RegisteredOrmas>('namaOrmas');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: keyof RegisteredOrmas) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
   const filtered = ormasData.filter((item) => {
     const matchesCategory = categoryFilter === 'all' || item.jenisOrmas === categoryFilter;
     const matchesSearch =
@@ -17,6 +29,16 @@ export default function OrganisasiPage() {
       item.ketuaUmum.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.nomorSk.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    let valA = (a[sortField] || '') as string;
+    let valB = (b[sortField] || '') as string;
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
   });
 
   return (
@@ -68,20 +90,70 @@ export default function OrganisasiPage() {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6">Nama Ormas</th>
-                <th className="py-3.5 px-4">Jenis</th>
-                <th className="py-3.5 px-4">Ketua Umum</th>
-                <th className="py-3.5 px-4">No. SKT / SK</th>
+                <th
+                  onClick={() => handleSort('namaOrmas')}
+                  className="py-3.5 px-4 sm:px-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Nama Ormas</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'namaOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('jenisOrmas')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Jenis</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'jenisOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('ketuaUmum')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Ketua Umum</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'ketuaUmum' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('nomorSk')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>No. SKT / SK</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'nomorSk' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4">Masa Berlaku</th>
-                <th className="py-3.5 px-4">Status Legal</th>
+                <th
+                  onClick={() => handleSort('statusSk')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Status Legal</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'statusSk' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4 text-right">Kontak</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filtered.length > 0 ? (
-                filtered.map((item) => (
+              {sorted.length > 0 ? (
+                sorted.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-4 sm:px-6">
                       <p className="font-bold text-slate-900 dark:text-white">{item.namaOrmas}</p>

@@ -13,6 +13,28 @@ export default function DatabaseJabatanPage() {
   const [newTingkat, setNewTingkat] = useState<'Utama' | 'Pengurus Harian' | 'Pembina/Penasihat' | 'Divisi'>('Pengurus Harian');
   const [newDeskripsi, setNewDeskripsi] = useState('');
 
+  const [sortField, setSortField] = useState<keyof JabatanItem>('namaJabatan');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: keyof JabatanItem) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sorted = [...jabatanList].sort((a, b) => {
+    let valA = a[sortField] ?? '';
+    let valB = b[sortField] ?? '';
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+
   const handleAddJabatan = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNama || !newKode) return;
@@ -66,17 +88,57 @@ export default function DatabaseJabatanPage() {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6">Kode</th>
-                <th className="py-3.5 px-4">Nama Jabatan</th>
-                <th className="py-3.5 px-4">Tingkat Struktur</th>
-                <th className="py-3.5 px-4">Deskripsi Tugas</th>
+                <th
+                  onClick={() => handleSort('kode')}
+                  className="py-3.5 px-4 sm:px-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Kode</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'kode' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('namaJabatan')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Nama Jabatan</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'namaJabatan' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('tingkat')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Tingkat Struktur</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'tingkat' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('deskripsi')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1">
+                    <span>Deskripsi Tugas</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                      {sortField === 'deskripsi' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th className="py-3.5 px-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {jabatanList.map((j) => (
+              {sorted.map((j) => (
                 <tr key={j.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="py-4 px-4 sm:px-6 font-mono font-bold text-slate-900 dark:text-amber-400">
                     {j.kode}
