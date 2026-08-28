@@ -7,6 +7,8 @@ export interface OrmasSubmission {
   singkatan?: string;
   jenisOrmas: string;
   ketuaUmum: string;
+  alamat?: string;
+  pendaftar?: string;
   tanggalPengajuan: string;
   status: StatusPengajuan;
   nomorRegistrasi?: string;

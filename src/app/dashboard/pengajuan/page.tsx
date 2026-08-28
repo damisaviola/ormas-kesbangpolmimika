@@ -108,21 +108,20 @@ export default function PengajuanPage() {
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
             <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6">No. Reg</th>
-                <th className="py-3.5 px-4">Nama Organisasi</th>
+                <th className="py-3.5 px-4 sm:px-6 w-12 text-center">No</th>
+                <th className="py-3.5 px-4">Nama</th>
+                <th className="py-3.5 px-4">Alamat</th>
+                <th className="py-3.5 px-4">Pendaftar</th>
                 <th className="py-3.5 px-4">Jenis</th>
-                <th className="py-3.5 px-4">Penanggung Jawab</th>
-                <th className="py-3.5 px-4">Tanggal Masuk</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Tindakan</th>
+                <th className="py-3.5 px-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filtered.length > 0 ? (
-                filtered.map((item) => (
+                filtered.map((item, idx) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="py-4 px-4 sm:px-6 font-mono font-bold text-slate-900 dark:text-amber-400">
-                      {item.id}
+                    <td className="py-4 px-4 sm:px-6 text-center font-bold text-slate-500 dark:text-slate-400">
+                      {idx + 1}
                     </td>
                     <td className="py-4 px-4">
                       <p className="font-bold text-slate-900 dark:text-white">{item.namaOrmas}</p>
@@ -130,11 +129,14 @@ export default function PengajuanPage() {
                         <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">({item.singkatan})</p>
                       )}
                     </td>
-                    <td className="py-4 px-4 font-semibold text-slate-700 dark:text-slate-300">{item.jenisOrmas}</td>
-                    <td className="py-4 px-4 text-slate-800 dark:text-slate-200 font-medium">{item.ketuaUmum}</td>
-                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400">{item.tanggalPengajuan}</td>
-                    <td className="py-4 px-4">
-                      <TableBadge status={item.status} />
+                    <td className="py-4 px-4 text-slate-700 dark:text-slate-300 font-medium max-w-xs">
+                      {item.alamat || 'Jl. Cendrawasih SP3, Mimika'}
+                    </td>
+                    <td className="py-4 px-4 text-slate-800 dark:text-slate-200 font-semibold">
+                      {item.pendaftar || item.ketuaUmum}
+                    </td>
+                    <td className="py-4 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                      {item.jenisOrmas}
                     </td>
                     <td className="py-4 px-4 text-right space-x-2">
                       <button
@@ -148,7 +150,7 @@ export default function PengajuanPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-400 font-medium">
+                  <td colSpan={6} className="py-10 text-center text-slate-400 font-medium">
                     Tidak ditemukan data pengajuan yang sesuai.
                   </td>
                 </tr>
