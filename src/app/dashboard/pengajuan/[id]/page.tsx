@@ -141,9 +141,9 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="space-y-6">
-      {/* Toast Banner */}
+      {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-xl bg-emerald-600 text-white shadow-xl text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3">
+        <div className="fixed top-20 right-6 z-50 p-4 rounded-xl bg-emerald-600 text-white shadow-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-3">
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -151,52 +151,78 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
         </div>
       )}
 
-      {/* Header & Back Link */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      {/* Header Banner Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
+        <div className="space-y-2">
           <Link
             href="/dashboard/pengajuan"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-amber-400 hover:underline mb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-amber-400 hover:underline"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Kembali ke Daftar Pengajuan
           </Link>
-          <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-            Pendaftaran Organisasi
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Peninjauan & Verifikasi Berkas Pengajuan: <strong className="text-slate-800 dark:text-slate-200">{metadata.namaOrmas} ({id})</strong>
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded border border-blue-200/80 dark:border-blue-800">
+                Pendaftaran Organisasi
+              </span>
+              <span className="text-xs font-mono text-slate-400 font-bold">ID: {id}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+              {metadata.namaOrmas} <span className="text-slate-400 text-lg font-bold">({metadata.namaSingkat})</span>
+            </h1>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 text-xs font-extrabold rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-            Kelengkapan Data: 58 %
-          </span>
+        {/* Status Indicator & Completion Meter */}
+        <div className="bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-5 shrink-0">
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status Pengajuan</p>
+            <div className="mt-1">
+              <TableBadge status={currentStatus} />
+            </div>
+          </div>
+
+          <div className="w-px h-8 bg-slate-200 dark:bg-slate-800" />
+
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kelengkapan Data</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-base font-black text-amber-600 dark:text-amber-400">58%</span>
+              <div className="w-24 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="bg-amber-500 h-full w-[58%]" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Log Aktivitas Table Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-2xs space-y-3 transition-colors">
+      {/* Log Aktivitas Accordion Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs space-y-3 transition-colors">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-blue-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Log Aktivitas
-            </h2>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/60">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Log Aktivitas
+              </h2>
+              <p className="text-[11px] text-slate-400">Riwayat jejak audit & permohonan pendaftaran</p>
+            </div>
           </div>
-          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
             Semua ({logs.length})
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200/80 dark:border-slate-800">
               <tr>
                 <th className="py-2.5 px-4 w-44">Timestamp</th>
                 <th className="py-2.5 px-4">Aktivitas</th>
@@ -206,11 +232,15 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {logs.map((log, i) => (
-                <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                  <td className="py-2.5 px-4 font-mono text-slate-500 dark:text-slate-400">{log.timestamp}</td>
+                <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-2.5 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400">{log.timestamp}</td>
                   <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{log.aktivitas}</td>
-                  <td className="py-2.5 px-4 text-slate-500">{log.pesan}</td>
-                  <td className="py-2.5 px-4 font-medium text-slate-700 dark:text-slate-300">{log.oleh}</td>
+                  <td className="py-2.5 px-4 text-slate-500 dark:text-slate-400">{log.pesan}</td>
+                  <td className="py-2.5 px-4 font-medium">
+                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      {log.oleh}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -218,26 +248,27 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Interactive Tabs Header */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-2xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+      {/* Styled Segment Tab Controller */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
         {[
-          { id: 'status', label: 'Status' },
-          { id: 'metadata', label: 'Metadata' },
-          { id: 'dokumen', label: 'Dokumen' },
-          { id: 'surat', label: 'Surat' },
-          { id: 'pengurus', label: 'Pengurus' },
-          { id: 'anggota', label: 'Anggota' },
+          { id: 'status', label: '1. Status & Approval', icon: '📊' },
+          { id: 'metadata', label: '2. Metadata', icon: 'ℹ️' },
+          { id: 'dokumen', label: '3. Dokumen', icon: '📄' },
+          { id: 'surat', label: '4. Surat', icon: '✉️' },
+          { id: 'pengurus', label: '5. Pengurus', icon: '👤' },
+          { id: 'anggota', label: '6. Anggota', icon: '👥' },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === tab.id
-                ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            {tab.label}
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
@@ -246,39 +277,44 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
       {activeTab === 'status' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Card Status Organisasi */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-              Status Organisasi
-            </h2>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Status Organisasi
+              </h2>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                Terverifikasi Sistem
+              </span>
+            </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-3 text-xs divide-y divide-slate-100 dark:divide-slate-800/60">
+              <div className="pt-2 grid grid-cols-3 gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Organisasi</span>
-                <span className="col-span-2 font-black text-slate-900 dark:text-white">: {metadata.namaOrmas}</span>
+                <span className="col-span-2 font-black text-slate-900 dark:text-white">{metadata.namaOrmas}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="pt-2 grid grid-cols-3 gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Singkat</span>
-                <span className="col-span-2 font-bold text-slate-800 dark:text-slate-200">: {metadata.namaSingkat}</span>
+                <span className="col-span-2 font-bold text-slate-800 dark:text-slate-200">{metadata.namaSingkat}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-bold text-slate-500 dark:text-slate-400">Alamat Kantor</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200">: {metadata.alamat}</span>
+              <div className="pt-2 grid grid-cols-3 gap-2">
+                <span className="font-bold text-slate-500 dark:text-slate-400">Alamat Kantor / Sekretariat</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200">{metadata.alamat}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="pt-2 grid grid-cols-3 gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kode Pos</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200">: {metadata.kodePos}</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono">{metadata.kodePos}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="pt-2 grid grid-cols-3 gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">No. Telepon</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200">: {metadata.telepon}</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-semibold">{metadata.telepon}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2 items-center">
+              <div className="pt-2 grid grid-cols-3 gap-2 items-center">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Status</span>
                 <span className="col-span-2">
-                  : <TableBadge status={currentStatus} />
+                  <TableBadge status={currentStatus} />
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2 items-center">
+              <div className="pt-2 grid grid-cols-3 gap-2 items-center">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kelengkapan Data</span>
                 <div className="col-span-2 flex items-center gap-3">
                   <span className="font-black text-amber-600 dark:text-amber-400">58 %</span>
@@ -289,53 +325,56 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
               <button
-                onClick={() => showToast('Pemeriksaan berkas telah diperbarui')}
-                className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+                onClick={() => showToast('Pemeriksaan kelengkapan berkas berhasil dilakukan')}
+                className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm transition-all"
               >
-                Periksa
+                Periksa Kelengkapan
               </button>
             </div>
           </div>
 
           {/* Card Approval */}
-          <form onSubmit={handleSaveApproval} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-              Approval
-            </h2>
+          <form onSubmit={handleSaveApproval} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Approval Verifikator
+              </h2>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aksi Verifikator</span>
+            </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Pilih Status Approval</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Keputusan Status Approval</label>
                 <select
                   value={approvalStatus}
                   onChange={(e) => setApprovalStatus(e.target.value as StatusPengajuan)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="menunggu">Diajukan</option>
-                  <option value="proses">Dalam Proses Verifikasi</option>
+                  <option value="menunggu">Diajukan (Belum Diproses)</option>
+                  <option value="proses">Dalam Proses Verifikasi Lapangan</option>
                   <option value="disetujui">Disetujui (Terbitkan SKT)</option>
-                  <option value="ditolak">Ditolak / Perlu Revisi</option>
+                  <option value="ditolak">Ditolak / Perlu Revisi Berkas</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Pesan / Catatan Catatan Verifikasi</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Pesan / Catatan Verifikator</label>
                 <textarea
-                  rows={4}
-                  placeholder="Pesan..."
+                  rows={5}
+                  placeholder="Tuliskan catatan hasil pemeriksaan berkas atau instruksi perbaikan..."
                   value={approvalPesan}
                   onChange={(e) => setApprovalPesan(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-sm transition-colors"
+                className="px-6 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-md transition-all active:scale-98"
               >
                 Simpan Approval
               </button>
@@ -346,19 +385,22 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
       {/* TAB 2: METADATA */}
       {activeTab === 'metadata' && (
-        <form onSubmit={handleSaveMetadata} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-5">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-            Tentang Organisasi
-          </h2>
+        <form onSubmit={handleSaveMetadata} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-6">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Tentang Organisasi
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">Identitas dasar dan domisili kantor sekretariat</p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Organisasi</label>
               <input
                 type="text"
                 value={metadata.namaOrmas}
                 onChange={(e) => setMetadata({ ...metadata, namaOrmas: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -368,7 +410,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 type="text"
                 value={metadata.namaSingkat}
                 onChange={(e) => setMetadata({ ...metadata, namaSingkat: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -378,7 +420,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 type="text"
                 value={metadata.jenisOrganisasi}
                 onChange={(e) => setMetadata({ ...metadata, jenisOrganisasi: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none font-bold"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-bold focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -388,7 +430,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 type="text"
                 value={metadata.alamat}
                 onChange={(e) => setMetadata({ ...metadata, alamat: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -398,7 +440,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 type="text"
                 value={metadata.kodePos}
                 onChange={(e) => setMetadata({ ...metadata, kodePos: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-mono outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -408,22 +450,22 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 type="text"
                 value={metadata.telepon}
                 onChange={(e) => setMetadata({ ...metadata, telepon: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
             <button
               type="submit"
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg"
+              className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl transition-colors"
             >
               Simpan
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('dokumen')}
-              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm transition-all"
             >
               Selanjutnya &rarr;
             </button>
@@ -433,12 +475,15 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
       {/* TAB 3: DOKUMEN KELENGKAPAN */}
       {activeTab === 'dokumen' && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-6">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-            Dokumen Kelengkapan
-          </h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-6">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Dokumen Kelengkapan
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">Unggah dokumen kelengkapan administrasi format PDF (Max 1 Mb)</p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {[
               { title: 'Logo Organisasi', desc: 'Logo dalam bentuk dokumen dengan ekstensi PDF Max 1 Mb' },
               { title: 'Foto Kantor', desc: 'Scan foto kantor atau sekretariat tampak depan yang memuat papan nama, PDF Max 1 Mb' },
@@ -449,15 +494,20 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               { title: 'Dokumen Bukti Kepemilikan', desc: 'Scan dokumen Bukti Kepemilikan atau Surat Perjanjian Kontrak / Ijin Pakai, PDF Max 1 Mb' },
               { title: 'Dokumen Susunan Pengurus', desc: 'Scan dokumen Surat Keputusan Susunan Pengurus sesuai AD dan ART, PDF Max 1 Mb' },
             ].map((doc, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
-                <p className="font-extrabold text-slate-900 dark:text-white">{doc.title}</p>
+              <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-extrabold text-slate-900 dark:text-white text-xs">{doc.title}</p>
+                  <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
+                    PDF (1MB)
+                  </span>
+                </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">{doc.desc}</p>
                 <div className="flex items-center gap-2 pt-1">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
+                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
                   <button
                     type="button"
                     onClick={() => showToast(`Dokumen ${doc.title} disimpan`)}
-                    className="px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-md shrink-0"
+                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shrink-0 shadow-xs"
                   >
                     Simpan
                   </button>
@@ -470,14 +520,14 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             <button
               type="button"
               onClick={() => setActiveTab('metadata')}
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg"
+              className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
             >
               &larr; Sebelumnya
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('surat')}
-              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
             >
               Selanjutnya &rarr;
             </button>
@@ -487,32 +537,40 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
       {/* TAB 4: SURAT KELENGKAPAN */}
       {activeTab === 'surat' && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-6">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-            Surat Kelengkapan
-          </h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-6">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Surat Kelengkapan
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">Surat permohonan, rekomendasi, dan pengesahan resmi</p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {/* Surat Permohonan Card */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-2 col-span-1 md:col-span-2">
-              <p className="font-extrabold text-slate-900 dark:text-white">Surat Permohonan</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Scan Surat Permohonan dengan ekstensi PDF Max 1 Mb</p>
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 col-span-1 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <p className="font-extrabold text-slate-900 dark:text-white text-xs">Surat Permohonan Pendaftaran</p>
+                <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded">
+                  Dokumen Utama
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Scan Surat Permohonan resmi ditandatangani pengurus dengan ekstensi PDF Max 1 Mb</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-0.5">Nomor Surat</label>
-                  <input type="text" placeholder="Nomor Surat..." className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md outline-none" />
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nomor Surat</label>
+                  <input type="text" placeholder="Nomor Surat..." className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-0.5">Tanggal Surat</label>
-                  <input type="date" className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md outline-none" />
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal Surat</label>
+                  <input type="date" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none" />
                 </div>
                 <div className="flex items-end">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700" />
+                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700" />
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
-                <button type="button" onClick={() => showToast('Surat Permohonan disimpan')} className="px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-md">
-                  Simpan
+                <button type="button" onClick={() => showToast('Surat Permohonan berhasil disimpan')} className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl">
+                  Simpan Surat Permohonan
                 </button>
               </div>
             </div>
@@ -525,15 +583,15 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               { title: 'Surat Pengantar Keabsahan', desc: 'Surat Pengantar Keabsahan dari Kesbangpol Prov / Kab / Kota, PDF Max 1 Mb' },
               { title: 'Surat Pengesahan Kemenkumham / Kemendagri', desc: 'Surat Pengesahan / Terdaftar Ormas di Kemendkumham / Kemendagri, PDF Max 1 Mb' },
             ].map((surat, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
-                <p className="font-extrabold text-slate-900 dark:text-white">{surat.title}</p>
+              <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <p className="font-extrabold text-slate-900 dark:text-white text-xs">{surat.title}</p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">{surat.desc}</p>
                 <div className="flex items-center gap-2 pt-1">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
+                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
                   <button
                     type="button"
                     onClick={() => showToast(`Surat ${surat.title} disimpan`)}
-                    className="px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-md shrink-0"
+                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shrink-0 shadow-xs"
                   >
                     Simpan
                   </button>
@@ -546,14 +604,14 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             <button
               type="button"
               onClick={() => setActiveTab('dokumen')}
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg"
+              className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
             >
               &larr; Sebelumnya
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('pengurus')}
-              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
             >
               Selanjutnya &rarr;
             </button>
@@ -563,15 +621,18 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
       {/* TAB 5: DATA PENGURUS */}
       {activeTab === 'pengurus' && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-6">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-            Data Pengurus Inti
-          </h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-6">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Data Pengurus Inti
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">Penanggung jawab utama (Ketua, Sekretaris, Bendahara)</p>
+          </div>
 
           <div className="space-y-6 text-xs">
-            {/* Ketua Section */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 rounded">
+            {/* Ketua Section Card */}
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-4">
+              <span className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 rounded-lg">
                 Jabatan: Ketua Umum
               </span>
               <div>
@@ -580,33 +641,33 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   type="text"
                   value={ketuaNama}
                   onChange={(e) => setKetuaNama(e.target.value)}
-                  className="w-full max-w-md px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white outline-none"
+                  className="w-full max-w-md px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Foto Ketua (4x6 PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Scan KTP Ketua (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">File Biodata Ketua (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
-                <button type="button" onClick={() => showToast('Data Ketua disimpan')} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg">
+                <button type="button" onClick={() => showToast('Data Ketua disimpan')} className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs">
                   Simpan Data Ketua
                 </button>
               </div>
             </div>
 
-            {/* Sekretaris Section */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 rounded">
+            {/* Sekretaris Section Card */}
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-4">
+              <span className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 rounded-lg">
                 Jabatan: Sekretaris
               </span>
               <div>
@@ -615,33 +676,33 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   type="text"
                   value={sekretarisNama}
                   onChange={(e) => setSekretarisNama(e.target.value)}
-                  className="w-full max-w-md px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white outline-none"
+                  className="w-full max-w-md px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Foto Sekretaris (4x6 PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Scan KTP Sekretaris (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Biodata Sekretaris (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
-                <button type="button" onClick={() => showToast('Data Sekretaris disimpan')} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg">
+                <button type="button" onClick={() => showToast('Data Sekretaris disimpan')} className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs">
                   Simpan Data Sekretaris
                 </button>
               </div>
             </div>
 
-            {/* Bendahara Section */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded">
+            {/* Bendahara Section Card */}
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-4">
+              <span className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded-lg">
                 Jabatan: Bendahara
               </span>
               <div>
@@ -650,25 +711,25 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   type="text"
                   value={bendaharaNama}
                   onChange={(e) => setBendaharaNama(e.target.value)}
-                  className="w-full max-w-md px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white outline-none"
+                  className="w-full max-w-md px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Foto Bendahara (4x6 PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Scan KTP Bendahara (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
-                <div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Biodata Bendahara (PDF Max 1Mb)</label>
                   <input type="file" className="text-[11px] text-slate-500" />
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
-                <button type="button" onClick={() => showToast('Data Bendahara disimpan')} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg">
+                <button type="button" onClick={() => showToast('Data Bendahara disimpan')} className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs">
                   Simpan Data Bendahara
                 </button>
               </div>
@@ -679,14 +740,14 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             <button
               type="button"
               onClick={() => setActiveTab('surat')}
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg"
+              className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
             >
               &larr; Sebelumnya
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('anggota')}
-              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
             >
               Selanjutnya &rarr;
             </button>
@@ -698,10 +759,13 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
       {activeTab === 'anggota' && (
         <div className="space-y-6">
           {/* Form Tambah Anggota */}
-          <form onSubmit={handleAddMember} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
-              Tambah Anggota Baru
-            </h2>
+          <form onSubmit={handleAddMember} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
+            <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Tambah Anggota Baru
+              </h2>
+              <p className="text-[11px] text-slate-400 mt-0.5">Input data keanggotaan Ormas untuk verifikasi</p>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
               <div>
@@ -712,7 +776,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   placeholder="Masukkan nama lengkap..."
                   value={newMember.nama}
                   onChange={(e) => setNewMember({ ...newMember, nama: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -721,7 +785,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 <select
                   value={newMember.jk}
                   onChange={(e) => setNewMember({ ...newMember, jk: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none font-semibold"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-semibold focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
@@ -735,7 +799,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   placeholder="Timika, Jayapura..."
                   value={newMember.tempatLahir}
                   onChange={(e) => setNewMember({ ...newMember, tempatLahir: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -745,7 +809,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   type="date"
                   value={newMember.tanggalLahir}
                   onChange={(e) => setNewMember({ ...newMember, tanggalLahir: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -756,7 +820,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   placeholder="Jl. Serui Mekar..."
                   value={newMember.alamatDomisili}
                   onChange={(e) => setNewMember({ ...newMember, alamatDomisili: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -765,7 +829,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 <select
                   value={newMember.golDarah}
                   onChange={(e) => setNewMember({ ...newMember, golDarah: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none font-semibold"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-semibold focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="A">A</option>
                   <option value="B">B</option>
@@ -781,7 +845,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   placeholder="0822..."
                   value={newMember.nomorHp}
                   onChange={(e) => setNewMember({ ...newMember, nomorHp: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -792,7 +856,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   placeholder="Wiraswasta, PNS..."
                   value={newMember.pekerjaan}
                   onChange={(e) => setNewMember({ ...newMember, pekerjaan: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -801,7 +865,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 <select
                   value={newMember.jabatan}
                   onChange={(e) => setNewMember({ ...newMember, jabatan: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 outline-none font-bold"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-bold focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Ketua">Ketua</option>
                   <option value="Sekretaris">Sekretaris</option>
@@ -814,14 +878,14 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
               <button
                 type="submit"
-                className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
               >
                 Simpan
               </button>
               <button
                 type="button"
                 onClick={() => showToast('Seluruh data anggota selesai diproses')}
-                className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg"
+                className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
               >
                 Selesai
               </button>
@@ -829,15 +893,15 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
           </form>
 
           {/* Table Daftar Anggota */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
                 Daftar Anggota ({members.length})
               </h2>
 
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <span>Tampilkan</span>
-                <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 font-bold text-slate-800 dark:text-slate-200">
+                <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 font-bold text-slate-800 dark:text-slate-200">
                   <option value="10">10</option>
                   <option value="25">25</option>
                   <option value="50">50</option>
@@ -860,17 +924,17 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {members.map((m, idx) => (
-                    <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                      <td className="py-3 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
-                      <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">{m.nama}</td>
-                      <td className="py-3 px-4 font-medium">{m.jk}</td>
-                      <td className="py-3 px-4 font-mono text-slate-500 dark:text-slate-400">{m.tanggalLahir}</td>
-                      <td className="py-3 px-4 font-bold text-blue-700 dark:text-amber-400">{m.jabatan}</td>
-                      <td className="py-3 px-4 text-right">
+                    <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="py-3.5 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">{m.nama}</td>
+                      <td className="py-3.5 px-4 font-medium">{m.jk}</td>
+                      <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400">{m.tanggalLahir}</td>
+                      <td className="py-3.5 px-4 font-bold text-blue-700 dark:text-amber-400">{m.jabatan}</td>
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           type="button"
                           onClick={() => handleDeleteMember(m.id)}
-                          className="px-2.5 py-1 text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-md border border-rose-200 dark:border-rose-800"
+                          className="px-3 py-1 text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-800 transition-colors"
                         >
                           Hapus
                         </button>
@@ -884,20 +948,20 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             {/* Pagination Controls */}
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
               <span>Menampilkan {members.length} dari {members.length} anggota</span>
-              <div className="flex items-center gap-1">
-                <button type="button" className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded font-semibold text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-1.5">
+                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
                   Pertama
                 </button>
-                <button type="button" className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded font-semibold text-slate-700 dark:text-slate-300">
+                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
                   Sebelumnya
                 </button>
-                <span className="px-3 py-1 font-bold text-slate-900 dark:text-white bg-slate-200/70 dark:bg-slate-700 rounded">
+                <span className="px-3 py-1.5 font-bold text-slate-900 dark:text-white bg-slate-200/70 dark:bg-slate-700 rounded-lg">
                   1 / 1 halaman
                 </span>
-                <button type="button" className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded font-semibold text-slate-700 dark:text-slate-300">
+                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
                   Selanjutnya
                 </button>
-                <button type="button" className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded font-semibold text-slate-700 dark:text-slate-300">
+                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
                   Terakhir
                 </button>
               </div>
