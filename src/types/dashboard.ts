@@ -1,14 +1,19 @@
 export type StatusPengajuan =
+  | 'disiapkan'
+  | 'diajukan'
+  | 'ditolak'
+  | 'resmi'
+  | 'bubar'
+  | 'ditangguhkan'
+  | 'menunggu'
+  | 'proses'
+  | 'disetujui'
   | 'Disiapkan'
   | 'Diajukan'
   | 'Ditolak'
   | 'Resmi'
   | 'Bubar'
-  | 'Ditangguhkan'
-  | 'menunggu'
-  | 'proses'
-  | 'disetujui'
-  | 'ditolak';
+  | 'Ditangguhkan';
 export type UserRole = 'superadmin' | 'verifikator' | 'admin_ormas';
 
 export interface OrmasSubmission {

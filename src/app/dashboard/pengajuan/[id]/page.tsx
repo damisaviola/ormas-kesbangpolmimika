@@ -52,7 +52,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
   ]);
 
   // Tab 1 Form State (Status & Approval)
-  const [approvalStatus, setApprovalStatus] = useState<StatusPengajuan>('proses');
+  const [approvalStatus, setApprovalStatus] = useState<StatusPengajuan>('diajukan');
   const [approvalPesan, setApprovalPesan] = useState('');
   const [currentStatus, setCurrentStatus] = useState<string>('diajukan');
 
@@ -427,12 +427,12 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   onChange={(e) => setApprovalStatus(e.target.value as StatusPengajuan)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Disiapkan">Disiapkan</option>
-                  <option value="Diajukan">Diajukan</option>
-                  <option value="Ditolak">Ditolak</option>
-                  <option value="Resmi">Resmi</option>
-                  <option value="Bubar">Bubar</option>
-                  <option value="Ditangguhkan">Ditangguhkan</option>
+                  <option value="disiapkan">- disiapkan</option>
+                  <option value="diajukan">- diajukan</option>
+                  <option value="ditolak">- ditolak</option>
+                  <option value="resmi">- resmi</option>
+                  <option value="bubar">- bubar</option>
+                  <option value="ditangguhkan">- ditangguhkan</option>
                 </select>
               </div>
 
