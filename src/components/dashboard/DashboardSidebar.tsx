@@ -282,7 +282,7 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex shrink-0 h-screen sticky top-0 z-30 relative">
+      <aside className="hidden lg:flex shrink-0 h-full z-30 relative">
         {sidebarContent}
 
         {/* Floating Expand/Collapse Button on Sidebar Border */}
