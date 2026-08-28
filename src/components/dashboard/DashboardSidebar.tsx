@@ -186,15 +186,15 @@ export default function DashboardSidebar() {
         })}
 
         {/* Database Group Header */}
-        <div className="pt-4">
+        <div className="pt-3">
           {!isCollapsed ? (
             <button
               onClick={() => setIsDatabaseOpen(!isDatabaseOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider hover:text-slate-700 dark:hover:text-slate-200 transition-colors group"
+              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl transition-all group"
             >
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-amber-500 dark:text-amber-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+              <div className="flex items-center gap-2.5">
+                <svg className="w-4 h-4 text-blue-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                 </svg>
                 <span>Database</span>
               </div>
@@ -210,11 +210,20 @@ export default function DashboardSidebar() {
               </svg>
             </button>
           ) : (
-            <div className="my-2 border-t border-slate-200 dark:border-slate-800" />
+            <div className="flex justify-center py-2">
+              <div
+                title="Database Master"
+                className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-amber-950/60 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-200/60 dark:border-amber-800/60 shadow-2xs"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                </svg>
+              </div>
+            </div>
           )}
 
           {(isDatabaseOpen || isCollapsed) && (
-            <div className={isCollapsed ? 'space-y-1' : 'mt-1 ml-3 pl-3 space-y-1 border-l border-slate-200 dark:border-slate-800'}>
+            <div className={isCollapsed ? 'space-y-1 mt-1' : 'mt-1 ml-3 pl-3 space-y-1 border-l border-slate-200 dark:border-slate-800'}>
               {databaseSubItems.map((sub) => {
                 const subActive = pathname === sub.href;
                 return (
