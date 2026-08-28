@@ -117,45 +117,27 @@ export default function DashboardSidebar() {
     >
       {/* Brand Header */}
       <div
-        className={`h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 ${
-          isCollapsed ? 'justify-center' : 'justify-between'
+        className={`h-16 px-4 flex items-center border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 ${
+          isCollapsed ? 'justify-center' : 'justify-start gap-3'
         }`}
       >
-        <div className="flex items-center gap-3 overflow-hidden">
-          <Image
-            src="/assets/pic/logo_kabupatenmimika_removebg.png"
-            alt="Logo Mimika"
-            width={36}
-            height={36}
-            className="h-9 w-auto object-contain shrink-0"
-          />
-          {!isCollapsed && (
-            <div className="flex flex-col whitespace-nowrap animate-in fade-in duration-200">
-              <span className="text-xs font-black tracking-wider text-slate-900 dark:text-white uppercase">
-                KESBANGPOL
-              </span>
-              <span className="text-[10px] text-blue-700 dark:text-amber-400 font-bold tracking-widest uppercase">
-                SI-ORMAS ADMIN
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Collapse Button inside header for Desktop */}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:flex p-1.5 rounded-lg text-slate-400 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
-          title={isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'}
-        >
-          <svg
-            className={`w-4 h-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          </svg>
-        </button>
+        <Image
+          src="/assets/pic/logo_kabupatenmimika_removebg.png"
+          alt="Logo Mimika"
+          width={36}
+          height={36}
+          className="h-9 w-auto object-contain shrink-0"
+        />
+        {!isCollapsed && (
+          <div className="flex flex-col whitespace-nowrap animate-in fade-in duration-200">
+            <span className="text-xs font-black tracking-wider text-slate-900 dark:text-white uppercase">
+              KESBANGPOL
+            </span>
+            <span className="text-[10px] text-blue-700 dark:text-amber-400 font-bold tracking-widest uppercase">
+              SI-ORMAS ADMIN
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Navigation List */}
@@ -212,7 +194,7 @@ export default function DashboardSidebar() {
             >
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-amber-500 dark:text-amber-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s-8-1.79-8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                 </svg>
                 <span>Database</span>
               </div>
@@ -280,8 +262,25 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex shrink-0 h-screen sticky top-0 z-30">
+      <aside className="hidden lg:flex shrink-0 h-screen sticky top-0 z-30 relative">
         {sidebarContent}
+
+        {/* Floating Expand/Collapse Button on Sidebar Border */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-md items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-amber-400 hover:scale-110 active:scale-95 transition-all"
+          title={isCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'}
+          aria-label="Toggle Sidebar"
+        >
+          <svg
+            className={`w-3.5 h-3.5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
       </aside>
 
       {/* Mobile Drawer Backdrop & Sidebar */}
