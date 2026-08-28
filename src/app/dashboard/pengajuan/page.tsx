@@ -201,10 +201,10 @@ export default function PengajuanPage() {
                     <td className="py-4 px-4 font-semibold text-slate-700 dark:text-slate-300">
                       {item.jenisOrmas}
                     </td>
-                    <td className="py-4 px-4 text-right space-x-2">
+                    <td className="py-4 px-4 text-right">
                       <Link
                         href={`/dashboard/pengajuan/${item.id}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-200/80 dark:border-blue-800"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-200/80 dark:border-blue-800"
                         title="Tinjau Detail Pengajuan"
                       >
                         <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,12 +213,6 @@ export default function PengajuanPage() {
                         </svg>
                         Tinjau
                       </Link>
-                      <button
-                        onClick={() => setActiveItem(item)}
-                        className="px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-slate-700"
-                      >
-                        Quick Action
-                      </button>
                     </td>
                   </tr>
                 ))
@@ -233,78 +227,6 @@ export default function PengajuanPage() {
           </table>
         </div>
       </div>
-
-      {/* Modal Detail & Verifikasi */}
-      {activeItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Detail Pengajuan • {activeItem.id}
-                </span>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
-                  {activeItem.namaOrmas}
-                </h3>
-              </div>
-              <button
-                onClick={() => setActiveItem(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <p className="text-slate-400 dark:text-slate-500 font-medium">Jenis Ormas</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{activeItem.jenisOrmas}</p>
-              </div>
-              <div>
-                <p className="text-slate-400 dark:text-slate-500 font-medium">Ketua Umum</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{activeItem.ketuaUmum}</p>
-              </div>
-              <div>
-                <p className="text-slate-400 dark:text-slate-500 font-medium">Tanggal Pengajuan</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{activeItem.tanggalPengajuan}</p>
-              </div>
-              <div>
-                <p className="text-slate-400 dark:text-slate-500 font-medium">Status Saat Ini</p>
-                <div className="mt-1">
-                  <TableBadge status={activeItem.status} />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs">
-              <p className="font-bold text-slate-700 dark:text-slate-300">Catatan Verifikasi:</p>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">{activeItem.catatan || 'Belum ada catatan'}</p>
-            </div>
-
-            {/* Verification Actions */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4 flex items-center justify-end gap-2">
-              <button
-                onClick={() => handleUpdateStatus(activeItem.id, 'ditolak')}
-                className="px-4 py-2 text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg transition-colors border border-transparent dark:border-rose-800"
-              >
-                Tolak / Minta Revisi
-              </button>
-              <button
-                onClick={() => handleUpdateStatus(activeItem.id, 'proses')}
-                className="px-4 py-2 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg transition-colors border border-transparent dark:border-amber-800"
-              >
-                Set Status: Dalam Proses
-              </button>
-              <button
-                onClick={() => handleUpdateStatus(activeItem.id, 'disetujui')}
-                className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-sm transition-colors"
-              >
-                Setujui & Terbitkan SKT
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
