@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import TableBadge from '@/components/dashboard/TableBadge';
 import { INITIAL_SUBMISSIONS } from '@/data/dashboard-data';
 import { OrmasSubmission, StatusPengajuan } from '@/types/dashboard';
@@ -139,11 +140,22 @@ export default function PengajuanPage() {
                       {item.jenisOrmas}
                     </td>
                     <td className="py-4 px-4 text-right space-x-2">
+                      <Link
+                        href={`/dashboard/pengajuan/${item.id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-200/80 dark:border-blue-800"
+                        title="Tinjau Detail Pengajuan"
+                      >
+                        <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Tinjau
+                      </Link>
                       <button
                         onClick={() => setActiveItem(item)}
-                        className="px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-amber-300 bg-blue-50 dark:bg-amber-950/60 hover:bg-blue-100 dark:hover:bg-amber-900/60 rounded-md transition-colors border border-transparent dark:border-amber-800/60"
+                        className="px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-slate-700"
                       >
-                        Detail & Verifikasi
+                        Quick Action
                       </button>
                     </td>
                   </tr>
