@@ -1,15 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import StatCard from '@/components/dashboard/StatCard';
 import TableBadge from '@/components/dashboard/TableBadge';
+import DashboardLoading from '@/app/dashboard/loading';
 import { INITIAL_METRICS, INITIAL_SUBMISSIONS } from '@/data/dashboard-data';
 import { OrmasSubmission } from '@/types/dashboard';
 
 export default function DashboardBerandaPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [submissions] = useState<OrmasSubmission[]>(INITIAL_SUBMISSIONS);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <DashboardLoading />;
+  }
 
   const filteredSubmissions = submissions.filter((item) => {
     if (selectedStatus === 'all') return true;

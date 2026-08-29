@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import TableBadge from '@/components/dashboard/TableBadge';
+import DetailPengajuanLoading from '@/app/dashboard/pengajuan/[id]/loading';
 import { StatusPengajuan } from '@/types/dashboard';
 
 interface LogItem {
@@ -23,6 +24,13 @@ interface MemberItem {
 export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const id = resolvedParams.id;
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Active Tab state
   const [activeTab, setActiveTab] = useState<'status' | 'metadata' | 'dokumen' | 'surat' | 'pengurus' | 'anggota'>('status');
@@ -69,32 +77,98 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     showToast('Status approval & pesan berhasil disimpan!');
   };
 
-  // Tab 2 Form State (Metadata)
+  // Tab 2 Form State (Metadata) - Blank initial state for 0% starting completeness
   const [metadata, setMetadata] = useState({
-    namaOrmas: 'IWAPI DPC MIMIKA',
-    namaSingkat: 'IWAPI',
-    jenisOrganisasi: 'ORMAS',
-    alamat: 'JL. SERUI MEKAR',
-    kodePos: '99910',
-    telepon: '082233928988',
+    namaOrmas: '',
+    namaSingkat: '',
+    jenisOrganisasi: '',
+    alamat: '',
+    kodePos: '',
+    telepon: '',
   });
+
+  // Tab 5 Pengurus State
+  const [ketuaNama, setKetuaNama] = useState('');
+  const [sekretarisNama, setSekretarisNama] = useState('');
+  const [bendaharaNama, setBendaharaNama] = useState('');
+
+  // Tab 6 Member State & Form
+  const [members, setMembers] = useState<MemberItem[]>([]);
+
+  // Document Uploads State (8 items) - All false for 0% start
+  const [uploadedDocs, setUploadedDocs] = useState<Record<string, boolean>>({
+    logo: false,
+    foto: false,
+    akta: false,
+    npwp: false,
+    adart: false,
+    program: false,
+    kepemilikan: false,
+    susunan: false,
+  });
+
+  // Surat Items State (7 items) - All false for 0% start
+  const [uploadedSurat, setUploadedSurat] = useState<Record<string, boolean>>({
+    permohonan: false,
+    domisili: false,
+    formulir: false,
+    pernyataan: false,
+    keabsahan: false,
+    pengantar: false,
+    kemenkumham: false,
+  });
+
+  // Calculate completeness percentage dynamically
+  const calculateCompleteness = () => {
+    let completed = 0;
+    let total = 0;
+
+    // 1. Metadata fields (6 items)
+    const metaKeys = ['namaOrmas', 'namaSingkat', 'jenisOrganisasi', 'alamat', 'kodePos', 'telepon'] as const;
+    metaKeys.forEach((key) => {
+      total += 1;
+      if (metadata[key] && metadata[key].trim() !== '') completed += 1;
+    });
+
+    // 2. Dokumen items (8 items)
+    const docKeys = Object.keys(uploadedDocs);
+    total += docKeys.length;
+    docKeys.forEach((key) => {
+      if (uploadedDocs[key]) completed += 1;
+    });
+
+    // 3. Surat items (7 items)
+    const suratKeys = Object.keys(uploadedSurat);
+    total += suratKeys.length;
+    suratKeys.forEach((key) => {
+      if (uploadedSurat[key]) completed += 1;
+    });
+
+    // 4. Pengurus (3 items)
+    total += 3;
+    if (ketuaNama.trim() !== '') completed += 1;
+    if (sekretarisNama.trim() !== '') completed += 1;
+    if (bendaharaNama.trim() !== '') completed += 1;
+
+    // 5. Anggota (1 item)
+    total += 1;
+    if (members.length > 0) completed += 1;
+
+    return {
+      percentage: Math.round((completed / total) * 100),
+      completed,
+      total,
+      remaining: total - completed,
+    };
+  };
+
+  const completeness = calculateCompleteness();
+  const currentCompleteness = completeness.percentage;
 
   const handleSaveMetadata = (e: React.FormEvent) => {
     e.preventDefault();
     showToast('Metadata organisasi berhasil diperbarui!');
   };
-
-  // Tab 5 Pengurus State
-  const [ketuaNama, setKetuaNama] = useState('dr. PUTTRI SULTAN');
-  const [sekretarisNama, setSekretarisNama] = useState('Dessy Putrika');
-  const [bendaharaNama, setBendaharaNama] = useState('Maria Goreti');
-
-  // Tab 6 Member State & Form
-  const [members, setMembers] = useState<MemberItem[]>([
-    { id: 1, nama: 'dr. PUTTRI SULTAN', jk: 'Perempuan', tanggalLahir: '1983-02-14', jabatan: 'Ketua' },
-    { id: 2, nama: 'Dessy Putrika', jk: 'Perempuan', tanggalLahir: '1980-12-10', jabatan: 'Sekretaris' },
-    { id: 3, nama: 'Maria Goreti', jk: 'Perempuan', tanggalLahir: '1978-08-10', jabatan: 'Bendahara' },
-  ]);
 
   const [newMember, setNewMember] = useState({
     nama: '',
@@ -162,6 +236,10 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     return 0;
   });
 
+  if (isLoading) {
+    return <DetailPengajuanLoading />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
@@ -204,19 +282,36 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                 <TableBadge status={currentStatus} />
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {metadata.namaOrmas} <span className="text-slate-400 text-base font-bold">({metadata.namaSingkat})</span>
+                {metadata.namaOrmas || 'Formulir Pengajuan Baru'} {metadata.namaSingkat ? <span className="text-slate-400 text-base font-bold">({metadata.namaSingkat})</span> : null}
               </h1>
             </div>
 
-            {/* Kelengkapan Berkas Progress Pill */}
+            {/* Kelengkapan Berkas Progress Pill (Real-Time) */}
             <div className="bg-slate-50 dark:bg-slate-950/60 px-4 py-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shrink-0 self-start sm:self-auto">
               <div className="flex items-center gap-3">
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kelengkapan Berkas</p>
-                  <p className="text-sm font-black text-amber-600 dark:text-amber-400">58% Selesai</p>
+                  <p className={`text-sm font-black transition-colors ${
+                    currentCompleteness >= 80
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : currentCompleteness >= 50
+                      ? 'text-amber-600 dark:text-amber-400'
+                      : 'text-rose-600 dark:text-rose-400'
+                  }`}>
+                    {currentCompleteness}% Selesai ({completeness.completed}/{completeness.total})
+                  </p>
                 </div>
-                <div className="w-20 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div className="bg-amber-500 h-full w-[58%]" />
+                <div className="w-24 bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      currentCompleteness >= 80
+                        ? 'bg-emerald-500'
+                        : currentCompleteness >= 50
+                        ? 'bg-amber-500'
+                        : 'bg-rose-500'
+                    }`}
+                    style={{ width: `${currentCompleteness}%` }}
+                  />
                 </div>
               </div>
             </div>
@@ -365,23 +460,23 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             <div className="text-xs divide-y divide-slate-100 dark:divide-slate-800/80">
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Organisasi</span>
-                <span className="font-black text-slate-900 dark:text-white">{metadata.namaOrmas}</span>
+                <span className="font-black text-slate-900 dark:text-white">{metadata.namaOrmas || '-'}</span>
               </div>
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Nama Singkat</span>
-                <span className="font-bold text-slate-800 dark:text-slate-200">{metadata.namaSingkat}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{metadata.namaSingkat || '-'}</span>
               </div>
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Alamat Kantor / Sekretariat</span>
-                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.alamat}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.alamat || '-'}</span>
               </div>
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kode Pos</span>
-                <span className="font-mono text-slate-800 dark:text-slate-200">{metadata.kodePos}</span>
+                <span className="font-mono text-slate-800 dark:text-slate-200">{metadata.kodePos || '-'}</span>
               </div>
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">No. Telepon</span>
-                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.telepon}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200">{metadata.telepon || '-'}</span>
               </div>
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Status</span>
@@ -392,9 +487,20 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               <div className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-2">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Kelengkapan Data</span>
                 <div className="flex items-center gap-3 w-full">
-                  <span className="font-black text-amber-600 dark:text-amber-400 whitespace-nowrap shrink-0">58%</span>
+                  <span className="font-black text-amber-600 dark:text-amber-400 whitespace-nowrap shrink-0">
+                    {currentCompleteness}% ({completeness.completed}/{completeness.total})
+                  </span>
                   <div className="flex-1 bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full w-[58%]" />
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        currentCompleteness >= 80
+                          ? 'bg-emerald-500'
+                          : currentCompleteness >= 50
+                          ? 'bg-amber-500'
+                          : 'bg-rose-500'
+                      }`}
+                      style={{ width: `${currentCompleteness}%` }}
+                    />
                   </div>
                 </div>
               </div>
@@ -402,7 +508,13 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
               <button
-                onClick={() => showToast('Pemeriksaan kelengkapan berkas berhasil dilakukan')}
+                onClick={() =>
+                  showToast(
+                    currentCompleteness === 100
+                      ? '✅ Kelengkapan Data 100%! Seluruh dokumen & identitas telah lengkap.'
+                      : `📋 Kelengkapan Data ${currentCompleteness}%: (${completeness.completed} dari ${completeness.total} item berkas/identitas terisi)`
+                  )
+                }
                 className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm transition-all"
               >
                 Periksa Kelengkapan
@@ -562,35 +674,60 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {[
-              { title: 'Logo Organisasi', desc: 'Logo dalam bentuk dokumen dengan ekstensi PDF Max 1 Mb' },
-              { title: 'Foto Kantor', desc: 'Scan foto kantor atau sekretariat tampak depan yang memuat papan nama, PDF Max 1 Mb' },
-              { title: 'Akta Notaris', desc: 'Scan akta notaris, dengan ekstensi PDF Max 1 Mb' },
-              { title: 'NPWP', desc: 'Scan NPWP, dengan ekstensi PDF Max 1 Mb' },
-              { title: 'AD / ART', desc: 'Anggaran Dasar - Anggaran Rumah Tangga, dengan ekstensi PDF Max 1 Mb' },
-              { title: 'Dokumen Program Kerja', desc: 'Scan dokumen program kerja organisasi, dengan ekstensi PDF Max 1 Mb' },
-              { title: 'Dokumen Bukti Kepemilikan', desc: 'Scan dokumen Bukti Kepemilikan atau Surat Perjanjian Kontrak / Ijin Pakai, PDF Max 1 Mb' },
-              { title: 'Dokumen Susunan Pengurus', desc: 'Scan dokumen Surat Keputusan Susunan Pengurus sesuai AD dan ART, PDF Max 1 Mb' },
-            ].map((doc, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="font-extrabold text-slate-900 dark:text-white text-xs">{doc.title}</p>
-                  <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
-                    PDF (1MB)
-                  </span>
+              { id: 'logo', title: 'Logo Organisasi', desc: 'Logo dalam bentuk dokumen dengan ekstensi PDF Max 1 Mb' },
+              { id: 'foto', title: 'Foto Kantor', desc: 'Scan foto kantor atau sekretariat tampak depan yang memuat papan nama, PDF Max 1 Mb' },
+              { id: 'akta', title: 'Akta Notaris', desc: 'Scan akta notaris, dengan ekstensi PDF Max 1 Mb' },
+              { id: 'npwp', title: 'NPWP', desc: 'Scan NPWP, dengan ekstensi PDF Max 1 Mb' },
+              { id: 'adart', title: 'AD / ART', desc: 'Anggaran Dasar - Anggaran Rumah Tangga, dengan ekstensi PDF Max 1 Mb' },
+              { id: 'program', title: 'Dokumen Program Kerja', desc: 'Scan dokumen program kerja organisasi, dengan ekstensi PDF Max 1 Mb' },
+              { id: 'kepemilikan', title: 'Dokumen Bukti Kepemilikan', desc: 'Scan dokumen Bukti Kepemilikan atau Surat Perjanjian Kontrak / Ijin Pakai, PDF Max 1 Mb' },
+              { id: 'susunan', title: 'Dokumen Susunan Pengurus', desc: 'Scan dokumen Surat Keputusan Susunan Pengurus sesuai AD dan ART, PDF Max 1 Mb' },
+            ].map((doc) => {
+              const isUploaded = uploadedDocs[doc.id];
+              return (
+                <div key={doc.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+                      <span>{doc.title}</span>
+                      {isUploaded && (
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                          ✓ Terunggah
+                        </span>
+                      )}
+                    </p>
+                    <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
+                      PDF (1MB)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{doc.desc}</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="file"
+                      onChange={() => {
+                        setUploadedDocs((prev) => ({ ...prev, [doc.id]: true }));
+                        showToast(`Dokumen ${doc.title} berhasil diunggah!`);
+                      }}
+                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextState = !isUploaded;
+                        setUploadedDocs((prev) => ({ ...prev, [doc.id]: nextState }));
+                        showToast(nextState ? `Dokumen ${doc.title} disimpan ✓` : `Dokumen ${doc.title} dibatalkan`);
+                      }}
+                      className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shrink-0 shadow-xs transition-colors ${
+                        isUploaded
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          : 'bg-blue-600 hover:bg-blue-500 text-white'
+                      }`}
+                    >
+                      {isUploaded ? 'Disimpan ✓' : 'Simpan'}
+                    </button>
+                  </div>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">{doc.desc}</p>
-                <div className="flex items-center gap-2 pt-1">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
-                  <button
-                    type="button"
-                    onClick={() => showToast(`Dokumen ${doc.title} disimpan`)}
-                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shrink-0 shadow-xs"
-                  >
-                    Simpan
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between">
@@ -626,7 +763,14 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             {/* Surat Permohonan Card */}
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 col-span-1 md:col-span-2">
               <div className="flex items-center justify-between">
-                <p className="font-extrabold text-slate-900 dark:text-white text-xs">Surat Permohonan Pendaftaran</p>
+                <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+                  <span>Surat Permohonan Pendaftaran</span>
+                  {uploadedSurat.permohonan && (
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                      ✓ Terunggah
+                    </span>
+                  )}
+                </p>
                 <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded">
                   Dokumen Utama
                 </span>
@@ -642,39 +786,80 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   <input type="date" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none" />
                 </div>
                 <div className="flex items-end">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700" />
+                  <input
+                    type="file"
+                    onChange={() => {
+                      setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
+                      showToast('Surat Permohonan berhasil diunggah!');
+                    }}
+                    className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700"
+                  />
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
-                <button type="button" onClick={() => showToast('Surat Permohonan berhasil disimpan')} className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
+                    showToast('Surat Permohonan berhasil disimpan ✓');
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl"
+                >
                   Simpan Surat Permohonan
                 </button>
               </div>
             </div>
 
             {[
-              { title: 'Surat Keterangan Domisili', desc: 'Surat Keterangan Domisili Sekretariat organisasi dari Lurah/Kepala Desa, PDF Max 1 Mb' },
-              { title: 'Scan Formulir', desc: 'Scan Formulir Isian Data Organisasi ditandatangani Ketua & Sekretaris, PDF Max 1 Mb' },
-              { title: 'Surat Pernyataan', desc: 'Scan Surat Pernyataan sesuai Permendagri 57 Tahun 2017, PDF Max 1 Mb' },
-              { title: 'Surat Keabsahan', desc: 'File keabsahan organisasi, dalam format PDF Max 1 Mb' },
-              { title: 'Surat Pengantar Keabsahan', desc: 'Surat Pengantar Keabsahan dari Kesbangpol Prov / Kab / Kota, PDF Max 1 Mb' },
-              { title: 'Surat Pengesahan Kemenkumham / Kemendagri', desc: 'Surat Pengesahan / Terdaftar Ormas di Kemendkumham / Kemendagri, PDF Max 1 Mb' },
-            ].map((surat, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-                <p className="font-extrabold text-slate-900 dark:text-white text-xs">{surat.title}</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">{surat.desc}</p>
-                <div className="flex items-center gap-2 pt-1">
-                  <input type="file" className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300" />
-                  <button
-                    type="button"
-                    onClick={() => showToast(`Surat ${surat.title} disimpan`)}
-                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shrink-0 shadow-xs"
-                  >
-                    Simpan
-                  </button>
+              { id: 'domisili', title: 'Surat Keterangan Domisili', desc: 'Surat Keterangan Domisili Sekretariat organisasi dari Lurah/Kepala Desa, PDF Max 1 Mb' },
+              { id: 'formulir', title: 'Scan Formulir', desc: 'Scan Formulir Isian Data Organisasi ditandatangani Ketua & Sekretaris, PDF Max 1 Mb' },
+              { id: 'pernyataan', title: 'Surat Pernyataan', desc: 'Scan Surat Pernyataan sesuai Permendagri 57 Tahun 2017, PDF Max 1 Mb' },
+              { id: 'keabsahan', title: 'Surat Keabsahan', desc: 'File keabsahan organisasi, dalam format PDF Max 1 Mb' },
+              { id: 'pengantar', title: 'Surat Pengantar Keabsahan', desc: 'Surat Pengantar Keabsahan dari Kesbangpol Prov / Kab / Kota, PDF Max 1 Mb' },
+              { id: 'kemenkumham', title: 'Surat Pengesahan Kemenkumham / Kemendagri', desc: 'Surat Pengesahan / Terdaftar Ormas di Kemendkumham / Kemendagri, PDF Max 1 Mb' },
+            ].map((surat) => {
+              const isUploaded = uploadedSurat[surat.id];
+              return (
+                <div key={surat.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+                      <span>{surat.title}</span>
+                      {isUploaded && (
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                          ✓ Terunggah
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{surat.desc}</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="file"
+                      onChange={() => {
+                        setUploadedSurat((prev) => ({ ...prev, [surat.id]: true }));
+                        showToast(`${surat.title} berhasil diunggah!`);
+                      }}
+                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextState = !isUploaded;
+                        setUploadedSurat((prev) => ({ ...prev, [surat.id]: nextState }));
+                        showToast(nextState ? `Surat ${surat.title} disimpan ✓` : `Surat ${surat.title} dibatalkan`);
+                      }}
+                      className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shrink-0 shadow-xs transition-colors ${
+                        isUploaded
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          : 'bg-blue-600 hover:bg-blue-500 text-white'
+                      }`}
+                    >
+                      {isUploaded ? 'Disimpan ✓' : 'Simpan'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between">

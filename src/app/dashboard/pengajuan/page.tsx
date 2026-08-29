@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import TableBadge from '@/components/dashboard/TableBadge';
+import PengajuanLoading from '@/app/dashboard/pengajuan/loading';
 import { INITIAL_SUBMISSIONS } from '@/data/dashboard-data';
 import { OrmasSubmission, StatusPengajuan } from '@/types/dashboard';
 
 export default function PengajuanPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [submissions, setSubmissions] = useState<OrmasSubmission[]>(INITIAL_SUBMISSIONS);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,6 +18,15 @@ export default function PengajuanPage() {
 
   const [sortField, setSortField] = useState<keyof OrmasSubmission>('namaOrmas');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <PengajuanLoading />;
+  }
 
   const handleSort = (field: keyof OrmasSubmission) => {
     if (sortField === field) {

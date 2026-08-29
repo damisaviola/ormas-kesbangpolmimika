@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
+import PenggunaLoading from '@/app/dashboard/database/pengguna/loading';
 import { INITIAL_USERS } from '@/data/dashboard-data';
 import { UserAccount } from '@/types/dashboard';
 
 export default function DatabasePenggunaPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -21,6 +23,15 @@ export default function DatabasePenggunaPage() {
 
   const [sortField, setSortField] = useState<keyof UserAccount>('nama');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <PenggunaLoading />;
+  }
 
   const handleSort = (field: keyof UserAccount) => {
     if (sortField === field) {

@@ -1,17 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
+import OrganisasiLoading from '@/app/dashboard/organisasi/loading';
 import { INITIAL_REGISTERED_ORMAS } from '@/data/dashboard-data';
 import { RegisteredOrmas } from '@/types/dashboard';
 
 export default function OrganisasiPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [ormasData] = useState<RegisteredOrmas[]>(INITIAL_REGISTERED_ORMAS);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const [sortField, setSortField] = useState<keyof RegisteredOrmas>('namaOrmas');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <OrganisasiLoading />;
+  }
 
   const handleSort = (field: keyof RegisteredOrmas) => {
     if (sortField === field) {

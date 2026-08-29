@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
+import JenisOrmasLoading from '@/app/dashboard/database/jenis-ormas/loading';
 import { INITIAL_JENIS_ORMAS } from '@/data/dashboard-data';
 import { JenisOrmasItem } from '@/types/dashboard';
 
 export default function DatabaseJenisOrmasPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<JenisOrmasItem[]>(INITIAL_JENIS_ORMAS);
   const [showModal, setShowModal] = useState(false);
   const [newKode, setNewKode] = useState('');
@@ -14,6 +16,15 @@ export default function DatabaseJenisOrmasPage() {
 
   const [sortField, setSortField] = useState<keyof JenisOrmasItem>('namaJenis');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <JenisOrmasLoading />;
+  }
 
   const handleSort = (field: keyof JenisOrmasItem) => {
     if (sortField === field) {

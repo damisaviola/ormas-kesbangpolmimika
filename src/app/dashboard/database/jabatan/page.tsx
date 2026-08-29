@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
+import JabatanLoading from '@/app/dashboard/database/jabatan/loading';
 import { INITIAL_JABATAN } from '@/data/dashboard-data';
 import { JabatanItem } from '@/types/dashboard';
 
 export default function DatabaseJabatanPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [jabatanList, setJabatanList] = useState<JabatanItem[]>(INITIAL_JABATAN);
   const [showModal, setShowModal] = useState(false);
   const [newKode, setNewKode] = useState('');
@@ -15,6 +17,15 @@ export default function DatabaseJabatanPage() {
 
   const [sortField, setSortField] = useState<keyof JabatanItem>('namaJabatan');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <JabatanLoading />;
+  }
 
   const handleSort = (field: keyof JabatanItem) => {
     if (sortField === field) {
