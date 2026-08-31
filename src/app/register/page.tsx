@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { registerAccountFromForm } from "@/utils/userStorage";
+
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,12 +40,20 @@ export default function RegisterPage() {
 
     setTimeout(() => {
       setIsLoading(false);
-      setSuccessMessage("Pendaftaran akun berhasil! Silakan login untuk melanjutkan.");
+      const res = registerAccountFromForm(fullName, email, password);
+      if (!res.success) {
+        setErrorMessage(res.message);
+        return;
+      }
+
+      setSuccessMessage(
+        "Pendaftaran akun berhasil! Akun Anda telah terdaftar dalam database sistem SI-ORMAS. Silakan login untuk melanjutkan."
+      );
       setFullName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-    }, 600);
+    }, 450);
   };
 
   return (

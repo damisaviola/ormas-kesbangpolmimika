@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { getRegisteredUsers, updateRegisteredUser } from "@/utils/userStorage";
+
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +28,39 @@ export default function LoginPage() {
 
     setTimeout(() => {
       setIsLoading(false);
+      const users = getRegisteredUsers();
+      const matched = users.find(
+        (u) =>
+          u.email.toLowerCase() === username.trim().toLowerCase() ||
+          u.nama.toLowerCase() === username.trim().toLowerCase()
+      );
+
+      if (matched) {
+        if (matched.status === 'nonaktif') {
+          setErrorMessage('Akun Anda sedang dinonaktifkan. Silakan hubungi admin Kesbangpol.');
+          return;
+        }
+
+        const now = new Date();
+        const formattedDate =
+          now.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          }) +
+          ', ' +
+          now.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }) +
+          ' WIT';
+
+        updateRegisteredUser({
+          ...matched,
+          terakhirLogin: formattedDate,
+        });
+      }
+
       router.push("/dashboard");
     }, 400);
   };
