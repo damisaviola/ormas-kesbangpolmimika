@@ -203,6 +203,16 @@ export default function DashboardHeader() {
                 <span>Pengaturan Profil</span>
               </Link>
               <Link
+                href="/dashboard-ormas"
+                onClick={() => setShowProfileMenu(false)}
+                className="flex items-center gap-2 px-4 py-2 text-blue-700 dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors font-medium"
+              >
+                <svg className="w-4 h-4 text-blue-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>Beralih ke Dashboard Ormas</span>
+              </Link>
+              <Link
                 href="/"
                 onClick={() => setShowProfileMenu(false)}
                 className="flex items-center gap-2 px-4 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors border-t border-slate-100 dark:border-slate-800"

@@ -685,30 +685,41 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             ].map((doc) => {
               const isUploaded = uploadedDocs[doc.id];
               return (
-                <div key={doc.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
-                      <span>{doc.title}</span>
+                <div key={doc.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 overflow-hidden">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <p className="font-extrabold text-slate-900 dark:text-white text-xs">
+                        {doc.title}
+                      </p>
                       {isUploaded && (
-                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
                           ✓ Terunggah
                         </span>
                       )}
-                    </p>
-                    <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded">
+                    </div>
+                    <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded shrink-0">
                       PDF (1MB)
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{doc.desc}</p>
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="file"
-                      onChange={() => {
-                        setUploadedDocs((prev) => ({ ...prev, [doc.id]: true }));
-                        showToast(`Dokumen ${doc.title} berhasil diunggah!`);
-                      }}
-                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300"
-                    />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{doc.desc}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
+                    <label className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors group">
+                      <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                        {isUploaded ? `${doc.title}.pdf` : 'Pilih file PDF (Maks 1MB)...'}
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={() => {
+                          setUploadedDocs((prev) => ({ ...prev, [doc.id]: true }));
+                          showToast(`Dokumen ${doc.title} berhasil diunggah!`);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                     <button
                       type="button"
                       onClick={() => {
@@ -716,13 +727,27 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                         setUploadedDocs((prev) => ({ ...prev, [doc.id]: nextState }));
                         showToast(nextState ? `Dokumen ${doc.title} disimpan ✓` : `Dokumen ${doc.title} dibatalkan`);
                       }}
-                      className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shrink-0 shadow-xs transition-colors ${
+                      className={`w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 ${
                         isUploaded
-                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                          : 'bg-blue-600 hover:bg-blue-500 text-white'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white'
+                          : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
                       }`}
                     >
-                      {isUploaded ? 'Disimpan ✓' : 'Simpan'}
+                      {isUploaded ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Disimpan ✓</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                          <span>Simpan</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -730,18 +755,18 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             })}
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-3">
             <button
               type="button"
               onClick={() => setActiveTab('metadata')}
-              className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
+              className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl text-center"
             >
               &larr; Sebelumnya
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('surat')}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
+              className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm text-center"
             >
               Selanjutnya &rarr;
             </button>
@@ -751,7 +776,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
       {/* TAB 4: SURAT KELENGKAPAN */}
       {activeTab === 'surat' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-6">
           <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
             <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
               Surat Kelengkapan
@@ -761,39 +786,52 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {/* Surat Permohonan Card */}
-            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 col-span-1 md:col-span-2">
-              <div className="flex items-center justify-between">
-                <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
-                  <span>Surat Permohonan Pendaftaran</span>
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 col-span-1 md:col-span-2 overflow-hidden">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <p className="font-extrabold text-slate-900 dark:text-white text-xs">
+                    Surat Permohonan Pendaftaran
+                  </p>
                   {uploadedSurat.permohonan && (
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
                       ✓ Terunggah
                     </span>
                   )}
-                </p>
-                <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded">
+                </div>
+                <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded shrink-0">
                   Dokumen Utama
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Scan Surat Permohonan resmi ditandatangani pengurus dengan ekstensi PDF Max 1 Mb</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                Scan Surat Permohonan resmi ditandatangani pengurus dengan ekstensi PDF Max 1 Mb
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nomor Surat</label>
-                  <input type="text" placeholder="Nomor Surat..." className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none" />
+                  <input type="text" placeholder="Nomor Surat..." className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-xs" />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal Surat</label>
-                  <input type="date" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none" />
+                  <input type="date" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-xs" />
                 </div>
-                <div className="flex items-end">
-                  <input
-                    type="file"
-                    onChange={() => {
-                      setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
-                      showToast('Surat Permohonan berhasil diunggah!');
-                    }}
-                    className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700"
-                  />
+                <div className="sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
+                  <label className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:border-blue-400 transition-colors group">
+                    <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                      {uploadedSurat.permohonan ? 'Surat_Permohonan.pdf' : 'Pilih file PDF...'}
+                    </span>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={() => {
+                        setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
+                        showToast('Surat Permohonan berhasil diunggah!');
+                      }}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
               </div>
               <div className="pt-2 flex justify-end">
@@ -803,7 +841,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                     setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
                     showToast('Surat Permohonan berhasil disimpan ✓');
                   }}
-                  className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl"
+                  className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl shadow-xs transition-colors"
                 >
                   Simpan Surat Permohonan
                 </button>
@@ -820,27 +858,36 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
             ].map((surat) => {
               const isUploaded = uploadedSurat[surat.id];
               return (
-                <div key={surat.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-                  <div className="flex items-center justify-between">
+                <div key={surat.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3 overflow-hidden">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <p className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-2">
                       <span>{surat.title}</span>
                       {isUploaded && (
-                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
                           ✓ Terunggah
                         </span>
                       )}
                     </p>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{surat.desc}</p>
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="file"
-                      onChange={() => {
-                        setUploadedSurat((prev) => ({ ...prev, [surat.id]: true }));
-                        showToast(`${surat.title} berhasil diunggah!`);
-                      }}
-                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-300"
-                    />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{surat.desc}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
+                    <label className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:border-blue-400 transition-colors group">
+                      <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                        {isUploaded ? `${surat.title}.pdf` : 'Pilih file PDF...'}
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={() => {
+                          setUploadedSurat((prev) => ({ ...prev, [surat.id]: true }));
+                          showToast(`${surat.title} berhasil diunggah!`);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                     <button
                       type="button"
                       onClick={() => {
@@ -848,13 +895,27 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                         setUploadedSurat((prev) => ({ ...prev, [surat.id]: nextState }));
                         showToast(nextState ? `Surat ${surat.title} disimpan ✓` : `Surat ${surat.title} dibatalkan`);
                       }}
-                      className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shrink-0 shadow-xs transition-colors ${
+                      className={`w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 ${
                         isUploaded
-                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                          : 'bg-blue-600 hover:bg-blue-500 text-white'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white'
+                          : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
                       }`}
                     >
-                      {isUploaded ? 'Disimpan ✓' : 'Simpan'}
+                      {isUploaded ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Disimpan ✓</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                          <span>Simpan</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

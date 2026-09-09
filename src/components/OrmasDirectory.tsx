@@ -27,8 +27,8 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
         selectedStatus === "semua"
           ? true
           : selectedStatus === "resmi"
-          ? item.status === "Resmi"
-          : item.status === "Dalam Proses";
+            ? item.status === "Resmi"
+            : item.status === "Dalam Proses";
 
       const matchCategory =
         selectedCategory === "semua" ? true : item.kategori === selectedCategory;
@@ -56,11 +56,10 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             <div className="flex items-center gap-2 self-start md:self-auto bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
                 onClick={() => setViewMode("table")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  viewMode === "table"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "table"
                     ? "bg-white text-blue-900 shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -69,11 +68,10 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  viewMode === "grid"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "grid"
                     ? "bg-white text-blue-900 shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -113,25 +111,22 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             <div className="sm:col-span-3 flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
                 onClick={() => setSelectedStatus("semua")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${
-                  selectedStatus === "semua" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "semua" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Semua
               </button>
               <button
                 onClick={() => setSelectedStatus("resmi")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${
-                  selectedStatus === "resmi" ? "bg-emerald-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "resmi" ? "bg-emerald-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Resmi
               </button>
               <button
                 onClick={() => setSelectedStatus("proses")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${
-                  selectedStatus === "proses" ? "bg-amber-500 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "proses" ? "bg-amber-500 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Proses
               </button>

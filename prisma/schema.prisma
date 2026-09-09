@@ -1,0 +1,204 @@
+// Prisma Schema untuk SI-ORMAS Badan Kesbangpol Kabupaten Mimika
+// Dokumentasi: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// 1. Akun Pengguna & Autentikasi
+// -------------------------------------------------------------
+model User {
+  id            String    @id @default(uuid())
+  nama          String
+  email         String    @unique
+  password      String
+  nip           String?   @db.VarChar(30)
+  nik           String?   @db.VarChar(20)
+  role          String    @default("admin_ormas") // "superadmin" | "verifikator" | "admin_ormas"
+  status        String    @default("aktif")       // "aktif" | "nonaktif"
+  instansi      String?   @default("Badan Kesbangpol Kabupaten Mimika")
+  telepon       String?   @db.VarChar(25)
+  avatarUrl     String?   @map("avatar_url") @db.Text
+  terakhirLogin DateTime? @map("terakhir_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relasi
+  ormas               Ormas[]
+  riwayatVerifikasi   RiwayatVerifikasi[]
+
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// 2. Data Organisasi Kemasyarakatan (Ormas)
+// -------------------------------------------------------------
+model Ormas {
+  id                String    @id @default(uuid())
+  userId            String?   @map("user_id")
+  namaOrmas         String    @map("nama_ormas")
+  singkatan         String?   @db.VarChar(50)
+  jenisOrmas        String    @map("jenis_ormas") // "Keagamaan", "Kepemudaan", "Kebudayaan", dll
+  kategori          String?   @default("Lembaga Swadaya Masyarakat")
+  nomorAktaNotaris  String?   @map("nomor_akta_notaris")
+  namaNotaris       String?   @map("nama_notaris")
+  tanggalPendirian  String?   @map("tanggal_pendirian")
+  npwpOrmas         String?   @map("npwp_ormas") @db.VarChar(35)
+  alamatSekretariat String    @map("alamat_sekretariat") @db.Text
+  kelurahanDesa     String?   @map("kelurahan_desa")
+  distrik           String    @default("Mimika Baru")
+  kabupaten         String    @default("Kabupaten Mimika")
+  provinsi          String    @default("Papua Tengah")
+  kodePos           String?   @default("99910") @map("kode_pos") @db.VarChar(10)
+  teleponKantor     String?   @map("telepon_kantor") @db.VarChar(25)
+  emailResmi        String?   @map("email_resmi")
+  websiteSosmed     String?   @map("website_sosmed")
+  visiMisi          String?   @map("visi_misi") @db.Text
+  tujuanOrganisasi  String?   @map("tujuan_organisasi") @db.Text
+  
+  // Status dan Kelengkapan SKT
+  nomorSkt          String?   @map("nomor_skt")
+  tanggalTerbitSkt  String?   @map("tanggal_terbit_skt")
+  masaBerlakuSkt    String?   @map("masa_berlaku_skt")
+  statusSkt         String    @default("Menunggu Verifikasi") @map("status_skt") // "Aktif" | "Proses Perpanjangan" | "Menunggu Verifikasi" | "Kadaluarsa"
+  
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relasi
+  user              User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  pengurus          Pengurus[]
+  dokumen           DokumenPersyaratan[]
+  pengajuan         Pengajuan[]
+
+  @@map("ormas")
+}
+
+// -------------------------------------------------------------
+// 3. Susunan Pengurus Ormas
+// -------------------------------------------------------------
+model Pengurus {
+  id        String   @id @default(uuid())
+  ormasId   String   @map("ormas_id")
+  nama      String
+  nik       String   @db.VarChar(20)
+  jabatan   String   // "Ketua Umum" | "Sekretaris" | "Bendahara" | "Dewan Pembina" | "Koordinator Bidang"
+  telepon   String   @db.VarChar(25)
+  email     String?
+  alamat    String   @db.Text
+  fotoUrl   String?  @map("foto_url") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relasi
+  ormas     Ormas    @relation(fields: [ormasId], references: [id], onDelete: Cascade)
+
+  @@map("pengurus")
+}
+
+// -------------------------------------------------------------
+// 4. Dokumen Persyaratan & Legalitas (File PDF)
+// -------------------------------------------------------------
+model DokumenPersyaratan {
+  id                 String    @id @default(uuid())
+  ormasId            String    @map("ormas_id")
+  namaDokumen        String    @map("nama_dokumen")
+  wajib              Boolean   @default(true)
+  deskripsi          String?   @db.Text
+  format             String    @default("PDF") @db.VarChar(10)
+  ukuranMaks         String    @default("5 MB") @map("ukuran_maks") @db.VarChar(15)
+  statusUnggah       String    @default("belum_unggah") @map("status_unggah") // "sudah_unggah" | "belum_unggah" | "perlu_revisi" | "terverifikasi"
+  namaFile           String?   @map("nama_file")
+  fileUrl            String?   @map("file_url") @db.Text
+  tanggalUnggah      DateTime? @map("tanggal_unggah")
+  catatanVerifikator String?   @map("catatan_verifikator") @db.Text
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  // Relasi
+  ormas              Ormas     @relation(fields: [ormasId], references: [id], onDelete: Cascade)
+
+  @@map("dokumen_persyaratan")
+}
+
+// -------------------------------------------------------------
+// 5. Permohonan / Pengajuan SKT Ormas
+// -------------------------------------------------------------
+model Pengajuan {
+  id                 String    @id @default(uuid())
+  nomorTiket         String    @unique @map("nomor_tiket") // Contoh: SUB-2026-001
+  ormasId            String    @map("ormas_id")
+  jenisPengajuan     String    @map("jenis_pengajuan")     // "Pendaftaran Baru SKT" | "Perpanjangan SKT"
+  status             String    @default("menunggu")        // "disiapkan" | "diajukan" | "menunggu" | "proses" | "disetujui" | "ditolak" | "revisi"
+  tahapanAktif       Int       @default(1) @map("tahapan_aktif") // 1 (Pemeriksaan), 2 (Lapangan), 3 (SKT), 4 (Selesai)
+  catatanVerifikator String?   @map("catatan_verifikator") @db.Text
+  estimasiSelesai    String?   @map("estimasi_selesai")
+  nomorRegistrasi    String?   @map("nomor_registrasi")
+  petugasVerifikator String?   @map("petugas_verifikator")
+  tanggalPengajuan   DateTime  @default(now()) @map("tanggal_pengajuan")
+  tanggalDisetujui   DateTime? @map("tanggal_disetujui")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  // Relasi
+  ormas              Ormas               @relation(fields: [ormasId], references: [id], onDelete: Cascade)
+  riwayatVerifikasi  RiwayatVerifikasi[]
+
+  @@map("pengajuan")
+}
+
+// -------------------------------------------------------------
+// 6. Log Riwayat Audit Verifikasi Pengajuan
+// -------------------------------------------------------------
+model RiwayatVerifikasi {
+  id            String    @id @default(uuid())
+  pengajuanId   String    @map("pengajuan_id")
+  verifikatorId String?   @map("verifikator_id")
+  tahap         String    // "Pemeriksaan Berkas", "Verifikasi Lapangan", "Penerbitan SKT"
+  status        String    // "menunggu" | "proses" | "disetujui" | "revisi" | "ditolak"
+  catatan       String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // Relasi
+  pengajuan     Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  verifikator   User?     @relation(fields: [verifikatorId], references: [id], onDelete: SetNull)
+
+  @@map("riwayat_verifikasi")
+}
+
+// -------------------------------------------------------------
+// 7. Master Data Jenis Ormas
+// -------------------------------------------------------------
+model JenisOrmas {
+  id        String   @id @default(uuid())
+  kode      String   @unique @db.VarChar(20)
+  namaJenis String   @map("nama_jenis")
+  deskripsi String   @db.Text
+  status    String   @default("aktif") // "aktif" | "nonaktif"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("master_jenis_ormas")
+}
+
+// -------------------------------------------------------------
+// 8. Master Data Jabatan Pengurus
+// -------------------------------------------------------------
+model Jabatan {
+  id          String   @id @default(uuid())
+  kode        String   @unique @db.VarChar(20)
+  namaJabatan String   @map("nama_jabatan")
+  tingkat     String   // "Utama" | "Pengurus Harian" | "Pembina/Penasihat" | "Divisi"
+  deskripsi   String   @db.Text
+  status      String   @default("aktif") // "aktif" | "nonaktif"
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("master_jabatan")
+}

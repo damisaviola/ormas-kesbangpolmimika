@@ -22,10 +22,17 @@ export default function Footer() {
                 <p className="text-xs text-slate-300 font-medium">Kabupaten Mimika</p>
               </div>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed" suppressHydrationWarning>
               Kantor Pusat Pemerintahan Kabupaten Mimika, <br />
               Jln. Cendrawasih SP3 - Kuala Kencana, Mimika, Papua Tengah <br />
-              Telepon: (0766) 21057 | Email: kesbangpol@mimikakab.go.id
+              Telepon:{" "}
+              <a href="tel:076621057" className="hover:text-amber-300 transition-colors">
+                (0766) 21057
+              </a>
+              {" | Email: "}
+              <a href="mailto:kesbangpol@mimikakab.go.id" className="hover:text-amber-300 transition-colors">
+                kesbangpol@mimikakab.go.id
+              </a>
             </p>
           </div>
 

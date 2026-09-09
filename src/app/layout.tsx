@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   title: "SI-ORMAS | Badan Kesatuan Bangsa dan Politik Kabupaten Mimika",
   description: "Sistem Informasi & Layanan Registrasi Organisasi Kemasyarakatan (SI-ORMAS) Badan Kesatuan Bangsa dan Politik Kabupaten Mimika - MENO SODAK KANDA",
   keywords: ["Kesbangpol", "Mimika", "ORMAS", "Registrasi Ormas", "Papua Tengah", "Kesbangpol Mimika"],
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
   icons: {
     icon: "/assets/pic/meno_adapted.png",
     shortcut: "/assets/pic/meno_adapted.png",

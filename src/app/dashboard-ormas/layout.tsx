@@ -1,0 +1,34 @@
+'use client';
+
+import React from 'react';
+import { DashboardProvider } from '@/context/DashboardContext';
+import OrmasSidebar from '@/components/dashboard/OrmasSidebar';
+import OrmasHeader from '@/components/dashboard/OrmasHeader';
+
+function OrmasDashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-screen w-full bg-slate-100/80 dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex font-sans antialiased overflow-hidden transition-colors duration-200">
+      {/* Sidebar Ormas (3 Fitur: Beranda, Organisasi, Profil) */}
+      <OrmasSidebar />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        {/* Header Bar */}
+        <OrmasHeader />
+
+        {/* Scrollable Page Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full space-y-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function OrmasDashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <DashboardProvider>
+      <OrmasDashboardLayoutContent>{children}</OrmasDashboardLayoutContent>
+    </DashboardProvider>
+  );
+}
