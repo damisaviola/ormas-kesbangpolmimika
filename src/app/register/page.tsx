@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { registerUserAction } from "@/actions/auth";
 
+import { registerAccountFromForm } from "@/utils/userStorage";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
@@ -53,8 +55,11 @@ export default function RegisterPage() {
         return;
       }
 
+      // Simpan juga ke userStorage agar data pengguna di mock admin tersinkronisasi
+      registerAccountFromForm(fullName, email, password);
+
       setSuccessMessage(
-        "Pendaftaran berhasil! Akun Anda telah tersimpan di database MySQL. Mengalihkan ke halaman login..."
+        "Pendaftaran berhasil! Akun Anda telah tersimpan di database sistem SI-ORMAS. Mengalihkan ke halaman login..."
       );
       setFullName("");
       setEmail("");

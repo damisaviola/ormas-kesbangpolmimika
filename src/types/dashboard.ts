@@ -14,7 +14,7 @@ export type StatusPengajuan =
   | 'Resmi'
   | 'Bubar'
   | 'Ditangguhkan';
-export type UserRole = 'superadmin' | 'verifikator' | 'admin_ormas';
+export type UserRole = 'admin' | 'pengguna';
 
 export interface OrmasSubmission {
   id: string;
@@ -54,6 +54,9 @@ export interface UserAccount {
   status: 'aktif' | 'nonaktif';
   instansi: string;
   terakhirLogin: string;
+  tanggalDaftar?: string;
+  telepon?: string;
+  password?: string;
 }
 
 export interface JenisOrmasItem {

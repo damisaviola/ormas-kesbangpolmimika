@@ -104,7 +104,7 @@ export default function DashboardHeader() {
           </svg>
           <input
             type="text"
-            placeholder="Cari Ormas, NIP..."
+            placeholder="Cari Ormas, Pengguna..."
             className="bg-transparent border-none outline-none w-full text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-xs"
           />
           <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
