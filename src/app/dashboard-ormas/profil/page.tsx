@@ -30,7 +30,25 @@ export default function OrmasProfilPage() {
   const [notifAgenda, setNotifAgenda] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 300);
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('kesbangpol_user') : null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.nama) setNama(parsed.nama);
+        if (parsed.email) setEmail(parsed.email);
+        if (parsed.telepon) setTelepon(parsed.telepon);
+        setUserProfile((prev) => ({
+          ...prev,
+          namaLengkap: parsed.nama || prev.namaLengkap,
+          email: parsed.email || prev.email,
+          telepon: parsed.telepon || prev.telepon,
+          namaOrmas: parsed.ormasNama || parsed.instansi || prev.namaOrmas,
+        }));
+      }
+    } catch (err) {
+      console.error('Error reading kesbangpol_user in profil:', err);
+    }
+    const timer = setTimeout(() => setIsLoading(false), 250);
     return () => clearTimeout(timer);
   }, []);
 
@@ -45,6 +63,26 @@ export default function OrmasProfilPage() {
       jabatanDiOrmas: jabatan,
       alamatTinggal: alamat,
     });
+
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('kesbangpol_user');
+        const parsed = stored ? JSON.parse(stored) : {};
+        localStorage.setItem(
+          'kesbangpol_user',
+          JSON.stringify({
+            ...parsed,
+            nama,
+            email,
+            telepon,
+          })
+        );
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.error('Error saving updated user to localStorage:', err);
+      }
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 3500);
   };

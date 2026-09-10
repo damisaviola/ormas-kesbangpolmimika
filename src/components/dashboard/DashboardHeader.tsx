@@ -149,20 +149,14 @@ export default function DashboardHeader() {
           {showNotifications && (
             <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 mb-2">
-                <span className="text-xs font-bold text-slate-900 dark:text-white">Notifikasi Masuk</span>
-                <span className="text-[10px] font-semibold text-blue-600 dark:text-amber-400 bg-blue-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-amber-800">
-                  3 Baru
+                <span className="text-xs font-bold text-slate-900 dark:text-white">Notifikasi Sistem</span>
+                <span className="text-[10px] font-semibold text-blue-600 dark:text-sky-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                  Info
                 </span>
               </div>
-              <div className="space-y-2 text-xs">
-                <div className="p-2 rounded-lg bg-blue-50/50 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors border border-blue-100/60 dark:border-slate-700">
-                  <p className="font-semibold text-slate-800 dark:text-slate-100">Pengajuan Baru: Ikatan Pemuda Amungme</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">10 menit yang lalu • Perlu verifikasi berkas</p>
-                </div>
-                <div className="p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                  <p className="font-semibold text-slate-800 dark:text-slate-200">Perpanjangan SKT: LEMASA</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">2 jam yang lalu • Menunggu persetujuan</p>
-                </div>
+              <div className="p-2 rounded-lg bg-blue-50/50 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors border border-blue-100/60 dark:border-slate-700">
+                <p className="font-semibold text-slate-800 dark:text-slate-100">Sistem SI-ORMAS Siap</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Sistem verifikasi pendaftaran ormas beroperasi normal</p>
               </div>
             </div>
           )}

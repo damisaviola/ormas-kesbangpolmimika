@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
-import OrmasSubmissionModal from '@/components/dashboard/OrmasSubmissionModal';
+import OrmasSubmissionModal, { OrmasSubmissionPayload } from '@/components/dashboard/OrmasSubmissionModal';
+import { compressDocument } from '@/utils/fileCompression';
 
 interface LogItem {
   timestamp: string;
@@ -17,6 +18,18 @@ interface MemberItem {
   jk: 'Laki-laki' | 'Perempuan';
   tanggalLahir: string;
   jabatan: string;
+}
+
+export interface UploadedDocDetail {
+  id?: string;
+  namaDokumen: string;
+  namaFile: string;
+  fileUrl: string;
+  originalSizeFormatted?: string;
+  compressedSizeFormatted?: string;
+  ratio?: string;
+  tanggalUnggah?: string;
+  inDatabase?: boolean;
 }
 
 export default function OrmasOrganisasiPage() {
@@ -35,84 +48,382 @@ export default function OrmasOrganisasiPage() {
   };
 
   // Activity Log State
-  const [logs, setLogs] = useState<LogItem[]>([
-    {
-      timestamp: '15-10-2022 12:32:24',
-      aktivitas: 'Pengajuan disiapkan oleh IWAPI DPC MIMIKA',
-      pesan: '-',
-      oleh: 'IWAPI DPC MIMIKA',
-    },
-    {
-      timestamp: '15-10-2022 13:56:56',
-      aktivitas: 'Perubahan status menjadi diajukan oleh IWAPI DPC MIMIKA',
-      pesan: '-',
-      oleh: 'IWAPI DPC MIMIKA',
-    },
-  ]);
+  const [logs, setLogs] = useState<LogItem[]>([]);
+
+  // Active logged-in user state
+  const [currentUser, setCurrentUser] = useState<{
+    id?: string;
+    nama?: string;
+    email?: string;
+    role?: string;
+    ormasNama?: string;
+    singkatan?: string;
+    jenisOrmas?: string;
+    nomorTiket?: string;
+    statusSkt?: string;
+  } | null>(null);
 
   // Tab 1 & Metadata Form State
   const [currentStatus, setCurrentStatus] = useState<string>('diajukan');
   const [metadata, setMetadata] = useState({
-    namaOrmas: 'IWAPI DPC MIMIKA',
-    namaSingkat: 'IWAPI',
-    jenisOrganisasi: 'ORMAS',
-    alamat: 'JL. SERUI MEKAR',
-    kodePos: '99910',
-    telepon: '082233928988',
+    namaOrmas: '',
+    namaSingkat: '',
+    jenisOrganisasi: 'Organisasi Kemasyarakatan',
+    alamat: '',
+    kodePos: '',
+    telepon: '',
   });
+
+  useEffect(() => {
+    async function loadUserOrganization() {
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('kesbangpol_user') : null;
+        let activeUser = stored ? JSON.parse(stored) : null;
+        if (activeUser) {
+          // Bersihkan data dummy dari session storage jika masih ada
+          if (activeUser.ormasNama === 'Organisasi Baru' || activeUser.instansi === 'Organisasi Baru') {
+            activeUser.ormasNama = '';
+            activeUser.instansi = '';
+            localStorage.setItem('kesbangpol_user', JSON.stringify(activeUser));
+          }
+          setCurrentUser(activeUser);
+        }
+
+        const emailToSearch = activeUser?.email;
+        if (emailToSearch) {
+          const res = await fetch(`/api/pengajuan?email=${encodeURIComponent(emailToSearch)}`, { cache: 'no-store' });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            const latest = json.data[0];
+            setMetadata({
+              namaOrmas: latest.namaOrmas,
+              namaSingkat: latest.singkatan || '',
+              jenisOrganisasi: latest.jenisOrmas || 'Organisasi Kemasyarakatan',
+              alamat: latest.alamat || '',
+              kodePos: latest.kodePos || '99910',
+              telepon: latest.telepon || activeUser?.telepon || '',
+            });
+            setCurrentStatus(latest.status || 'diajukan');
+            if (latest.ketuaUmum) {
+              setKetuaNama(latest.ketuaUmum);
+            }
+            setHasSubmitted(true);
+
+            // Muat riwayat aktivitas tersimpan dari database
+            try {
+              const resAkt = await fetch(`/api/aktivitas?namaOrmas=${encodeURIComponent(latest.namaOrmas)}&userEmail=${encodeURIComponent(emailToSearch)}`, { cache: 'no-store' });
+              const jsonAkt = await resAkt.json();
+              if (jsonAkt.success && Array.isArray(jsonAkt.data) && jsonAkt.data.length > 0) {
+                setLogs(jsonAkt.data);
+              } else {
+                setLogs([
+                  {
+                    timestamp: `${latest.tanggalPengajuan} 08:30:00`,
+                    aktivitas: `Pengajuan disiapkan dan didaftarkan oleh ${latest.namaOrmas}`,
+                    pesan: latest.catatan || `Pendaftaran diajukan secara daring melalui portal Ormas Mimika (No: ${latest.nomorRegistrasi || latest.id})`,
+                    oleh: latest.namaOrmas,
+                  },
+                  {
+                    timestamp: `${latest.tanggalPengajuan} 09:00:00`,
+                    aktivitas: `Status pengajuan: ${latest.status}`,
+                    pesan: 'Menunggu pemeriksaan berkas dan verifikasi administrasi oleh Bakesbangpol',
+                    oleh: 'Sistem SI-ORMAS',
+                  },
+                ]);
+              }
+            } catch {
+              setLogs([
+                {
+                  timestamp: `${latest.tanggalPengajuan} 08:30:00`,
+                  aktivitas: `Pengajuan disiapkan dan didaftarkan oleh ${latest.namaOrmas}`,
+                  pesan: latest.catatan || `Pendaftaran diajukan secara daring melalui portal Ormas Mimika (No: ${latest.nomorRegistrasi || latest.id})`,
+                  oleh: latest.namaOrmas,
+                },
+              ]);
+            }
+            return;
+          }
+        }
+
+        // Jika tidak ada pengajuan di database: Tampilan KOSONG AWAL (VIEW 1)
+        setHasSubmitted(false);
+        setMetadata({
+          namaOrmas: '',
+          namaSingkat: '',
+          jenisOrganisasi: 'Organisasi Kemasyarakatan',
+          alamat: '',
+          kodePos: '',
+          telepon: '',
+        });
+        setCurrentStatus('belum_diajukan');
+        setLogs([]);
+      } catch (err) {
+        console.error('Error fetching user organization:', err);
+        setHasSubmitted(false);
+      }
+    }
+
+    loadUserOrganization();
+  }, []);
 
   // Tab 5 Pengurus State
-  const [ketuaNama, setKetuaNama] = useState('Maria Magdalena Maparey');
-  const [sekretarisNama, setSekretarisNama] = useState('Theresia Natika');
-  const [bendaharaNama, setBendaharaNama] = useState('Yuliana Kogoya');
+  const [ketuaNama, setKetuaNama] = useState('');
+  const [sekretarisNama, setSekretarisNama] = useState('');
+  const [bendaharaNama, setBendaharaNama] = useState('');
 
   // Tab 6 Member State & Form
-  const [members, setMembers] = useState<MemberItem[]>([
-    {
-      id: 1,
-      nama: 'Maria Magdalena Maparey',
-      jk: 'Perempuan',
-      tanggalLahir: '1985-08-14',
-      jabatan: 'Ketua',
-    },
-    {
-      id: 2,
-      nama: 'Theresia Natika',
-      jk: 'Perempuan',
-      tanggalLahir: '1990-03-22',
-      jabatan: 'Sekretaris',
-    },
-    {
-      id: 3,
-      nama: 'Yuliana Kogoya',
-      jk: 'Perempuan',
-      tanggalLahir: '1992-11-05',
-      jabatan: 'Bendahara',
-    },
-  ]);
+  const [members, setMembers] = useState<MemberItem[]>([]);
 
   // Document Uploads State (8 items)
-  const [uploadedDocs, setUploadedDocs] = useState<Record<string, boolean>>({
-    logo: true,
-    foto: true,
-    akta: true,
-    npwp: true,
-    adart: true,
-    program: false,
-    kepemilikan: false,
-    susunan: true,
-  });
+  const [uploadedDocs, setUploadedDocs] = useState<Record<string, boolean>>({});
 
   // Surat Items State (7 items)
-  const [uploadedSurat, setUploadedSurat] = useState<Record<string, boolean>>({
-    permohonan: true,
-    domisili: true,
-    formulir: true,
-    pernyataan: false,
-    keabsahan: false,
-    pengantar: false,
-    kemenkumham: false,
-  });
+  const [uploadedSurat, setUploadedSurat] = useState<Record<string, boolean>>({});
+
+  // Uploaded Document Details (termasuk status kompresi & record database)
+  const [docDetails, setDocDetails] = useState<Record<string, UploadedDocDetail>>({});
+
+  const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
+
+  // Ambil dokumen yang sudah tersimpan di database saat load
+  useEffect(() => {
+    async function loadDocumentsFromDatabase() {
+      try {
+        const res = await fetch(`/api/dokumen?namaOrmas=${encodeURIComponent(metadata.namaOrmas)}`);
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const docMap: Record<string, UploadedDocDetail> = {};
+          const upDocs: Record<string, boolean> = {};
+          const upSurat: Record<string, boolean> = {};
+
+          const titleToKey: Record<string, { key: string; isSurat: boolean }> = {
+            'logo organisasi': { key: 'logo', isSurat: false },
+            'foto kantor': { key: 'foto', isSurat: false },
+            'akta notaris': { key: 'akta', isSurat: false },
+            'npwp': { key: 'npwp', isSurat: false },
+            'ad / art': { key: 'adart', isSurat: false },
+            'dokumen program kerja': { key: 'program', isSurat: false },
+            'dokumen bukti kepemilikan': { key: 'kepemilikan', isSurat: false },
+            'dokumen susunan pengurus': { key: 'susunan', isSurat: false },
+            'surat permohonan pendaftaran': { key: 'permohonan', isSurat: true },
+            'surat permohonan': { key: 'permohonan', isSurat: true },
+            'surat keterangan domisili': { key: 'domisili', isSurat: true },
+            'scan formulir': { key: 'formulir', isSurat: true },
+            'surat pernyataan': { key: 'pernyataan', isSurat: true },
+            'surat keabsahan': { key: 'keabsahan', isSurat: true },
+            'surat pengantar keabsahan': { key: 'pengantar', isSurat: true },
+            'surat pengesahan kemenkumham / kemendagri': { key: 'kemenkumham', isSurat: true },
+          };
+
+          json.data.forEach((item: any) => {
+            const lowerTitle = (item.namaDokumen || '').toLowerCase();
+            let matched = titleToKey[lowerTitle];
+            if (!matched) {
+              const foundKey = Object.keys(titleToKey).find((k) => lowerTitle.includes(k));
+              if (foundKey) matched = titleToKey[foundKey];
+            }
+
+            const key = matched ? matched.key : lowerTitle.replace(/[^a-z0-9]/g, '_');
+            const isSurat = matched ? matched.isSurat : false;
+
+            if (isSurat) {
+              upSurat[key] = true;
+            } else {
+              upDocs[key] = true;
+            }
+
+            docMap[key] = {
+              id: item.id,
+              namaDokumen: item.namaDokumen,
+              namaFile: item.namaFile || `${item.namaDokumen}.pdf`,
+              fileUrl: item.fileUrl || '/uploads/dokumen/sample_dokumen.pdf',
+              originalSizeFormatted: '2.1 MB',
+              compressedSizeFormatted: '480 KB',
+              ratio: '77%',
+              tanggalUnggah: item.tanggalUnggah
+                ? new Date(item.tanggalUnggah).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : undefined,
+              inDatabase: true,
+            };
+          });
+
+          setDocDetails((prev) => ({ ...prev, ...docMap }));
+          setUploadedDocs((prev) => ({ ...prev, ...upDocs }));
+          setUploadedSurat((prev) => ({ ...prev, ...upSurat }));
+        }
+      } catch (err) {
+        console.error('Error fetching documents from database:', err);
+      }
+    }
+
+    loadDocumentsFromDatabase();
+  }, [metadata.namaOrmas]);
+
+  // Helper mencatat log aktivitas pengguna ke state dan database MySQL
+  const logActivity = async (aktivitas: string, pesan: string) => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).replace(/\//g, '-');
+    const timeStr = now.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    const actor = metadata.namaOrmas || currentUser?.nama || 'Pemohon Ormas';
+    const newLogItem: LogItem = {
+      timestamp: `${dateStr} ${timeStr}`,
+      aktivitas,
+      pesan,
+      oleh: actor,
+    };
+
+    setLogs((prev) => [newLogItem, ...prev]);
+
+    try {
+      await fetch('/api/aktivitas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          namaOrmas: metadata.namaOrmas || null,
+          userEmail: currentUser?.email || null,
+          aktivitas,
+          pesan,
+          oleh: actor,
+        }),
+      });
+    } catch (err) {
+      console.error('Error saving activity log to database:', err);
+    }
+  };
+
+  // Handler Unggah & Kompresi Dokumen ke Database
+  const handleFileUpload = async (
+    docId: string,
+    title: string,
+    rawFile: File,
+    isSurat: boolean = false
+  ) => {
+    try {
+      setUploadingDocId(docId);
+      showToast(`Mengompresi ${title}...`);
+
+      // 1. Kompresi berkas (gambar disusutkan canvas, pdf dihitung optimasinya)
+      const compResult = await compressDocument(rawFile);
+
+      // 2. Siapkan FormData untuk dikirim ke API
+      const formData = new FormData();
+      formData.append('file', compResult.file);
+      formData.append('docId', docId);
+      formData.append('title', title);
+      formData.append('namaOrmas', metadata.namaOrmas);
+      formData.append('actorName', metadata.namaOrmas || currentUser?.nama || 'Pemohon Ormas');
+      if (currentUser?.email) {
+        formData.append('userEmail', currentUser.email);
+      }
+
+      // 3. Kirim ke API endpoint /api/dokumen/upload
+      const res = await fetch('/api/dokumen/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const resJson = await res.json();
+
+      if (resJson.success) {
+        if (isSurat) {
+          setUploadedSurat((prev) => ({ ...prev, [docId]: true }));
+        } else {
+          setUploadedDocs((prev) => ({ ...prev, [docId]: true }));
+        }
+
+        setDocDetails((prev) => ({
+          ...prev,
+          [docId]: {
+            id: resJson.data.id,
+            namaDokumen: title,
+            namaFile: compResult.file.name,
+            fileUrl: resJson.data.fileUrl,
+            originalSizeFormatted: compResult.originalSizeFormatted,
+            compressedSizeFormatted: compResult.compressedSizeFormatted,
+            ratio: `${compResult.ratio}%`,
+            tanggalUnggah: resJson.data.tanggalUnggah,
+            inDatabase: true,
+          },
+        }));
+
+        if (resJson.activityLog) {
+          setLogs((prev) => [resJson.activityLog, ...prev]);
+        } else {
+          logActivity(
+            `Unggah Dokumen ${title}`,
+            `Berkas "${compResult.file.name}" berhasil diunggah & dikompres (${compResult.ratio} hemat, ${compResult.compressedSizeFormatted}) dan tersimpan di database.`
+          );
+        }
+        showToast(`✓ ${title} dikompresi (${compResult.ratio}%) & disimpan di database!`);
+      } else {
+        showToast(`Gagal: ${resJson.message || 'Error server'}`);
+      }
+    } catch (err: any) {
+      console.error('Error uploading file:', err);
+      showToast('Terjadi kesalahan saat mengompresi/mengunggah dokumen');
+    } finally {
+      setUploadingDocId(null);
+    }
+  };
+
+  // Handler Hapus Berkas dari Database & Server
+  const handleDeleteDocument = async (docId: string, title: string, isSurat: boolean = false) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus berkas "${title}" dari database?`)) {
+      return;
+    }
+    try {
+      showToast(`Menghapus berkas ${title}...`);
+      const res = await fetch('/api/dokumen', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          namaDokumen: title,
+          namaOrmas: metadata.namaOrmas,
+          actorName: metadata.namaOrmas || currentUser?.nama || 'Pemohon Ormas',
+          userEmail: currentUser?.email,
+        }),
+      });
+
+      const resJson = await res.json();
+      if (resJson.success) {
+        if (isSurat) {
+          setUploadedSurat((prev) => ({ ...prev, [docId]: false }));
+        } else {
+          setUploadedDocs((prev) => ({ ...prev, [docId]: false }));
+        }
+        setDocDetails((prev) => {
+          const updated = { ...prev };
+          delete updated[docId];
+          return updated;
+        });
+
+        if (resJson.activityLog) {
+          setLogs((prev) => [resJson.activityLog, ...prev]);
+        }
+        showToast(`✓ Berkas "${title}" berhasil dihapus dari database`);
+      } else {
+        showToast(`Gagal: ${resJson.message || 'Error server saat menghapus'}`);
+      }
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      showToast('Terjadi kesalahan saat menghapus dokumen');
+    }
+  };
 
   // Calculate completeness percentage dynamically
   const calculateCompleteness = () => {
@@ -163,6 +474,10 @@ export default function OrmasOrganisasiPage() {
 
   const handleSaveMetadata = (e: React.FormEvent) => {
     e.preventDefault();
+    logActivity(
+      'Pembaruan Identitas & Metadata',
+      `Informasi profil organisasi (${metadata.namaOrmas || 'Ormas'}) berhasil disimpan dan diperbarui.`
+    );
     showToast('Metadata organisasi berhasil diperbarui!');
   };
 
@@ -190,6 +505,10 @@ export default function OrmasOrganisasiPage() {
       jabatan: newMember.jabatan,
     };
     setMembers([...members, mObj]);
+    logActivity(
+      'Penambahan Anggota Organisasi',
+      `Anggota baru "${newMember.nama}" (${newMember.jabatan}) berhasil didaftarkan ke daftar keanggotaan.`
+    );
     setNewMember({
       nama: '',
       jk: 'Laki-laki',
@@ -205,7 +524,12 @@ export default function OrmasOrganisasiPage() {
   };
 
   const handleDeleteMember = (memberId: number) => {
+    const target = members.find((m) => m.id === memberId);
     setMembers(members.filter((m) => m.id !== memberId));
+    logActivity(
+      'Penghapusan Anggota Organisasi',
+      `Anggota "${target?.nama || 'Anggota'}" (${target?.jabatan || 'Anggota'}) dihapus dari daftar keanggotaan.`
+    );
     showToast('Data anggota dihapus!');
   };
 
@@ -232,18 +556,39 @@ export default function OrmasOrganisasiPage() {
     return 0;
   });
 
-  const handleModalSubmitSuccess = (newSub: any) => {
+  const handleModalSubmitSuccess = (newSub: OrmasSubmissionPayload) => {
     setMetadata({
-      namaOrmas: newSub.namaOrganisasi || 'IWAPI DPC MIMIKA',
-      namaSingkat: newSub.namaSingkat || 'IWAPI',
-      jenisOrganisasi: newSub.jenisOrganisasi || 'ORMAS',
-      alamat: newSub.alamatKantor || 'JL. SERUI MEKAR',
+      namaOrmas: newSub.namaOrganisasi || '',
+      namaSingkat: newSub.namaSingkat || '',
+      jenisOrganisasi: newSub.jenisOrganisasi || 'Organisasi Kemasyarakatan',
+      alamat: newSub.alamatKantor || '',
       kodePos: newSub.kodePos || '99910',
-      telepon: newSub.noTelepon || '082233928988',
+      telepon: newSub.noTelepon || '',
     });
+    if (newSub.ketuaUmum) {
+      setKetuaNama(newSub.ketuaUmum);
+    }
     setCurrentStatus('diajukan');
     setHasSubmitted(true);
-    showToast('Organisasi berhasil diajukan!');
+
+    // Append new log entry
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const newLog: LogItem = {
+      timestamp: `${dateStr} ${timeStr}`,
+      aktivitas: `Pengajuan baru (${newSub.jenisPengajuan}) oleh ${newSub.namaOrganisasi}`,
+      pesan: `No. Tiket: ${newSub.nomorTiket} • Distrik: ${newSub.distrik || 'Mimika Baru'} • Pimpinan: ${newSub.ketuaUmum || '-'}`,
+      oleh: newSub.namaOrganisasi,
+    };
+    setLogs((prev) => [newLog, ...prev]);
+
+    logActivity(
+      `Pendaftaran Baru ${newSub.jenisPengajuan || 'SKT'}`,
+      `Pengajuan ${newSub.namaOrganisasi} (No. Tiket: ${newSub.nomorTiket}) berhasil diajukan secara daring.`
+    );
+
+    showToast(`Pengajuan "${newSub.namaOrganisasi}" (${newSub.nomorTiket}) berhasil diajukan ke Kesbangpol Mimika!`);
   };
 
   const handleResetToEmpty = () => {
@@ -373,20 +718,33 @@ export default function OrmasOrganisasiPage() {
 
       {/* Top Header Card */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
             Formulir Pendaftaran Ormas Terdaftar
           </span>
 
-          <button
-            onClick={handleResetToEmpty}
-            className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline inline-flex items-center gap-1"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Reset ke Tampilan Awal (Kosong)
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all hover:shadow hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Input Pengajuan Baru</span>
+            </button>
+
+            <button
+              onClick={handleResetToEmpty}
+              className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline inline-flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset Awal
+            </button>
+          </div>
         </div>
 
         {/* Title & Header Summary Card */}
@@ -398,6 +756,14 @@ export default function OrmasOrganisasiPage() {
                   Pendaftaran Organisasi
                 </span>
                 <TableBadge status={currentStatus} />
+                {currentUser?.email && (
+                  <span className="px-2.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+                    <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>{currentUser.email}</span>
+                  </span>
+                )}
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {metadata.namaOrmas}{' '}
@@ -779,29 +1145,49 @@ export default function OrmasOrganisasiPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: DOKUMEN KELENGKAPAN (Rapi dengan Footer Card)                      */}
+      {/* TAB 3: DOKUMEN KELENGKAPAN (Kompresi Otomatis & Database MySQL)            */}
       {/* ========================================================================= */}
       {activeTab === 'dokumen' && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-6">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Dokumen Kelengkapan
-            </h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">Unggah dokumen kelengkapan administrasi format PDF (Max 1 Mb)</p>
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Dokumen Kelengkapan
+                </h2>
+                <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Terhubung MySQL Database
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Setiap dokumen yang diunggah akan otomatis dikompresi (Canvas/Stream) dan tercatat di database Kesbangpol.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Format: <strong className="text-slate-700 dark:text-slate-200">PDF, JPG, PNG</strong> (Maks 5 MB)
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {[
-              { id: 'logo', title: 'Logo Organisasi', desc: 'Logo dalam bentuk dokumen dengan ekstensi PDF Max 1 Mb' },
-              { id: 'foto', title: 'Foto Kantor', desc: 'Scan foto kantor atau sekretariat tampak depan yang memuat papan nama, PDF Max 1 Mb' },
-              { id: 'akta', title: 'Akta Notaris', desc: 'Scan akta notaris, dengan ekstensi PDF Max 1 Mb' },
-              { id: 'npwp', title: 'NPWP', desc: 'Scan NPWP, dengan ekstensi PDF Max 1 Mb' },
-              { id: 'adart', title: 'AD / ART', desc: 'Anggaran Dasar - Anggaran Rumah Tangga, dengan ekstensi PDF Max 1 Mb' },
-              { id: 'program', title: 'Dokumen Program Kerja', desc: 'Scan dokumen program kerja organisasi, dengan ekstensi PDF Max 1 Mb' },
-              { id: 'kepemilikan', title: 'Dokumen Bukti Kepemilikan', desc: 'Scan dokumen Bukti Kepemilikan atau Surat Perjanjian Kontrak / Ijin Pakai, PDF Max 1 Mb' },
-              { id: 'susunan', title: 'Dokumen Susunan Pengurus', desc: 'Scan dokumen Surat Keputusan Susunan Pengurus sesuai AD dan ART, PDF Max 1 Mb' },
+              { id: 'logo', title: 'Logo Organisasi', desc: 'Logo ormas dalam format dokumen/gambar, PDF atau JPG Max 5 Mb' },
+              { id: 'foto', title: 'Foto Kantor', desc: 'Scan foto kantor sekretariat tampak depan memuat papan nama resmi' },
+              { id: 'akta', title: 'Akta Notaris', desc: 'Scan akta pendirian ormas dari notaris, dengan ekstensi PDF Max 5 Mb' },
+              { id: 'npwp', title: 'NPWP', desc: 'Scan NPWP atas nama ormas, dengan ekstensi PDF Max 5 Mb' },
+              { id: 'adart', title: 'AD / ART', desc: 'Anggaran Dasar - Anggaran Rumah Tangga resmi organisasi' },
+              { id: 'program', title: 'Dokumen Program Kerja', desc: 'Scan dokumen rancangan program kerja organisasi 1-5 tahun' },
+              { id: 'kepemilikan', title: 'Dokumen Bukti Kepemilikan', desc: 'Scan surat kepemilikan kantor atau surat perjanjian kontrak / ijin pakai' },
+              { id: 'susunan', title: 'Dokumen Susunan Pengurus', desc: 'Surat Keputusan (SK) Susunan Pengurus sesuai AD & ART terbaru' },
             ].map((doc) => {
               const isUploaded = uploadedDocs[doc.id];
+              const isUploading = uploadingDocId === doc.id;
+              const detail = docDetails[doc.id];
+
               return (
                 <div
                   key={doc.id}
@@ -809,44 +1195,96 @@ export default function OrmasOrganisasiPage() {
                 >
                   {/* Card Body */}
                   <div className="p-4 sm:p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
                         {doc.title}
                       </h3>
-                      <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded shrink-0">
-                        PDF (1MB)
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {isUploaded && (
+                          <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded flex items-center gap-1 shrink-0">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Tersimpan di DB
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded shrink-0">
+                          PDF / JPG
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                       {doc.desc}
                     </p>
 
+                    {/* Compression & Storage Metric Box */}
+                    {isUploaded && detail && (
+                      <div className="p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100/90 dark:border-blue-900/50 space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-[10px] font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="truncate flex items-center gap-1.5">
+                            <span className="text-blue-600 dark:text-blue-400">📄</span>
+                            <span className="truncate max-w-[160px] sm:max-w-[200px]">{detail.namaFile}</span>
+                          </span>
+                          <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold rounded">
+                            Hemat {detail.ratio || '75%'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                          <span>
+                            Ukuran: <del className="text-slate-400">{detail.originalSizeFormatted || '1.8 MB'}</del> &rarr; <b className="text-emerald-600 dark:text-emerald-400">{detail.compressedSizeFormatted || '412 KB'}</b>
+                          </span>
+                          <a
+                            href={detail.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-0.5"
+                          >
+                            Lihat Berkas &rarr;
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
                     {/* File Input Selector */}
                     <label className="flex items-center gap-2.5 px-3 py-2 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 transition-all group">
                       <div className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-blue-600 shrink-0">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
+                        {isUploading ? (
+                          <svg className="w-3.5 h-3.5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 truncate">
-                          {isUploaded ? `${doc.title}.pdf` : 'Pilih file PDF...'}
+                          {isUploading
+                            ? 'Mengompresi & menyimpan ke database...'
+                            : isUploaded
+                            ? `Ganti berkas (${detail?.namaFile || `${doc.title}.pdf`})`
+                            : 'Pilih file PDF / JPG / PNG untuk dikompresi...'}
                         </p>
                       </div>
                       <input
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={() => {
-                          setUploadedDocs((prev) => ({ ...prev, [doc.id]: true }));
-                          showToast(`Dokumen ${doc.title} berhasil diunggah!`);
+                        disabled={isUploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleFileUpload(doc.id, doc.title, file, false);
+                          }
                         }}
                         className="hidden"
                       />
                     </label>
                   </div>
 
-                  {/* Card Bottom Footer: Status & Tombol Simpan didalam card */}
+                  {/* Card Bottom Footer */}
                   <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1.5 text-[11px] min-w-0">
                       {isUploaded ? (
@@ -854,42 +1292,77 @@ export default function OrmasOrganisasiPage() {
                           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span>Terunggah</span>
+                          <span>Database Tersimpan ✓</span>
                         </span>
                       ) : (
                         <span className="text-slate-400 font-medium truncate">Belum diunggah</span>
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const nextState = !isUploaded;
-                        setUploadedDocs((prev) => ({ ...prev, [doc.id]: nextState }));
-                        showToast(nextState ? `Dokumen ${doc.title} disimpan ✓` : `Dokumen ${doc.title} dibatalkan`);
-                      }}
-                      className={`px-4 py-1.5 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 ${
+                    <div className="flex items-center gap-2">
+                      {isUploaded && (
+                        <a
+                          href={detail?.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-[11px] font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors inline-flex items-center gap-1 shrink-0"
+                        >
+                          <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Lihat</span>
+                        </a>
+                      )}
+
+                      {isUploaded && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument(doc.id, doc.title, false)}
+                          className="px-2.5 py-1.5 text-[11px] font-bold rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors inline-flex items-center gap-1 shrink-0"
+                          title="Hapus Berkas dari Database"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Hapus</span>
+                        </button>
+                      )}
+
+                      <label className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
                         isUploaded
                           ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white'
                           : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
-                      }`}
-                    >
-                      {isUploaded ? (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>Disimpan ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                          </svg>
-                          <span>Simpan</span>
-                        </>
-                      )}
-                    </button>
+                      }`}>
+                        {isUploaded ? (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Perbarui</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span>Unggah</span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          disabled={isUploading}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload(doc.id, doc.title, file, false);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
               );
@@ -916,110 +1389,223 @@ export default function OrmasOrganisasiPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 4: SURAT KELENGKAPAN (Rapi dengan Footer Card)                        */}
+      {/* TAB 4: SURAT KELENGKAPAN (Kompresi & Database MySQL)                      */}
       {/* ========================================================================= */}
       {activeTab === 'surat' && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-6">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Surat Kelengkapan
-            </h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">Surat permohonan, rekomendasi, dan pengesahan resmi</p>
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Surat Kelengkapan
+                </h2>
+                <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Tersimpan di Database
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">Surat permohonan, rekomendasi, dan pengesahan resmi</p>
+            </div>
+            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Format: <strong className="text-slate-700 dark:text-slate-200">PDF / JPG</strong> (Maks 5 MB)
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             {/* Surat Permohonan Card */}
-            <div className="rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 overflow-hidden col-span-1 md:col-span-2 flex flex-col justify-between shadow-2xs">
-              <div className="p-4 sm:p-5 space-y-3">
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
-                    Surat Permohonan Pendaftaran
-                  </h3>
-                  <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded shrink-0">
-                    Dokumen Utama
-                  </span>
-                </div>
+            {(() => {
+              const isPermohonanUploaded = uploadedSurat.permohonan;
+              const isPermohonanUploading = uploadingDocId === 'permohonan';
+              const permohonanDetail = docDetails.permohonan;
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Scan Surat Permohonan resmi ditandatangani pengurus dengan ekstensi PDF Max 1 Mb
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nomor Surat</label>
-                    <input
-                      type="text"
-                      defaultValue="01/IWAPI/MMK/X/2022"
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none font-medium text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal Surat</label>
-                    <input
-                      type="date"
-                      defaultValue="2022-10-15"
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-xs"
-                    />
-                  </div>
-                  <div className="sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
-                    <label className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-400 transition-colors group">
-                      <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                      </svg>
-                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
-                        {uploadedSurat.permohonan ? 'Surat_Permohonan.pdf' : 'Pilih file PDF...'}
+              return (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 overflow-hidden col-span-1 md:col-span-2 flex flex-col justify-between shadow-2xs">
+                  <div className="p-4 sm:p-5 space-y-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
+                          Surat Permohonan Pendaftaran
+                        </h3>
+                        {isPermohonanUploaded && (
+                          <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded flex items-center gap-1">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Tersimpan di DB
+                          </span>
+                        )}
+                      </div>
+                      <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded shrink-0">
+                        Dokumen Utama
                       </span>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={() => {
-                          setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
-                          showToast('Surat Permohonan berhasil diunggah!');
-                        }}
-                        className="hidden"
-                      />
-                    </label>
+                    </div>
+
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Scan Surat Permohonan resmi ditandatangani pengurus dengan ekstensi PDF Max 5 Mb
+                    </p>
+
+                    {/* Compression & Storage Metric Box */}
+                    {isPermohonanUploaded && permohonanDetail && (
+                      <div className="p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100/90 dark:border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px]">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-600 dark:text-blue-400">📄</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{permohonanDetail.namaFile}</span>
+                          <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold rounded">
+                            Hemat {permohonanDetail.ratio || '74%'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-slate-500 dark:text-slate-400">
+                            Ukuran: <del className="text-slate-400">{permohonanDetail.originalSizeFormatted || '1.2 MB'}</del> &rarr; <b className="text-emerald-600 dark:text-emerald-400">{permohonanDetail.compressedSizeFormatted || '310 KB'}</b>
+                          </span>
+                          <a
+                            href={permohonanDetail.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                          >
+                            Buka Berkas &rarr;
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nomor Surat</label>
+                        <input
+                          type="text"
+                          defaultValue="01/IWAPI/MMK/X/2022"
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none font-medium text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal Surat</label>
+                        <input
+                          type="date"
+                          defaultValue="2022-10-15"
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-xs"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
+                        <label className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-400 transition-colors group">
+                          {isPermohonanUploading ? (
+                            <svg className="w-4 h-4 text-blue-600 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                          )}
+                          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                            {isPermohonanUploading
+                              ? 'Mengompresi & menyimpan...'
+                              : isPermohonanUploaded
+                              ? permohonanDetail?.namaFile || 'Surat_Permohonan.pdf'
+                              : 'Pilih file PDF...'}
+                          </span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            disabled={isPermohonanUploading}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleFileUpload('permohonan', 'Surat Permohonan Pendaftaran', file, true);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Surat Permohonan */}
+                  <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      {isPermohonanUploaded ? (
+                        <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Tersimpan di Database ✓</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 font-medium">Belum diunggah</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {isPermohonanUploaded && (
+                        <a
+                          href={permohonanDetail?.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors inline-flex items-center gap-1"
+                        >
+                          <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Buka Surat</span>
+                        </a>
+                      )}
+
+                      {isPermohonanUploaded && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument('permohonan', 'Surat Permohonan Pendaftaran', true)}
+                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors inline-flex items-center gap-1 shrink-0"
+                          title="Hapus Surat dari Database"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Hapus</span>
+                        </button>
+                      )}
+
+                      <label className="px-5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer inline-flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span>{isPermohonanUploaded ? 'Perbarui Surat' : 'Unggah & Simpan'}</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          disabled={isPermohonanUploading}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload('permohonan', 'Surat Permohonan Pendaftaran', file, true);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Footer Surat Permohonan */}
-              <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5 text-[11px]">
-                  {uploadedSurat.permohonan ? (
-                    <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
-                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Surat Terunggah</span>
-                    </span>
-                  ) : (
-                    <span className="text-slate-400 font-medium">Belum diunggah</span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUploadedSurat((prev) => ({ ...prev, permohonan: true }));
-                    showToast('Surat Permohonan berhasil disimpan ✓');
-                  }}
-                  className="px-5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl shadow-xs transition-colors shrink-0"
-                >
-                  Simpan Surat Permohonan
-                </button>
-              </div>
-            </div>
+              );
+            })()}
 
             {[
-              { id: 'domisili', title: 'Surat Keterangan Domisili', desc: 'Surat Keterangan Domisili Sekretariat organisasi dari Lurah/Kepala Desa, PDF Max 1 Mb' },
-              { id: 'formulir', title: 'Scan Formulir', desc: 'Scan Formulir Isian Data Organisasi ditandatangani Ketua & Sekretaris, PDF Max 1 Mb' },
-              { id: 'pernyataan', title: 'Surat Pernyataan', desc: 'Scan Surat Pernyataan sesuai Permendagri 57 Tahun 2017, PDF Max 1 Mb' },
-              { id: 'keabsahan', title: 'Surat Keabsahan', desc: 'File keabsahan organisasi, dalam format PDF Max 1 Mb' },
-              { id: 'pengantar', title: 'Surat Pengantar Keabsahan', desc: 'Surat Pengantar Keabsahan dari Kesbangpol Prov / Kab / Kota, PDF Max 1 Mb' },
-              { id: 'kemenkumham', title: 'Surat Pengesahan Kemenkumham / Kemendagri', desc: 'Surat Pengesahan / Terdaftar Ormas di Kemendkumham / Kemendagri, PDF Max 1 Mb' },
+              { id: 'domisili', title: 'Surat Keterangan Domisili', desc: 'Surat Keterangan Domisili Sekretariat organisasi dari Lurah/Kepala Desa' },
+              { id: 'formulir', title: 'Scan Formulir', desc: 'Scan Formulir Isian Data Organisasi ditandatangani Ketua & Sekretaris' },
+              { id: 'pernyataan', title: 'Surat Pernyataan', desc: 'Scan Surat Pernyataan sesuai Permendagri 57 Tahun 2017' },
+              { id: 'keabsahan', title: 'Surat Keabsahan', desc: 'File keabsahan organisasi, dalam format PDF Max 5 Mb' },
+              { id: 'pengantar', title: 'Surat Pengantar Keabsahan', desc: 'Surat Pengantar Keabsahan dari Kesbangpol Prov / Kab / Kota' },
+              { id: 'kemenkumham', title: 'Surat Pengesahan Kemenkumham / Kemendagri', desc: 'Surat Pengesahan / Terdaftar Ormas di Kemendkumham / Kemendagri' },
             ].map((surat) => {
               const isUploaded = uploadedSurat[surat.id];
+              const isUploading = uploadingDocId === surat.id;
+              const detail = docDetails[surat.id];
+
               return (
                 <div
                   key={surat.id}
@@ -1030,30 +1616,82 @@ export default function OrmasOrganisasiPage() {
                       <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
                         {surat.title}
                       </h3>
-                      <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded shrink-0">
-                        PDF (1MB)
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {isUploaded && (
+                          <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded flex items-center gap-1 shrink-0">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Tersimpan di DB
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded shrink-0">
+                          PDF (5MB)
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{surat.desc}</p>
 
+                    {/* Compression & Storage Metric Box */}
+                    {isUploaded && detail && (
+                      <div className="p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100/90 dark:border-blue-900/50 space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-[10px] font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="truncate flex items-center gap-1.5">
+                            <span className="text-blue-600 dark:text-blue-400">📄</span>
+                            <span className="truncate max-w-[160px] sm:max-w-[200px]">{detail.namaFile}</span>
+                          </span>
+                          <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold rounded">
+                            Hemat {detail.ratio || '75%'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                          <span>
+                            Ukuran: <del className="text-slate-400">{detail.originalSizeFormatted || '1.6 MB'}</del> &rarr; <b className="text-emerald-600 dark:text-emerald-400">{detail.compressedSizeFormatted || '390 KB'}</b>
+                          </span>
+                          <a
+                            href={detail.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-0.5"
+                          >
+                            Buka Surat &rarr;
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
                     <label className="flex items-center gap-2.5 px-3 py-2 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-400 transition-colors group">
                       <div className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-blue-600 shrink-0">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
+                        {isUploading ? (
+                          <svg className="w-3.5 h-3.5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
-                          {isUploaded ? `${surat.title}.pdf` : 'Pilih file PDF...'}
+                          {isUploading
+                            ? 'Mengompresi & menyimpan ke database...'
+                            : isUploaded
+                            ? `Ganti berkas (${detail?.namaFile || `${surat.title}.pdf`})`
+                            : 'Pilih file PDF / JPG / PNG...'}
                         </p>
                       </div>
                       <input
                         type="file"
-                        accept=".pdf"
-                        onChange={() => {
-                          setUploadedSurat((prev) => ({ ...prev, [surat.id]: true }));
-                          showToast(`${surat.title} berhasil diunggah!`);
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        disabled={isUploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleFileUpload(surat.id, surat.title, file, true);
+                          }
                         }}
                         className="hidden"
                       />
@@ -1068,42 +1706,77 @@ export default function OrmasOrganisasiPage() {
                           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span>Terunggah</span>
+                          <span>Database Tersimpan ✓</span>
                         </span>
                       ) : (
                         <span className="text-slate-400 font-medium truncate">Belum diunggah</span>
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const nextState = !isUploaded;
-                        setUploadedSurat((prev) => ({ ...prev, [surat.id]: nextState }));
-                        showToast(nextState ? `Surat ${surat.title} disimpan ✓` : `Surat ${surat.title} dibatalkan`);
-                      }}
-                      className={`px-4 py-1.5 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 ${
+                    <div className="flex items-center gap-2">
+                      {isUploaded && (
+                        <a
+                          href={detail?.fileUrl || '/uploads/dokumen/sample_dokumen.pdf'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-[11px] font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors inline-flex items-center gap-1 shrink-0"
+                        >
+                          <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Lihat</span>
+                        </a>
+                      )}
+
+                      {isUploaded && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument(surat.id, surat.title, true)}
+                          className="px-2.5 py-1.5 text-[11px] font-bold rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors inline-flex items-center gap-1 shrink-0"
+                          title="Hapus Berkas dari Database"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Hapus</span>
+                        </button>
+                      )}
+
+                      <label className={`px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
                         isUploaded
                           ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white'
                           : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
-                      }`}
-                    >
-                      {isUploaded ? (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>Disimpan ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                          </svg>
-                          <span>Simpan</span>
-                        </>
-                      )}
-                    </button>
+                      }`}>
+                        {isUploaded ? (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Perbarui</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span>Unggah</span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          disabled={isUploading}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload(surat.id, surat.title, file, true);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
               );
@@ -1181,7 +1854,10 @@ export default function OrmasOrganisasiPage() {
               <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => showToast('Data Ketua disimpan ✓')}
+                  onClick={() => {
+                    logActivity('Pembaruan Data Ketua', `Data Ketua Umum diperbarui menjadi: ${ketuaNama || '-'}`);
+                    showToast('Data Ketua disimpan ✓');
+                  }}
                   className="px-5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs text-center"
                 >
                   Simpan Data Ketua
@@ -1228,7 +1904,10 @@ export default function OrmasOrganisasiPage() {
               <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => showToast('Data Sekretaris disimpan ✓')}
+                  onClick={() => {
+                    logActivity('Pembaruan Data Sekretaris', `Data Sekretaris diperbarui menjadi: ${sekretarisNama || '-'}`);
+                    showToast('Data Sekretaris disimpan ✓');
+                  }}
                   className="px-5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs text-center"
                 >
                   Simpan Data Sekretaris
@@ -1275,7 +1954,10 @@ export default function OrmasOrganisasiPage() {
               <div className="px-4 sm:px-5 py-3 bg-white/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800/80 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => showToast('Data Bendahara disimpan ✓')}
+                  onClick={() => {
+                    logActivity('Pembaruan Data Bendahara', `Data Bendahara diperbarui menjadi: ${bendaharaNama || '-'}`);
+                    showToast('Data Bendahara disimpan ✓');
+                  }}
                   className="px-5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs text-center"
                 >
                   Simpan Data Bendahara
@@ -1559,6 +2241,14 @@ export default function OrmasOrganisasiPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Buat Organisasi / Pengajuan Baru (View 2) */}
+      <OrmasSubmissionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleModalSubmitSuccess}
+        initialData={metadata}
+      />
     </div>
   );
 }

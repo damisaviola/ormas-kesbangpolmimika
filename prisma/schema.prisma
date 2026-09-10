@@ -202,3 +202,23 @@ model Jabatan {
 
   @@map("master_jabatan")
 }
+
+// -------------------------------------------------------------
+// 9. Log Jejak Aktivitas User Ormas & Verifikator
+// -------------------------------------------------------------
+model LogAktivitas {
+  id          String   @id @default(uuid())
+  namaOrmas   String?  @map("nama_ormas")
+  ormasId     String?  @map("ormas_id")
+  pengajuanId String?  @map("pengajuan_id")
+  userEmail   String?  @map("user_email")
+  aktivitas   String
+  pesan       String   @db.Text
+  oleh        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([namaOrmas], map: "idx_nama_ormas")
+  @@index([userEmail], map: "idx_user_email")
+  @@index([pengajuanId], map: "idx_pengajuan_id")
+  @@map("log_aktivitas")
+}

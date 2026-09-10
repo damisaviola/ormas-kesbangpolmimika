@@ -169,7 +169,7 @@ export default function RegisterPage() {
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Contoh: Maria Magdalena Maparey"
+                  placeholder="Contoh: Yohanes Maturbongs"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                 />
               </div>

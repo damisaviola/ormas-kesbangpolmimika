@@ -5,17 +5,31 @@ import Link from 'next/link';
 import StatCard from '@/components/dashboard/StatCard';
 import TableBadge from '@/components/dashboard/TableBadge';
 import DashboardLoading from '@/app/dashboard/loading';
-import { INITIAL_METRICS, INITIAL_SUBMISSIONS } from '@/data/dashboard-data';
+import { INITIAL_METRICS } from '@/data/dashboard-data';
 import { OrmasSubmission } from '@/types/dashboard';
+import { getSubmissions, syncSubmissionsFromApi, subscribeToSubmissions } from '@/services/submissionStorage';
 
 export default function DashboardBerandaPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [submissions] = useState<OrmasSubmission[]>(INITIAL_SUBMISSIONS);
+  const [submissions, setSubmissions] = useState<OrmasSubmission[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 350);
-    return () => clearTimeout(timer);
+    setSubmissions(getSubmissions());
+
+    syncSubmissionsFromApi().then((fresh) => {
+      if (fresh && fresh.length > 0) setSubmissions(fresh);
+    });
+
+    const unsubscribe = subscribeToSubmissions((updatedList) => {
+      setSubmissions(updatedList);
+    });
+
+    const timer = setTimeout(() => setIsLoading(false), 250);
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
@@ -51,7 +65,7 @@ export default function DashboardBerandaPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Verifikasi Pengajuan (18)
+            Verifikasi Pengajuan ({submissions.filter((s) => s.status === 'menunggu' || s.status === 'proses').length})
           </Link>
           <Link
             href="/dashboard/organisasi"
@@ -129,7 +143,14 @@ export default function DashboardBerandaPage() {
                     </td>
                     <td className="py-4 px-4">
                       <div>
-                        <p className="font-bold text-slate-900 dark:text-white">{item.namaOrmas}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-bold text-slate-900 dark:text-white">{item.namaOrmas}</p>
+                          {(item.isCustomSubmission || item.nomorRegistrasi?.startsWith('TIKET/')) && (
+                            <span className="px-1.5 py-0.2 text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded">
+                              Baru
+                            </span>
+                          )}
+                        </div>
                         {item.singkatan && (
                           <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
                             ({item.singkatan})
@@ -151,7 +172,7 @@ export default function DashboardBerandaPage() {
                     </td>
                     <td className="py-4 px-4 text-right">
                       <Link
-                        href="/dashboard/pengajuan"
+                        href={`/dashboard/pengajuan/${item.id}`}
                         className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-amber-300 hover:text-blue-800 dark:hover:text-amber-200 bg-blue-50 dark:bg-amber-950/60 hover:bg-blue-100 dark:hover:bg-amber-900/60 px-3 py-1.5 rounded-md transition-colors border border-transparent dark:border-amber-800/60"
                       >
                         Periksa

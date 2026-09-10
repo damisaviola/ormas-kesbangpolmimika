@@ -118,18 +118,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Quick Info Box */}
-          <div className="bg-sky-600/60 rounded-xl p-3.5 border border-sky-400/40 text-left text-xs space-y-1.5 text-sky-50 w-full">
-            <p className="font-semibold text-white flex items-center gap-1.5 text-xs">
-              <svg className="w-4 h-4 text-sky-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              Otentikasi Terpadu
-            </p>
-            <p className="text-[11px] text-sky-100/90 leading-relaxed">
-              Sistem akan otomatis mendeteksi peran akun Anda dari database dan mengarahkan langsung ke dashboard yang sesuai.
-            </p>
-          </div>
 
           {/* Bottom Back Button */}
           <div className="pt-2">

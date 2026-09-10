@@ -53,7 +53,7 @@ export async function registerUserAction(payload: {
         role: 'admin_ormas',
         status: 'aktif',
         telepon: telepon && telepon.trim() ? telepon.trim() : null,
-        instansi: namaOrmas && namaOrmas.trim() ? namaOrmas.trim() : 'Organisasi Baru',
+        instansi: namaOrmas && namaOrmas.trim() ? namaOrmas.trim() : null,
       },
     });
 
@@ -106,11 +106,17 @@ export async function loginUserAction(payload: {
 
     const cleanEmail = username.toLowerCase().trim();
 
-    // Cari akun di database MySQL
+    // Cari akun di database MySQL beserta relasi ormas & pengajuan
     const user = await prisma.user.findUnique({
       where: { email: cleanEmail },
       include: {
-        ormas: true,
+        ormas: {
+          include: {
+            pengajuan: {
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+        },
       },
     });
 
@@ -141,6 +147,9 @@ export async function loginUserAction(payload: {
       data: { terakhirLogin: new Date() },
     });
 
+    const userOrmas = user.ormas?.[0];
+    const latestPengajuan = userOrmas?.pengajuan?.[0];
+
     return {
       success: true,
       user: {
@@ -148,8 +157,15 @@ export async function loginUserAction(payload: {
         nama: user.nama,
         email: user.email,
         role: user.role, // 'superadmin' | 'verifikator' | 'admin_ormas'
-        instansi: user.instansi,
-        ormasNama: user.ormas?.[0]?.namaOrmas || user.instansi,
+        instansi: user.instansi && user.instansi !== 'Organisasi Baru' ? user.instansi : null,
+        telepon: user.telepon,
+        ormasId: userOrmas?.id || null,
+        ormasNama: userOrmas?.namaOrmas || (user.instansi && user.instansi !== 'Organisasi Baru' ? user.instansi : ''),
+        singkatan: userOrmas?.singkatan || '',
+        jenisOrmas: userOrmas?.jenisOrmas || '',
+        alamat: userOrmas?.alamatSekretariat || '',
+        nomorTiket: latestPengajuan?.nomorTiket || null,
+        statusSkt: latestPengajuan?.status || userOrmas?.statusSkt || null,
       },
     };
   } catch (error) {

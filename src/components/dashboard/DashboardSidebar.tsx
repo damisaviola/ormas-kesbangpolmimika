@@ -64,6 +64,21 @@ export default function DashboardSidebar() {
       ),
     },
     {
+      label: 'Kalender SKT',
+      href: '/dashboard/kalender',
+      badge: '2 Segera',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      ),
+    },
+    {
       label: 'Profil',
       href: '/dashboard/profil',
       icon: (
@@ -307,7 +322,7 @@ export default function DashboardSidebar() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
           <div
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-950/70 transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative z-10">{sidebarContent}</div>

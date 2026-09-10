@@ -3,16 +3,26 @@
 import { useState, useMemo } from "react";
 import { OrmasItem } from "@/types/ormas";
 import { INITIAL_ORMAS_DATA } from "@/data/ormas-data";
+import OrmasDetailModal from "@/components/OrmasDetailModal";
 
 interface OrmasDirectoryProps {
-  onSelectOrmas: (ormas: OrmasItem) => void;
+  onSelectOrmas?: (ormas: OrmasItem) => void;
 }
 
 export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
+  const [internalSelectedOrmas, setInternalSelectedOrmas] = useState<OrmasItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("semua");
   const [selectedCategory, setSelectedCategory] = useState<string>("semua");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+
+  const handleSelectOrmas = (item: OrmasItem) => {
+    if (onSelectOrmas) {
+      onSelectOrmas(item);
+    } else {
+      setInternalSelectedOrmas(item);
+    }
+  };
 
   // Filtered Ormas List
   const filteredOrmas = useMemo(() => {
@@ -57,8 +67,8 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
               <button
                 onClick={() => setViewMode("table")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "table"
-                    ? "bg-white text-blue-900 shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-blue-900 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,8 +79,8 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
               <button
                 onClick={() => setViewMode("grid")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "grid"
-                    ? "bg-white text-blue-900 shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-blue-900 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +210,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                       <tr
                         key={item.id}
                         className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
-                        onClick={() => onSelectOrmas(item)}
+                        onClick={() => handleSelectOrmas(item)}
                       >
                         <td className="py-4 px-4 text-center font-medium text-slate-400">{idx + 1}</td>
                         <td className="py-4 px-4">
@@ -240,10 +250,15 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onSelectOrmas(item);
+                              handleSelectOrmas(item);
                             }}
-                            className="text-xs font-semibold text-blue-800 hover:text-blue-950 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-all"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-800 hover:text-blue-950 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-all shadow-2xs hover:shadow-xs"
+                            title="Lihat Detail Organisasi"
                           >
+                            <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
                             Detail
                           </button>
                         </td>
@@ -260,12 +275,12 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             {filteredOrmas.map((item) => (
               <div
                 key={item.id}
-                onClick={() => onSelectOrmas(item)}
-                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+                onClick={() => handleSelectOrmas(item)}
+                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between group"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                       {item.jenis}
                     </span>
                     {item.status === "Resmi" ? (
@@ -280,7 +295,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug line-clamp-2">
                       {item.nama}
                     </h3>
                     {item.singkatan && (
@@ -295,12 +310,29 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-mono text-[11px]">{item.noSkt}</span>
-                  <span className="text-blue-800 font-bold hover:underline">Lihat Profile &rarr;</span>
+                  <span className="font-mono text-[11px] text-slate-600 font-semibold">{item.noSkt}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectOrmas(item);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-blue-800 group-hover:text-blue-950 group-hover:translate-x-0.5 transition-all"
+                  >
+                    <span>Lihat Detail</span>
+                    <span>&rarr;</span>
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+        )}
+
+        {/* Fallback Internal Modal if onSelectOrmas was not provided externally */}
+        {!onSelectOrmas && (
+          <OrmasDetailModal
+            ormas={internalSelectedOrmas}
+            onClose={() => setInternalSelectedOrmas(null)}
+          />
         )}
       </div>
     </section>

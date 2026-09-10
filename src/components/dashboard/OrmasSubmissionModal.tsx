@@ -1,6 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { addSubmissionFromPayload } from '@/services/submissionStorage';
+
+export interface OrmasSubmissionPayload {
+  id?: string;
+  nomorTiket?: string;
+  namaOrganisasi: string;
+  namaSingkat?: string;
+  jenisOrganisasi: string;
+  alamatKantor?: string;
+  kodePos?: string;
+  noTelepon?: string;
+  [key: string]: any;
+}
 
 interface OrmasSubmissionModalProps {
   isOpen: boolean;
@@ -33,9 +46,9 @@ export default function OrmasSubmissionModal({
         namaOrganisasi: initialData.namaOrganisasi || initialData.namaOrmas || '',
         namaSingkat: initialData.namaSingkat || initialData.singkatan || '',
         jenisOrganisasi: initialData.jenisOrganisasi || initialData.jenisOrmas || '',
-        alamatKantor: initialData.alamatKantor || initialData.alamatSekretariat || '',
+        alamatKantor: initialData.alamatKantor || initialData.alamatSekretariat || initialData.alamat || '',
         kodePos: initialData.kodePos || '',
-        noTelepon: initialData.noTelepon || initialData.teleponKantor || '',
+        noTelepon: initialData.noTelepon || initialData.teleponKantor || initialData.telepon || '',
       });
     } else {
       setFormData({
@@ -49,6 +62,16 @@ export default function OrmasSubmissionModal({
     }
     setErrorMessage('');
   }, [initialData, isOpen]);
+
+  // Keyboard shortcut: Escape to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -70,15 +93,38 @@ export default function OrmasSubmissionModal({
 
     setTimeout(() => {
       setIsSubmitting(false);
+
+      // Ambil informasi akun yang sedang login untuk disinkronkan
+      let userEmail = '';
+      let userId = '';
+      let userName = '';
+      if (typeof window !== 'undefined') {
+        try {
+          const rawUser = localStorage.getItem('kesbangpol_user');
+          if (rawUser) {
+            const parsed = JSON.parse(rawUser);
+            userEmail = parsed.email || '';
+            userId = parsed.id || '';
+            userName = parsed.nama || '';
+          }
+        } catch (e) {
+          console.error('Error reading logged in user:', e);
+        }
+      }
+
       const newEntry = {
         id: `ORM-${Date.now().toString().slice(-4)}`,
         nomorTiket: `TIKET/SKT/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
-        namaOrganisasi: formData.namaOrganisasi,
-        namaSingkat: formData.namaSingkat,
+        namaOrganisasi: formData.namaOrganisasi.trim(),
+        namaSingkat: formData.namaSingkat.trim(),
         jenisOrganisasi: formData.jenisOrganisasi,
-        alamatKantor: formData.alamatKantor,
-        kodePos: formData.kodePos,
-        noTelepon: formData.noTelepon,
+        alamatKantor: formData.alamatKantor.trim(),
+        kodePos: formData.kodePos.trim() || '99910',
+        noTelepon: formData.noTelepon.trim(),
+        email: userEmail,
+        emailResmi: userEmail,
+        userId: userId,
+        pendaftar: userName || formData.namaOrganisasi.trim(),
         tanggalPengajuan: new Date().toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
@@ -87,14 +133,39 @@ export default function OrmasSubmissionModal({
         status: 'Menunggu Verifikasi',
       };
 
+      // Perbarui cache sesi pengguna dengan ormas baru yang didaftarkan
+      if (typeof window !== 'undefined' && userEmail) {
+        try {
+          const rawUser = localStorage.getItem('kesbangpol_user');
+          if (rawUser) {
+            const parsed = JSON.parse(rawUser);
+            localStorage.setItem(
+              'kesbangpol_user',
+              JSON.stringify({
+                ...parsed,
+                ormasNama: newEntry.namaOrganisasi,
+                singkatan: newEntry.namaSingkat,
+                jenisOrmas: newEntry.jenisOrganisasi,
+                alamat: newEntry.alamatKantor,
+                nomorTiket: newEntry.nomorTiket,
+                statusSkt: 'Menunggu Verifikasi',
+              })
+            );
+          }
+        } catch (e) {}
+      }
+
+      // Simpan ke database MySQL dan storage
+      addSubmissionFromPayload(newEntry);
+
       onSuccess(newEntry);
       onClose();
     }, 400);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8 text-slate-800 dark:text-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 overflow-y-auto modal-backdrop">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8 text-slate-800 dark:text-slate-200 modal-card">
         {/* Modal Top Header */}
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-950/60">
           <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
@@ -144,7 +215,7 @@ export default function OrmasSubmissionModal({
               type="text"
               value={formData.namaSingkat}
               onChange={(e) => setFormData({ ...formData, namaSingkat: e.target.value })}
-              placeholder="contoh: IPAM / PWKM"
+              placeholder="contoh: FPK / KNPI"
               className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold transition-all text-xs"
             />
           </div>

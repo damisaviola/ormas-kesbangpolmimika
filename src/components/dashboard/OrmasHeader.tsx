@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDashboard } from '@/context/DashboardContext';
@@ -10,6 +10,41 @@ export default function OrmasHeader() {
   const { isDarkMode, setIsDarkMode, isCollapsed, setIsCollapsed, setMobileOpen } = useDashboard();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Active logged-in user state
+  const [currentUser, setCurrentUser] = useState<{
+    nama: string;
+    email: string;
+    role: string;
+    ormasNama?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('kesbangpol_user') : null;
+        if (stored) {
+          setCurrentUser(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error('Failed to parse kesbangpol_user:', e);
+      }
+    };
+
+    loadUser();
+    window.addEventListener('storage', loadUser);
+    return () => window.removeEventListener('storage', loadUser);
+  }, []);
+
+  const displayName = currentUser?.nama || 'Pemohon Ormas';
+  const displayEmail = currentUser?.email || 'pemohon@kesbangpol.go.id';
+  const displayRole = currentUser?.ormasNama || 'Pemohon Ormas';
+  const displayInitials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('') || 'PO';
 
   // Generate breadcrumb titles
   const getBreadcrumbs = () => {
@@ -172,19 +207,19 @@ export default function OrmasHeader() {
             className="flex items-center gap-2.5 p-1 pl-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">uya zerah</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Pemohon Ormas</p>
+              <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight capitalize">{displayName}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[140px]">{displayRole}</p>
             </div>
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs ring-2 ring-slate-100 dark:ring-slate-800">
-              UZ
+              {displayInitials}
             </div>
           </button>
 
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs">
               <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                <p className="font-bold text-slate-900 dark:text-white">uya zerah</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">uyazerah@gmail.com</p>
+                <p className="font-bold text-slate-900 dark:text-white capitalize">{displayName}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{displayEmail}</p>
               </div>
               <Link
                 href="/dashboard-ormas/profil"

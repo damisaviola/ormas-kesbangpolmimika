@@ -29,6 +29,14 @@ export interface OrmasSubmission {
   nomorRegistrasi?: string;
   catatan?: string;
   berkasUrl?: string;
+  distrik?: string;
+  kodePos?: string;
+  telepon?: string;
+  email?: string;
+  pendaftarEmail?: string;
+  userId?: string;
+  kategori?: string;
+  isCustomSubmission?: boolean;
 }
 
 export interface RegisteredOrmas {
