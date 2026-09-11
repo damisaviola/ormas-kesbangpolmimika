@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
         ormas: {
           include: {
             pengurus: true,
+            dokumen: true,
             user: {
               select: {
                 id: true,
@@ -62,6 +63,7 @@ export async function GET(req: NextRequest) {
       return {
         id: item.id,
         nomorRegistrasi: item.nomorTiket,
+        ormasId: item.ormas.id,
         namaOrmas: item.ormas.namaOrmas,
         singkatan: item.ormas.singkatan || undefined,
         jenisOrmas: item.ormas.jenisOrmas,
@@ -80,8 +82,20 @@ export async function GET(req: NextRequest) {
           month: 'short',
           year: 'numeric',
         }),
+        tanggalPengajuanRaw: item.tanggalPengajuan,
+        tahapanAktif: item.tahapanAktif,
+        totalDokumen: item.ormas.dokumen ? item.ormas.dokumen.length : 0,
+        dokumenList: item.ormas.dokumen
+          ? item.ormas.dokumen.map((d) => ({
+              id: d.id,
+              namaDokumen: d.namaDokumen,
+              statusUnggah: d.statusUnggah,
+              namaFile: d.namaFile,
+            }))
+          : [],
         status: item.status,
-        catatan: item.catatanVerifikator || undefined,
+        catatan: item.catatanVerifikator || item.riwayatVerifikasi?.[0]?.catatan || undefined,
+        petugasVerifikator: item.petugasVerifikator || undefined,
         isCustomSubmission: true,
       };
     });

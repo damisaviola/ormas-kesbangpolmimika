@@ -32,15 +32,6 @@ export default function Footer() {
             <p className="text-xs text-slate-400 leading-relaxed">
               Sistem Informasi Pelayanan &amp; Pendaftaran Organisasi Kemasyarakatan (SI-ORMAS) merupakan portal keterbukaan informasi dan legalitas ormas di wilayah Kabupaten Mimika.
             </p>
-            <div className="pt-2 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Pelayanan Bebas Pungli
-              </span>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300">
-                SOP 5-7 Hari Kerja
-              </span>
-            </div>
           </div>
 
           {/* Column 2: Navigasi Layanan (3 cols) */}
