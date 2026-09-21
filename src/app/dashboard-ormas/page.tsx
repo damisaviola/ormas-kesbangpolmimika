@@ -6,6 +6,7 @@ import Image from 'next/image';
 import OrmasDashboardLoading from '@/app/dashboard-ormas/loading';
 import OrmasSubmissionModal, { OrmasSubmissionPayload } from '@/components/dashboard/OrmasSubmissionModal';
 import { INITIAL_TIMELINE_STEPS } from '@/data/ormas-dashboard-data';
+import { exportToCsv, printBuktiTandaTerimaPdf } from '@/utils/exportUtils';
 
 // Helper perhitungan estimasi penyelesaian SKT berdasarkan SOP Kesbangpol 5-7 hari kerja
 function calculateEstimatedCompletion(dateStr?: string | Date, currentStatus?: string) {
@@ -123,6 +124,54 @@ export default function OrmasBerandaPage() {
     nama: string;
   }>({ show: false, ticket: '', nama: '' });
 
+  const [totalAnggota, setTotalAnggota] = useState<number>(0);
+
+  const handleExportSubmissionCsv = () => {
+    if (!hasSubmission) {
+      setShowPrintToast(true);
+      setTimeout(() => setShowPrintToast(false), 3000);
+      return;
+    }
+
+    const headers = [
+      'Nomor Tiket Registrasi',
+      'Nama Organisasi',
+      'Singkatan',
+      'Jenis Ormas',
+      'Tanggal Pengajuan',
+      'Status Verifikasi',
+      'Estimasi Penyelesaian',
+      'Petugas Verifikator',
+      'Catatan Petugas',
+    ];
+
+    const rows = [
+      [
+        submission.nomorTiket,
+        submission.namaOrmas,
+        submission.singkatan || '',
+        submission.jenisOrmas,
+        submission.tanggalPengajuan,
+        submission.status,
+        submission.estimasiTerbit,
+        submission.petugasVerifikator || 'Tim Verifikasi Bakesbangpol Mimika',
+        submission.catatan || 'Berkas dalam proses verifikasi',
+      ],
+    ];
+
+    const safeTicket = submission.nomorTiket.replace(/[^a-zA-Z0-9_-]/g, '_');
+    exportToCsv(`Tanda_Terima_${safeTicket}`, headers, rows);
+  };
+
+  const handlePrintSubmissionPdf = () => {
+    if (!hasSubmission) {
+      setShowPrintToast(true);
+      setTimeout(() => setShowPrintToast(false), 3000);
+      return;
+    }
+    printBuktiTandaTerimaPdf(submission);
+  };
+
   useEffect(() => {
     async function loadUserAndSubmission() {
       try {
@@ -231,6 +280,20 @@ export default function OrmasBerandaPage() {
             estimasiTerbit: est.estimasiDate,
             estimasiHariLagi: est.estimasiText,
           });
+
+          // Ambil jumlah anggota & pengurus dari database
+          try {
+            const pRes = await fetch(
+              `/api/pengurus?namaOrmas=${encodeURIComponent(targetSubmission.namaOrmas || '')}&userEmail=${encodeURIComponent(activeUser?.email || '')}`
+            );
+            const pJson = await pRes.json();
+            if (pJson.success && Array.isArray(pJson.data)) {
+              setTotalAnggota(pJson.data.length);
+            }
+          } catch {
+            // fallback
+          }
+
           setHasSubmission(true);
           setIsLoading(false);
           return;
@@ -473,6 +536,15 @@ export default function OrmasBerandaPage() {
           >
             <span>Kelola Berkas</span>
           </Link>
+          <Link
+            href="/dashboard-ormas/organisasi?tab=anggota"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-xl transition-colors border border-blue-200 dark:border-blue-800"
+          >
+            <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Data Anggota {totalAnggota > 0 && `(${totalAnggota})`}</span>
+          </Link>
         </div>
       </div>
 
@@ -606,22 +678,34 @@ export default function OrmasBerandaPage() {
               Alur resmi pengurusan Surat Keterangan Terdaftar Ormas di Badan Kesbangpol Kabupaten Mimika
             </p>
           </div>
-          <button
-            onClick={() => {
-              if (hasSubmission) {
-                setIsReceiptModalOpen(true);
-              } else {
-                setShowPrintToast(true);
-                setTimeout(() => setShowPrintToast(false), 3000);
-              }
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 rounded-xl transition-colors border border-blue-200 dark:border-blue-800 self-start sm:self-auto shadow-xs"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Cetak Tanda Terima
-          </button>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={handleExportSubmissionCsv}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 rounded-xl transition-colors border border-emerald-200 dark:border-emerald-800 shadow-2xs cursor-pointer"
+              title="Unduh rincian tanda terima dalam format file CSV"
+            >
+              <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Ekspor CSV</span>
+            </button>
+            <button
+              onClick={() => {
+                if (hasSubmission) {
+                  setIsReceiptModalOpen(true);
+                } else {
+                  setShowPrintToast(true);
+                  setTimeout(() => setShowPrintToast(false), 3000);
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 rounded-xl transition-colors border border-blue-200 dark:border-blue-800 shadow-xs cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Cetak Tanda Terima</span>
+            </button>
+          </div>
         </div>
 
         {/* Horizontal Timeline Tracker - Status Sinkron */}
@@ -819,86 +903,86 @@ export default function OrmasBerandaPage() {
 
       {/* Modal Tanda Terima Pendaftaran SKT */}
       {isReceiptModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/80 backdrop-blur-xs animate-in fade-in overflow-y-auto modal-backdrop">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] modal-card">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">
+            <div className="p-3.5 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50 shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold shrink-0">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold">Tanda Terima &amp; Bukti Pengajuan SKT</h3>
-                  <p className="text-xs text-slate-500">Badan Kesatuan Bangsa dan Politik Kabupaten Mimika</p>
+                  <h3 className="text-xs sm:text-sm font-bold">Tanda Terima &amp; Bukti Pengajuan SKT</h3>
+                  <p className="text-[10px] sm:text-xs text-slate-500">Badan Kesatuan Bangsa dan Politik Kabupaten Mimika</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsReceiptModalOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors text-lg"
+                className="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors text-lg shrink-0"
               >
                 &times;
               </button>
             </div>
 
             {/* Modal Content / Printable Area */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              <div className="border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 bg-slate-50/50 dark:bg-slate-950/40 space-y-6">
+            <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 flex-1">
+              <div className="border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-6 bg-slate-50/50 dark:bg-slate-950/40 space-y-4 sm:space-y-6">
                 {/* Header Kop Surat */}
-                <div className="flex items-center gap-4 border-b-2 border-slate-300 dark:border-slate-700 pb-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3 sm:gap-4 border-b-2 border-slate-300 dark:border-slate-700 pb-3 sm:pb-4">
                   <Image
                     src="/assets/pic/logo_kabupatenmimika_removebg.png"
                     alt="Lambang Mimika"
                     width={56}
                     height={56}
-                    className="h-14 w-auto object-contain shrink-0"
+                    className="h-12 w-auto sm:h-14 object-contain shrink-0"
                   />
-                  <div className="text-left">
+                  <div className="text-center sm:text-left">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                       Pemerintah Kabupaten Mimika
                     </p>
-                    <h2 className="text-sm sm:text-base font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                    <h2 className="text-xs sm:text-base font-black uppercase tracking-wide text-slate-900 dark:text-white">
                       Badan Kesatuan Bangsa dan Politik
                     </h2>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
                       Pusat Pemerintahan Kab. Mimika SP3 Kuala Kencana - Timika, Papua Tengah 99910
                     </p>
                   </div>
                 </div>
 
                 <div className="text-center py-1">
-                  <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                  <h1 className="text-sm sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase">
                     Tanda Terima Pendaftaran SKT Ormas
                   </h1>
-                  <p className="text-xs font-mono font-bold text-blue-600 dark:text-sky-400 mt-0.5">
+                  <p className="text-[11px] sm:text-xs font-mono font-bold text-blue-600 dark:text-sky-400 mt-0.5 break-all">
                     Nomor Registrasi: {submission.nomorTiket || 'TIKET/SKT/2026/001'}
                   </p>
                 </div>
 
                 {/* Details Table */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Nama Organisasi</span>
-                    <p className="font-black text-sm text-slate-900 dark:text-white">
+                    <p className="font-black text-xs sm:text-sm text-slate-900 dark:text-white break-words">
                       {submission.namaOrmas || 'Organisasi Kemasyarakatan'}
                     </p>
                     {submission.singkatan && <p className="text-[11px] text-slate-500">Singkatan: {submission.singkatan}</p>}
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Jenis Ormas &amp; Layanan</span>
                     <p className="font-bold text-slate-900 dark:text-white">{submission.jenisOrmas}</p>
                     <p className="text-[11px] text-slate-500">Pendaftaran Baru / Mandiri</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Tanggal Pengajuan</span>
                     <p className="font-bold text-slate-900 dark:text-white">{submission.tanggalPengajuan}</p>
                     <p className="text-[11px] text-emerald-600 font-semibold">Tercatat di Sistem SI-ORMAS</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Status &amp; Tahap Verifikasi</span>
                     <p className="font-bold text-purple-600 dark:text-purple-400">{submission.status}</p>
                     <p className="text-[11px] text-slate-500">
@@ -906,7 +990,7 @@ export default function OrmasBerandaPage() {
                     </p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Kelengkapan Berkas</span>
                     <p className="font-bold text-slate-900 dark:text-white">
                       {submission.totalDokumen >= 8 ? '8 / 8 Berkas Lengkap' : `${submission.totalDokumen} Dokumen Terlampir`}
@@ -914,7 +998,7 @@ export default function OrmasBerandaPage() {
                     <p className="text-[11px] text-slate-500">Akta, AD/ART, Domisili, NPWP &amp; SK</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase block">Estimasi Terbit SKT</span>
                     <p className="font-bold text-amber-600 dark:text-amber-400">{submission.estimasiTerbit}</p>
                     <p className="text-[11px] text-slate-500">{submission.estimasiHariLagi} (SOP 5-7 Hari Kerja)</p>
@@ -922,7 +1006,7 @@ export default function OrmasBerandaPage() {
                 </div>
 
                 {/* Stempel & Petugas Box */}
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                   <div>
                     <p className="text-[11px] text-slate-500">Petugas Penerima / Verifikator:</p>
                     <p className="font-bold text-slate-800 dark:text-slate-200">
@@ -930,7 +1014,7 @@ export default function OrmasBerandaPage() {
                     </p>
                     <p className="text-[10px] text-slate-400">Subbid Ormas Bakesbangpol Mimika</p>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <div className="inline-block border-2 border-emerald-600 text-emerald-700 dark:text-emerald-400 font-black text-[10px] uppercase px-3 py-1.5 rounded-lg tracking-widest rotate-[-2deg]">
                       TERDAFTAR RESMI ONLINE
                     </div>
@@ -941,23 +1025,33 @@ export default function OrmasBerandaPage() {
             </div>
 
             {/* Modal Actions */}
-            <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3 bg-slate-50 dark:bg-slate-950/50">
+            <div className="p-3.5 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 bg-slate-50 dark:bg-slate-950/50 shrink-0">
               <button
                 type="button"
-                onClick={() => setIsReceiptModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                onClick={handleExportSubmissionCsv}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
               >
-                Tutup
+                <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Unduh Rincian (CSV)
               </button>
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors"
+                onClick={handlePrintSubmissionPdf}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-colors cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
                 Cetak / Unduh Bukti PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsReceiptModalOpen(false)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer text-center"
+              >
+                Tutup
               </button>
             </div>
           </div>

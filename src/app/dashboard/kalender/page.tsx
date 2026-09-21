@@ -7,6 +7,7 @@ import {
   calculateExpiryStatus,
   ExpiryStatus,
 } from '@/data/ormas-calendar-data';
+import { createNotification } from '@/services/notificationService';
 
 export default function KalenderPage() {
   // Current view date (Default: September 2026 as per local system context)
@@ -140,6 +141,19 @@ export default function KalenderPage() {
 
   const handleSendReminder = (ormas: OrmasCalendarItem) => {
     setNotificationSentOrmas(ormas.namaOrmas);
+
+    // Buat notifikasi sistem resmi ke pihak Ormas terkait
+    createNotification({
+      title: `Pemberitahuan Jatuh Tempo SKT: ${ormas.namaOrmas}`,
+      message: `Masa berlaku Surat Keterangan Terdaftar (SKT) organisasi Anda berakhir pada ${ormas.tanggalKadaluarsa}. Mohon segera mengajukan perpanjangan berkas ke Badan Kesbangpol Mimika.`,
+      type: 'warning',
+      category: 'skt',
+      sender: 'Bakesbangpol Kabupaten Mimika',
+      recipientRole: 'ormas',
+      targetOrmas: ormas.namaOrmas,
+      link: '/dashboard-ormas/pengajuan',
+    });
+
     setTimeout(() => {
       setNotificationSentOrmas(null);
     }, 4000);
@@ -645,115 +659,118 @@ export default function KalenderPage() {
       {/* Detail Modal Dialog */}
       {selectedOrmas && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 modal-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-2 sm:p-4 md:p-6 overflow-y-auto modal-backdrop"
           onClick={() => setSelectedOrmas(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 modal-card relative max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-7 shadow-2xl border border-slate-200 relative my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedOrmas(null)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors font-bold text-xs"
+              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors font-bold text-sm z-10 shrink-0"
             >
               ✕
             </button>
 
-            {/* Header Modal */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 px-2 py-0.5 rounded border border-blue-100">
-                  {selectedOrmas.jenisOrmas}
-                </span>
-                <span className="text-xs text-slate-400 font-mono">{selectedOrmas.id}</span>
-              </div>
-              <h3 className="text-lg font-black text-slate-900 leading-snug">
-                {selectedOrmas.namaOrmas}
-              </h3>
-              {selectedOrmas.singkatan && (
-                <p className="text-xs font-semibold text-blue-800 mt-0.5">
-                  ({selectedOrmas.singkatan})
-                </p>
-              )}
-            </div>
-
-            {/* Status Expiry Box */}
-            {(() => {
-              const calc = calculateExpiryStatus(selectedOrmas.tanggalKadaluarsa);
-              return (
-                <div
-                  className={`p-4 rounded-2xl border flex items-center justify-between ${
-                    calc.status === 'kadaluarsa'
-                      ? 'bg-rose-50 border-rose-200 text-rose-900'
-                      : calc.status === 'segera_berakhir'
-                      ? 'bg-amber-50 border-amber-200 text-amber-900'
-                      : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                  }`}
-                >
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest block">
-                      Status Masa Berlaku
-                    </span>
-                    <p className="text-sm font-black mt-0.5">{calc.statusLabel}</p>
-                    <p className="text-xs font-medium mt-0.5">{calc.message}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-bold block">Durasi</span>
-                    <span className="text-xs font-mono">{selectedOrmas.masaBerlakuTahun} Tahun</span>
-                  </div>
+            {/* Scrollable Body */}
+            <div className="overflow-y-auto flex-1 pr-0.5 sm:pr-1 space-y-4">
+              {/* Header Modal */}
+              <div className="pr-8">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 px-2 py-0.5 rounded border border-blue-100">
+                    {selectedOrmas.jenisOrmas}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">{selectedOrmas.id}</span>
                 </div>
-              );
-            })()}
+                <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
+                  {selectedOrmas.namaOrmas}
+                </h3>
+                {selectedOrmas.singkatan && (
+                  <p className="text-xs font-semibold text-blue-800 mt-0.5">
+                    ({selectedOrmas.singkatan})
+                  </p>
+                )}
+              </div>
 
-            {/* Metadata Detail */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 text-xs space-y-2.5">
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Nomor SKT:</span>
-                <span className="col-span-2 font-mono font-bold text-slate-900">{selectedOrmas.nomorSk}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Tanggal Mulai Terbit:</span>
-                <span className="col-span-2 font-medium text-slate-900">
-                  {new Date(selectedOrmas.tanggalMulai).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Tanggal Kadaluarsa:</span>
-                <span className="col-span-2 font-medium text-slate-900">
-                  {new Date(selectedOrmas.tanggalKadaluarsa).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Ketua Umum:</span>
-                <span className="col-span-2 font-bold text-slate-900">{selectedOrmas.ketuaUmum}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Wilayah Distrik:</span>
-                <span className="col-span-2 text-slate-800">Distrik {selectedOrmas.distrik}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Alamat Sekretariat:</span>
-                <span className="col-span-2 text-slate-800 leading-relaxed">{selectedOrmas.alamat}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 py-1">
-                <span className="font-bold text-slate-500">Kontak Resmi:</span>
-                <span className="col-span-2 text-slate-800">{selectedOrmas.telepon} • {selectedOrmas.email}</span>
+              {/* Status Expiry Box */}
+              {(() => {
+                const calc = calculateExpiryStatus(selectedOrmas.tanggalKadaluarsa);
+                return (
+                  <div
+                    className={`p-3.5 sm:p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                      calc.status === 'kadaluarsa'
+                        ? 'bg-rose-50 border-rose-200 text-rose-900'
+                        : calc.status === 'segera_berakhir'
+                        ? 'bg-amber-50 border-amber-200 text-amber-900'
+                        : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    }`}
+                  >
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest block">
+                        Status Masa Berlaku
+                      </span>
+                      <p className="text-xs sm:text-sm font-black mt-0.5">{calc.statusLabel}</p>
+                      <p className="text-[11px] sm:text-xs font-medium mt-0.5">{calc.message}</p>
+                    </div>
+                    <div className="sm:text-right border-t sm:border-t-0 pt-1.5 sm:pt-0 border-current/10">
+                      <span className="text-[10px] sm:text-xs font-bold block">Durasi</span>
+                      <span className="text-xs font-mono">{selectedOrmas.masaBerlakuTahun} Tahun</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Metadata Detail */}
+              <div className="bg-slate-50 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 text-xs space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Nomor SKT:</span>
+                  <span className="sm:col-span-2 font-mono font-bold text-slate-900 break-all">{selectedOrmas.nomorSk}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Tanggal Mulai Terbit:</span>
+                  <span className="sm:col-span-2 font-medium text-slate-900">
+                    {new Date(selectedOrmas.tanggalMulai).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Tanggal Kadaluarsa:</span>
+                  <span className="sm:col-span-2 font-medium text-slate-900">
+                    {new Date(selectedOrmas.tanggalKadaluarsa).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Ketua Umum:</span>
+                  <span className="sm:col-span-2 font-bold text-slate-900">{selectedOrmas.ketuaUmum}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Wilayah Distrik:</span>
+                  <span className="sm:col-span-2 text-slate-800">Distrik {selectedOrmas.distrik}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1 border-b border-slate-200/60">
+                  <span className="font-bold text-slate-500">Alamat Sekretariat:</span>
+                  <span className="sm:col-span-2 text-slate-800 leading-relaxed">{selectedOrmas.alamat}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0.5 sm:gap-2 py-1">
+                  <span className="font-bold text-slate-500">Kontak Resmi:</span>
+                  <span className="sm:col-span-2 text-slate-800 break-words">{selectedOrmas.telepon} • {selectedOrmas.email}</span>
+                </div>
               </div>
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-3 border-t border-slate-100 shrink-0 mt-3">
               <button
                 onClick={() => setSelectedOrmas(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-center"
               >
                 Tutup
               </button>
@@ -762,7 +779,7 @@ export default function KalenderPage() {
                   handleSendReminder(selectedOrmas);
                   setSelectedOrmas(null);
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors shadow-xs"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors shadow-xs text-center"
               >
                 Kirim Notifikasi Perpanjangan
               </button>

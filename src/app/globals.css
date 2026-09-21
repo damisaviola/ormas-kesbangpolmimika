@@ -101,3 +101,39 @@ body {
   will-change: transform, opacity;
   transform: translateZ(0);
 }
+
+/* Print Stylesheet */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Sembunyikan elemen navigasi, sidebar, tombol, backdrop, toast saat mencetak */
+  header,
+  nav,
+  aside,
+  button,
+  .no-print,
+  .modal-backdrop,
+  [role="alert"],
+  .toast-notification {
+    display: none !important;
+  }
+
+  /* Pastikan kontainer utama cetak tidak terpotong */
+  main, .printable-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+

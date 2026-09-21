@@ -12,6 +12,7 @@ import {
   toggleUserStatus,
   resetRegisteredUsersToDefault,
 } from '@/utils/userStorage';
+import { exportToCsv, printReportPdf } from '@/utils/exportUtils';
 
 export default function DatabasePenggunaPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -117,6 +118,58 @@ export default function DatabasePenggunaPage() {
     if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
     return 0;
   });
+
+  const handleExportCsv = () => {
+    const headers = [
+      'ID Pengguna',
+      'Nama Lengkap',
+      'Alamat E-Mail',
+      'Peran / Role',
+      'Instansi / Organisasi',
+      'Telepon',
+      'Status Akun',
+      'Terakhir Login',
+      'Tanggal Terdaftar',
+    ];
+    const rows = sorted.map((u) => [
+      u.id,
+      u.nama,
+      u.email,
+      u.role === 'admin' ? 'Administrator' : 'Pengguna / Ormas',
+      u.instansi || '-',
+      u.telepon || '-',
+      u.status,
+      u.terakhirLogin || '-',
+      u.tanggalDaftar || '-',
+    ]);
+    const timestamp = new Date().toISOString().slice(0, 10);
+    exportToCsv(`Data_Pengguna_Kesbangpol_Mimika_${timestamp}`, headers, rows);
+  };
+
+  const handlePrintPdf = () => {
+    const headers = ['Nama Pengguna', 'E-Mail', 'Peran', 'Instansi / Ormas', 'Status', 'Terakhir Login'];
+    const rows = sorted.map((u) => [
+      u.nama,
+      u.email,
+      u.role === 'admin' ? 'Administrator' : 'Pengguna / Ormas',
+      u.instansi || '-',
+      u.status,
+      u.terakhirLogin || '-',
+    ]);
+
+    const roleLabel = roleFilter === 'all' ? 'Semua Peran' : `Peran: ${roleFilter}`;
+    const statusLabel = statusFilter === 'all' ? 'Semua Status' : `Status: ${statusFilter}`;
+    const searchNote = searchTerm ? `Cari: "${searchTerm}"` : '';
+    const filterDesc = [roleLabel, statusLabel, searchNote].filter(Boolean).join(' | ');
+
+    printReportPdf({
+      title: 'LAPORAN DATA PENGGUNA TERDAFTAR (SI-ORMAS)',
+      subtitle: 'Daftar Akun Administrator dan Pengguna Sistem Informasi Kesbangpol Mimika',
+      headers,
+      rows,
+      keteranganFilter: filterDesc,
+    });
+  };
 
   // Action handlers
   const handleAddUser = (e: React.FormEvent) => {
@@ -257,7 +310,29 @@ export default function DatabasePenggunaPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            onClick={handleExportCsv}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-all shadow-2xs cursor-pointer"
+            title="Ekspor seluruh daftar pengguna ke format CSV"
+          >
+            <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Ekspor CSV</span>
+          </button>
+
+          <button
+            onClick={handlePrintPdf}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-300 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-2xs cursor-pointer"
+            title="Cetak atau simpan sebagai dokumen PDF"
+          >
+            <svg className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>Cetak PDF</span>
+          </button>
+
           <button
             onClick={handleResetToDefault}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all shadow-2xs"
@@ -618,11 +693,11 @@ export default function DatabasePenggunaPage() {
 
       {/* Modal: Tambah Pengguna (Opsi Peran: Admin & Pengguna saja) */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 modal-backdrop">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 modal-card">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 overflow-y-auto modal-backdrop">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200/90 dark:border-slate-800 my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Tambah Pengguna
               </h3>
               <button
@@ -631,7 +706,7 @@ export default function DatabasePenggunaPage() {
                   setShowAddModal(false);
                   setFormError(null);
                 }}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors font-bold text-xs"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors font-bold text-xs shrink-0"
               >
                 ✕
               </button>
@@ -639,13 +714,13 @@ export default function DatabasePenggunaPage() {
 
             {/* Error Message */}
             {formError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 dark:bg-rose-950/60 dark:border-rose-900 text-xs font-semibold text-rose-600 dark:text-rose-400">
+              <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 dark:bg-rose-950/60 dark:border-rose-900 text-xs font-semibold text-rose-600 dark:text-rose-400 shrink-0">
                 {formError}
               </div>
             )}
 
-            {/* Form: Nama, E-Mail, Peran (-- Pilih Peran --, Admin, Pengguna), Password, Ulangi Password */}
-            <form onSubmit={handleAddUser} className="space-y-3.5 text-xs">
+            {/* Form: Nama, E-Mail, Peran, Password, Ulangi Password */}
+            <form onSubmit={handleAddUser} className="space-y-3.5 text-xs overflow-y-auto flex-1 pr-0.5 sm:pr-1 pt-3">
               {/* Field 1: Nama */}
               <div className="space-y-1">
                 <label className="block font-semibold text-slate-700 dark:text-slate-300">
@@ -664,46 +739,44 @@ export default function DatabasePenggunaPage() {
               {/* Field 2: E-Mail */}
               <div className="space-y-1">
                 <label className="block font-semibold text-slate-700 dark:text-slate-300">
-                  E-Mail
+                  Alamat E-Mail
                 </label>
                 <input
                   type="email"
                   required
-                  placeholder="contoh: user@mimikakab.go.id"
+                  placeholder="nama@mimikakab.go.id"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400"
                 />
               </div>
 
-              {/* Field 3: Peran (Hanya Admin dan Pengguna) */}
+              {/* Field 3: Peran Akun */}
               <div className="space-y-1">
                 <label className="block font-semibold text-slate-700 dark:text-slate-300">
-                  Peran
+                  Peran Akun
                 </label>
                 <select
                   required
                   value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-800 dark:text-slate-200 outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole | '' })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                 >
-                  <option value="" disabled>
-                    -- Pilih Peran --
-                  </option>
+                  <option value="">-- Pilih Peran --</option>
                   <option value="admin">Admin</option>
                   <option value="pengguna">Pengguna</option>
                 </select>
               </div>
 
-              {/* Field 4: Password */}
+              {/* Field 4: Password Baru */}
               <div className="space-y-1">
                 <label className="block font-semibold text-slate-700 dark:text-slate-300">
-                  Password
+                  Kata Sandi
                 </label>
                 <input
                   type="password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Minimal 6 karakter"
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400"
@@ -713,12 +786,12 @@ export default function DatabasePenggunaPage() {
               {/* Field 5: Ulangi Password */}
               <div className="space-y-1">
                 <label className="block font-semibold text-slate-700 dark:text-slate-300">
-                  Ulangi Password
+                  Ulangi Kata Sandi
                 </label>
                 <input
                   type="password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Ulangi kata sandi di atas"
                   value={newUser.confirmPassword}
                   onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400"
@@ -726,20 +799,20 @@ export default function DatabasePenggunaPage() {
               </div>
 
               {/* Action Buttons: Simpan & Batal */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
                     setFormError(null);
                   }}
-                  className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all"
+                  className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all text-center"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl shadow-xs transition-all active:scale-[0.99]"
+                  className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl shadow-xs transition-all active:scale-[0.99] text-center"
                 >
                   Simpan
                 </button>
@@ -751,27 +824,27 @@ export default function DatabasePenggunaPage() {
 
       {/* Modal: Edit Pengguna (Opsi Peran: Admin & Pengguna saja) */}
       {selectedUserForEdit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 modal-backdrop">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 overflow-y-auto modal-backdrop">
           <form
             onSubmit={handleEditUser}
-            className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 modal-card"
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                   Edit Data Pengguna
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedUserForEdit(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 text-xs overflow-y-auto flex-1 pr-0.5 sm:pr-1 pt-3">
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Nama Lengkap
@@ -787,7 +860,7 @@ export default function DatabasePenggunaPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Email
@@ -872,17 +945,17 @@ export default function DatabasePenggunaPage() {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setSelectedUserForEdit(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-center"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm text-center"
               >
                 Simpan Perubahan
               </button>
@@ -893,12 +966,12 @@ export default function DatabasePenggunaPage() {
 
       {/* Modal: Detail Profil Pengguna */}
       {selectedUserForDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 modal-backdrop">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 modal-card">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 overflow-y-auto modal-backdrop">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-11 h-11 rounded-full flex items-center justify-center font-black text-sm shadow-sm text-white ${
+                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-xs sm:text-sm shadow-sm text-white shrink-0 ${
                     getNormalizedRole(selectedUserForDetail.role) === 'admin'
                       ? 'bg-purple-600'
                       : 'bg-emerald-600'
@@ -912,24 +985,24 @@ export default function DatabasePenggunaPage() {
                     .toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                     {selectedUserForDetail.nama}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 break-all">
                     {selectedUserForDetail.email}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedUserForDetail(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs overflow-y-auto flex-1 pr-0.5 sm:pr-1 pt-3">
+              <div className="sm:col-span-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
                 <p className="text-slate-400 text-[10px] font-semibold">Instansi / Organisasi</p>
                 <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">
                   {selectedUserForDetail.instansi}
@@ -972,7 +1045,7 @@ export default function DatabasePenggunaPage() {
                 </p>
               </div>
 
-              <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+              <div className="sm:col-span-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
                 <p className="text-slate-400 text-[10px] font-semibold">Aktivitas Terakhir Login</p>
                 <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">
                   {selectedUserForDetail.terakhirLogin || '-'}
@@ -980,20 +1053,20 @@ export default function DatabasePenggunaPage() {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 shrink-0">
               <button
                 onClick={() => {
                   const toEdit = selectedUserForDetail;
                   setSelectedUserForDetail(null);
                   setSelectedUserForEdit(toEdit);
                 }}
-                className="px-4 py-2 text-xs font-bold text-blue-600 dark:text-amber-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-blue-600 dark:text-amber-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors text-center"
               >
                 Edit Akun Ini
               </button>
               <button
                 onClick={() => setSelectedUserForDetail(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-center"
               >
                 Tutup
               </button>
@@ -1004,16 +1077,16 @@ export default function DatabasePenggunaPage() {
 
       {/* Modal: Konfirmasi Hapus Pengguna */}
       {selectedUserForDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 modal-backdrop">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 text-center modal-card">
-            <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-900/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 overflow-y-auto modal-backdrop">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 text-center my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] overflow-y-auto modal-card">
+            <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-900/60 shrink-0">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
 
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                 Hapus Akun Pengguna?
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -1025,18 +1098,18 @@ export default function DatabasePenggunaPage() {
               </p>
             </div>
 
-            <div className="pt-2 flex items-center justify-center gap-2">
+            <div className="pt-2 flex flex-col-reverse sm:flex-row items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedUserForDelete(null)}
-                className="w-full py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
+                className="w-full py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-center"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleDeleteUser}
-                className="w-full py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-sm"
+                className="w-full py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-sm text-center"
               >
                 Hapus Akun
               </button>

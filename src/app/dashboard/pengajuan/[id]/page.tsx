@@ -7,6 +7,8 @@ import DetailPengajuanLoading from '@/app/dashboard/pengajuan/[id]/loading';
 import { StatusPengajuan } from '@/types/dashboard';
 import { getSubmissionById, updateSubmissionStatus } from '@/services/submissionStorage';
 import { compressDocument } from '@/utils/fileCompression';
+import { exportToCsv, printReportPdf } from '@/utils/exportUtils';
+import { createNotification } from '@/services/notificationService';
 
 interface LogItem {
   timestamp: string;
@@ -16,10 +18,16 @@ interface LogItem {
 }
 
 interface MemberItem {
-  id: number;
+  id: string | number;
   nama: string;
+  nik?: string;
   jk: 'Laki-laki' | 'Perempuan';
+  tempatLahir?: string;
   tanggalLahir: string;
+  alamatDomisili?: string;
+  golDarah?: string;
+  nomorHp?: string;
+  pekerjaan?: string;
   jabatan: string;
 }
 
@@ -351,6 +359,38 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
           })
           .catch((err) => console.error('Error fetching admin docs:', err));
       }
+
+      // Ambil data anggota & pengurus ormas dari database MySQL
+      if (sub.namaOrmas) {
+        fetch(`/api/pengurus?namaOrmas=${encodeURIComponent(sub.namaOrmas)}`)
+          .then((res) => res.json())
+          .then((json) => {
+            if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+              const mapped: MemberItem[] = json.data.map((item: any, idx: number) => ({
+                id: item.id || idx + 1,
+                nama: item.nama,
+                nik: item.nik,
+                jk: item.jk || 'Laki-laki',
+                tempatLahir: item.tempatLahir || '',
+                tanggalLahir: item.tanggalLahir || '-',
+                alamatDomisili: item.alamat || '',
+                golDarah: item.golDarah || 'A',
+                nomorHp: item.telepon || '',
+                pekerjaan: item.pekerjaan || '',
+                jabatan: item.jabatan || 'Anggota',
+              }));
+              setMembers(mapped);
+
+              const ketua = json.data.find((p: any) => p.jabatan === 'Ketua' || p.jabatan === 'Ketua Umum');
+              if (ketua && ketua.nama) setKetuaNama(ketua.nama);
+              const sek = json.data.find((p: any) => p.jabatan === 'Sekretaris' || p.jabatan === 'Sekretaris Umum');
+              if (sek && sek.nama) setSekretarisNama(sek.nama);
+              const ben = json.data.find((p: any) => p.jabatan === 'Bendahara' || p.jabatan === 'Bendahara Umum');
+              if (ben && ben.nama) setBendaharaNama(ben.nama);
+            }
+          })
+          .catch((err) => console.error('Error loading members in admin:', err));
+      }
     }
 
     const timer = setTimeout(() => setIsLoading(false), 250);
@@ -371,6 +411,40 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     setLogs([newLog, ...logs]);
     setCurrentStatus(approvalStatus);
     updateSubmissionStatus(id, approvalStatus, approvalPesan);
+
+    // Kirim notifikasi sistem resmi ke pihak Ormas pemohon
+    const statusLower = String(approvalStatus).toLowerCase();
+    const statusLabel =
+      statusLower === 'disetujui' || statusLower === 'resmi'
+        ? 'Disetujui (SKT Terbit)'
+        : statusLower === 'proses'
+        ? 'Sedang Diproses / Verifikasi Lapangan'
+        : statusLower === 'ditangguhkan' || statusLower === 'revisi'
+        ? 'Perlu Perbaikan / Revisi Berkas'
+        : statusLower === 'ditolak'
+        ? 'Ditolak'
+        : approvalStatus;
+
+    createNotification({
+      title: `Status Permohonan SKT: ${statusLabel}`,
+      message: approvalPesan
+        ? `Bakesbangpol Kabupaten Mimika memperbarui status permohonan SKT ${metadata.namaOrmas || 'organisasi Anda'} menjadi "${statusLabel}". Catatan Verifikator: "${approvalPesan}"`
+        : `Bakesbangpol Kabupaten Mimika memperbarui status permohonan SKT ${metadata.namaOrmas || 'organisasi Anda'} menjadi "${statusLabel}".`,
+      type:
+        statusLower === 'disetujui' || statusLower === 'resmi'
+          ? 'success'
+          : statusLower === 'ditolak'
+          ? 'danger'
+          : statusLower === 'ditangguhkan' || statusLower === 'revisi'
+          ? 'warning'
+          : 'info',
+      category: 'pengajuan',
+      sender: 'Bakesbangpol Kabupaten Mimika',
+      recipientRole: 'ormas',
+      targetOrmas: metadata.namaOrmas || undefined,
+      targetEmail: pendaftarEmail || undefined,
+      link: '/dashboard-ormas',
+    });
 
     showToast('Status approval & pesan berhasil disimpan!');
   };
@@ -426,6 +500,20 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
         if (resJson.activityLog) {
           setLogs((prev) => [resJson.activityLog, ...prev]);
+        }
+
+        // Kirim notifikasi resmi bahwa berkas diverifikasi/diunggah
+        if (isSurat) {
+          createNotification({
+            title: `Dokumen Resmi Terbit: ${title}`,
+            message: `Verifikator Bakesbangpol Mimika telah menerbitkan dokumen resmi "${title}" untuk ${metadata.namaOrmas || 'organisasi Anda'}.`,
+            type: 'success',
+            category: 'skt',
+            sender: 'Bakesbangpol Kabupaten Mimika',
+            recipientRole: 'ormas',
+            targetOrmas: metadata.namaOrmas || undefined,
+            link: '/dashboard-ormas/organisasi?tab=dokumen',
+          });
         }
 
         showToast(`✓ ${title} berhasil dikompresi (${compResult.ratio}%) & disimpan ke database!`);
@@ -538,6 +626,7 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
 
   const [newMember, setNewMember] = useState({
     nama: '',
+    nik: '',
     jk: 'Laki-laki' as 'Laki-laki' | 'Perempuan',
     tempatLahir: '',
     tanggalLahir: '',
@@ -548,35 +637,160 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     jabatan: 'Anggota',
   });
 
-  const handleAddMember = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMember.nama) return;
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberJabatanFilter, setMemberJabatanFilter] = useState('all');
+  const [memberPage, setMemberPage] = useState(1);
+  const [membersPerPage, setMembersPerPage] = useState(10);
 
-    const mObj: MemberItem = {
-      id: members.length + 1,
-      nama: newMember.nama,
-      jk: newMember.jk,
-      tanggalLahir: newMember.tanggalLahir || '1995-01-01',
-      jabatan: newMember.jabatan,
-    };
-    setMembers([...members, mObj]);
-    setNewMember({
-      nama: '',
-      jk: 'Laki-laki',
-      tempatLahir: '',
-      tanggalLahir: '',
-      alamatDomisili: '',
-      golDarah: 'A',
-      nomorHp: '',
-      pekerjaan: '',
-      jabatan: 'Anggota',
-    });
-    showToast('Data anggota baru berhasil ditambahkan!');
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMember.nama.trim()) return;
+
+    try {
+      showToast('Menyimpan data anggota ke database...');
+      const payload = {
+        namaOrmas: metadata.namaOrmas,
+        nama: newMember.nama.trim(),
+        nik: newMember.nik.trim(),
+        jabatan: newMember.jabatan || 'Anggota',
+        telepon: newMember.nomorHp || '-',
+        email: pendaftarEmail || '',
+        alamat: newMember.alamatDomisili || '-',
+        jk: newMember.jk,
+        tempatLahir: newMember.tempatLahir,
+        tanggalLahir: newMember.tanggalLahir,
+        golDarah: newMember.golDarah,
+        pekerjaan: newMember.pekerjaan,
+        actorName: 'Verifikator Kesbangpol Mimika',
+      };
+
+      const res = await fetch('/api/pengurus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        const mObj: MemberItem = {
+          id: json.data.id,
+          nama: json.data.nama,
+          nik: json.data.nik,
+          jk: json.data.jk || 'Laki-laki',
+          tempatLahir: json.data.tempatLahir || '',
+          tanggalLahir: json.data.tanggalLahir || '-',
+          alamatDomisili: json.data.alamat || '',
+          golDarah: json.data.golDarah || 'A',
+          nomorHp: json.data.telepon || '',
+          pekerjaan: json.data.pekerjaan || '',
+          jabatan: json.data.jabatan || 'Anggota',
+        };
+        setMembers((prev) => [...prev, mObj]);
+        setNewMember({
+          nama: '',
+          nik: '',
+          jk: 'Laki-laki',
+          tempatLahir: '',
+          tanggalLahir: '',
+          alamatDomisili: '',
+          golDarah: 'A',
+          nomorHp: '',
+          pekerjaan: '',
+          jabatan: 'Anggota',
+        });
+        showToast('✓ Data anggota baru berhasil disimpan ke database!');
+      } else {
+        showToast(`Gagal: ${json.message || 'Error server'}`);
+      }
+    } catch (err) {
+      console.error('Error adding member in admin:', err);
+      showToast('Gagal menyimpan anggota ke database');
+    }
   };
 
-  const handleDeleteMember = (memberId: number) => {
-    setMembers(members.filter((m) => m.id !== memberId));
-    showToast('Data anggota dihapus!');
+  const handleDeleteMember = async (memberId: string | number) => {
+    const target = members.find((m) => m.id === memberId);
+    if (!confirm(`Apakah Anda yakin ingin menghapus data anggota "${target?.nama || 'Anggota'}"?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/pengurus?id=${memberId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: memberId,
+          actorName: 'Verifikator Kesbangpol Mimika',
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setMembers((prev) => prev.filter((m) => m.id !== memberId));
+        showToast(`✓ Anggota "${target?.nama}" berhasil dihapus dari database!`);
+      } else {
+        showToast(`Gagal: ${json.message || 'Error server'}`);
+      }
+    } catch (err) {
+      console.error('Error deleting member in admin:', err);
+      showToast('Gagal menghapus anggota dari database');
+    }
+  };
+
+  // Handler Ekspor CSV Daftar Anggota (Admin)
+  const handleExportMembersCsv = () => {
+    const headers = [
+      'No',
+      'Nama Lengkap',
+      'NIK',
+      'Jabatan Dalam Ormas',
+      'Jenis Kelamin',
+      'Tempat Lahir',
+      'Tanggal Lahir',
+      'Alamat Domisili',
+      'Golongan Darah',
+      'Nomor HP / WhatsApp',
+      'Pekerjaan',
+    ];
+
+    const rows = sortedMembers.map((m, idx) => [
+      idx + 1,
+      m.nama,
+      m.nik || '-',
+      m.jabatan,
+      m.jk,
+      m.tempatLahir || '-',
+      m.tanggalLahir,
+      m.alamatDomisili || '-',
+      m.golDarah || '-',
+      m.nomorHp || '-',
+      m.pekerjaan || '-',
+    ]);
+
+    const safeName = (metadata.namaOrmas || 'Ormas').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const timestamp = new Date().toISOString().slice(0, 10);
+    exportToCsv(`Verifikasi_Anggota_${safeName}_${timestamp}`, headers, rows);
+  };
+
+  // Handler Cetak PDF Register Anggota Resmi (Admin)
+  const handlePrintMembersPdf = () => {
+    const headers = ['Nama Lengkap', 'NIK', 'Jabatan', 'JK', 'TTL', 'Alamat', 'Kontak'];
+    const rows = sortedMembers.map((m) => [
+      m.nama,
+      m.nik || '-',
+      m.jabatan,
+      m.jk,
+      m.tempatLahir ? `${m.tempatLahir}, ${m.tanggalLahir}` : m.tanggalLahir,
+      m.alamatDomisili || '-',
+      m.nomorHp || '-',
+    ]);
+
+    printReportPdf({
+      title: `REGISTER VERIFIKASI ANGGOTA - ${metadata.namaOrmas || 'ORGANISASI'}`,
+      subtitle: `Daftar Keanggotaan Ormas yang Diverifikasi Bakesbangpol Kabupaten Mimika`,
+      headers,
+      rows,
+      keteranganFilter: `Total Anggota Terverifikasi: ${sortedMembers.length} Orang`,
+      orientation: 'landscape',
+    });
   };
 
   // Anggota sorting state
@@ -592,7 +806,22 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     }
   };
 
-  const sortedMembers = [...members].sort((a, b) => {
+  const filteredMembers = members.filter((m) => {
+    const query = memberSearch.toLowerCase();
+    const matchesSearch =
+      m.nama.toLowerCase().includes(query) ||
+      (m.nik && m.nik.includes(query)) ||
+      (m.pekerjaan && m.pekerjaan.toLowerCase().includes(query)) ||
+      (m.alamatDomisili && m.alamatDomisili.toLowerCase().includes(query));
+
+    const matchesJabatan =
+      memberJabatanFilter === 'all' ||
+      m.jabatan.toLowerCase() === memberJabatanFilter.toLowerCase();
+
+    return matchesSearch && matchesJabatan;
+  });
+
+  const sortedMembers = [...filteredMembers].sort((a, b) => {
     let valA = (a[memberSortField] || '') as string;
     let valB = (b[memberSortField] || '') as string;
     if (typeof valA === 'string') valA = valA.toLowerCase();
@@ -601,6 +830,12 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
     if (valA > valB) return memberSortOrder === 'asc' ? 1 : -1;
     return 0;
   });
+
+  const totalMemberPages = Math.ceil(sortedMembers.length / membersPerPage) || 1;
+  const paginatedMembers = sortedMembers.slice(
+    (memberPage - 1) * membersPerPage,
+    memberPage * membersPerPage
+  );
 
   if (isLoading) {
     return <DetailPengajuanLoading />;
@@ -1727,26 +1962,100 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
       {/* TAB 6: ANGGOTA */}
       {activeTab === 'anggota' && (
         <div className="space-y-6">
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Anggota</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{members.length} <span className="text-xs font-semibold text-slate-400">Orang</span></div>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Pengurus Inti</div>
+              <div className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">
+                {members.filter((m) => m.jabatan.toLowerCase() !== 'anggota').length} <span className="text-xs font-semibold text-slate-400">Orang</span>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Anggota Biasa</div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {members.filter((m) => m.jabatan.toLowerCase() === 'anggota').length} <span className="text-xs font-semibold text-slate-400">Orang</span>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs">
+              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status Verifikasi</div>
+              <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-bold border border-emerald-200/60 dark:border-emerald-800">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Tersinkron Database
+              </div>
+            </div>
+          </div>
+
           {/* Form Tambah Anggota */}
-          <form onSubmit={handleAddMember} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                Tambah Anggota Baru
-              </h2>
-              <p className="text-[11px] text-slate-400 mt-0.5">Input data keanggotaan Ormas untuk verifikasi</p>
+          <form onSubmit={handleAddMember} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                  Entri Anggota Baru Oleh Verifikator
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Tambahkan atau daftarkan anggota tambahan ke dalam basis data Ormas ini
+                </p>
+              </div>
+              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-3 py-1 rounded-lg border border-blue-200 dark:border-blue-900 self-start sm:self-auto">
+                Admin Kesbangpol
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Nama Lengkap <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="Masukkan nama lengkap..."
+                  placeholder="Nama lengkap anggota..."
                   value={newMember.nama}
                   onChange={(e) => setNewMember({ ...newMember, nama: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                 />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  NIK (16 Digit)
+                </label>
+                <input
+                  type="text"
+                  maxLength={16}
+                  placeholder="16 digit NIK KTP (9101...)"
+                  value={newMember.nik}
+                  onChange={(e) => setNewMember({ ...newMember, nik: e.target.value.replace(/\D/g, '') })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Jabatan Dalam Organisasi <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={newMember.jabatan}
+                  onChange={(e) => setNewMember({ ...newMember, jabatan: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-bold focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Ketua">Ketua</option>
+                  <option value="Wakil Ketua">Wakil Ketua</option>
+                  <option value="Sekretaris">Sekretaris</option>
+                  <option value="Wakil Sekretaris">Wakil Sekretaris</option>
+                  <option value="Bendahara">Bendahara</option>
+                  <option value="Wakil Bendahara">Wakil Bendahara</option>
+                  <option value="Koordinator Lapangan">Koordinator Lapangan</option>
+                  <option value="Ketua Bidang">Ketua Bidang</option>
+                  <option value="Humas">Humas</option>
+                  <option value="Dewan Penasihat">Dewan Penasihat</option>
+                  <option value="Anggota">Anggota</option>
+                </select>
               </div>
 
               <div>
@@ -1783,12 +2092,23 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Domisili</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nomor HP / WhatsApp</label>
+                <input
+                  type="tel"
+                  placeholder="0822..."
+                  value={newMember.nomorHp}
+                  onChange={(e) => setNewMember({ ...newMember, nomorHp: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Pekerjaan / Profesi</label>
                 <input
                   type="text"
-                  placeholder="Jl. Serui Mekar..."
-                  value={newMember.alamatDomisili}
-                  onChange={(e) => setNewMember({ ...newMember, alamatDomisili: e.target.value })}
+                  placeholder="Wiraswasta, PNS, Wiraswasta..."
+                  value={newMember.pekerjaan}
+                  onChange={(e) => setNewMember({ ...newMember, pekerjaan: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -1804,116 +2124,134 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                   <option value="B">B</option>
                   <option value="AB">AB</option>
                   <option value="O">O</option>
+                  <option value="-">- (Belum Tahu)</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nomor HP</label>
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Domisili Lengkap</label>
                 <input
                   type="text"
-                  placeholder="0822..."
-                  value={newMember.nomorHp}
-                  onChange={(e) => setNewMember({ ...newMember, nomorHp: e.target.value })}
+                  placeholder="Alamat domisili lengkap di Kab. Mimika"
+                  value={newMember.alamatDomisili}
+                  onChange={(e) => setNewMember({ ...newMember, alamatDomisili: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Pekerjaan</label>
-                <input
-                  type="text"
-                  placeholder="Wiraswasta, PNS..."
-                  value={newMember.pekerjaan}
-                  onChange={(e) => setNewMember({ ...newMember, pekerjaan: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Jabatan Dalam Ormas</label>
-                <select
-                  value={newMember.jabatan}
-                  onChange={(e) => setNewMember({ ...newMember, jabatan: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none font-bold focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Ketua">Ketua</option>
-                  <option value="Sekretaris">Sekretaris</option>
-                  <option value="Bendahara">Bendahara</option>
-                  <option value="Anggota">Anggota</option>
-                </select>
               </div>
             </div>
 
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
               <button
                 type="submit"
-                className="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm"
+                className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
               >
-                Simpan
-              </button>
-              <button
-                type="button"
-                onClick={() => showToast('Seluruh data anggota selesai diproses')}
-                className="px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl"
-              >
-                Selesai
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Anggota
               </button>
             </div>
           </form>
 
           {/* Table Daftar Anggota */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                Daftar Anggota ({members.length})
-              </h2>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  Daftar Anggota & Pengurus ({members.length})
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Verifikasi data keanggotaan Ormas yang diajukan oleh pemohon
+                </p>
+              </div>
 
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                <span>Tampilkan</span>
-                <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 font-bold text-slate-800 dark:text-slate-200">
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
+              {/* Action Toolbar: Search, Filter, Export & Print */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Search Box */}
+                <div className="relative min-w-[200px]">
+                  <input
+                    type="text"
+                    placeholder="Cari nama, NIK, profesi..."
+                    value={memberSearch}
+                    onChange={(e) => {
+                      setMemberSearch(e.target.value);
+                      setMemberPage(1);
+                    }}
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+
+                {/* Filter Jabatan */}
+                <select
+                  value={memberJabatanFilter}
+                  onChange={(e) => {
+                    setMemberJabatanFilter(e.target.value);
+                    setMemberPage(1);
+                  }}
+                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none"
+                >
+                  <option value="all">Semua Jabatan</option>
+                  <option value="Ketua">Ketua</option>
+                  <option value="Sekretaris">Sekretaris</option>
+                  <option value="Bendahara">Bendahara</option>
+                  <option value="Anggota">Anggota</option>
                 </select>
+
+                {/* Export CSV Button */}
+                <button
+                  type="button"
+                  onClick={handleExportMembersCsv}
+                  className="px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 transition-colors"
+                  title="Ekspor daftar anggota ke spreadsheet CSV"
+                >
+                  <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Ekspor CSV
+                </button>
+
+                {/* Print PDF Button */}
+                <button
+                  type="button"
+                  onClick={handlePrintMembersPdf}
+                  className="px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-xl border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 transition-colors"
+                  title="Cetak register resmi anggota format PDF"
+                >
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  Cetak PDF
+                </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+            <div className="overflow-x-auto scrollbar-thin border border-slate-100 dark:border-slate-800 rounded-xl">
+              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[850px]">
                 <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
-                    <th className="py-3 px-4 w-12 text-center">No</th>
+                    <th className="py-3 px-3 w-12 text-center">No</th>
                     <th
                       onClick={() => handleMemberSort('nama')}
                       className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                     >
                       <div className="flex items-center gap-1">
-                        <span>Nama</span>
+                        <span>Nama Lengkap</span>
                         <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
                           {memberSortField === 'nama' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
                         </span>
                       </div>
                     </th>
                     <th
-                      onClick={() => handleMemberSort('jk')}
+                      onClick={() => handleMemberSort('nik')}
                       className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                     >
                       <div className="flex items-center gap-1">
-                        <span>JK</span>
+                        <span>NIK</span>
                         <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
-                          {memberSortField === 'jk' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
-                        </span>
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => handleMemberSort('tanggalLahir')}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Tanggal Lahir</span>
-                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
-                          {memberSortField === 'tanggalLahir' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                          {memberSortField === 'nik' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
                         </span>
                       </div>
                     </th>
@@ -1928,49 +2266,174 @@ export default function TinjauPengajuanPage({ params }: { params: Promise<{ id: 
                         </span>
                       </div>
                     </th>
-                    <th className="py-3 px-4 text-right">Aksi</th>
+                    <th
+                      onClick={() => handleMemberSort('jk')}
+                      className="py-3 px-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group text-center"
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>JK</span>
+                        <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                          {memberSortField === 'jk' ? (memberSortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </div>
+                    </th>
+                    <th className="py-3 px-4">Tempat, Tanggal Lahir</th>
+                    <th className="py-3 px-4">Alamat Domisili</th>
+                    <th className="py-3 px-4">Kontak & Profesi</th>
+                    <th className="py-3 px-4 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {sortedMembers.map((m, idx) => (
-                    <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="py-3.5 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
-                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">{m.nama}</td>
-                      <td className="py-3.5 px-4 font-medium">{m.jk}</td>
-                      <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-400">{m.tanggalLahir}</td>
-                      <td className="py-3.5 px-4 font-bold text-blue-700 dark:text-amber-400">{m.jabatan}</td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteMember(m.id)}
-                          className="px-3 py-1 text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-800 transition-colors"
-                        >
-                          Hapus
-                        </button>
+                  {paginatedMembers.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="py-10 text-center text-slate-400">
+                        <div className="max-w-xs mx-auto space-y-2">
+                          <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <p className="font-semibold text-slate-600 dark:text-slate-300">Belum ada anggota yang terdaftar</p>
+                          <p className="text-[11px] text-slate-400">Pemohon Ormas belum mengunggah daftar anggota, atau gunakan form di atas untuk menambahkan.</p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    paginatedMembers.map((m, idx) => {
+                      const globalIdx = (memberPage - 1) * membersPerPage + idx + 1;
+                      const isLeader = ['ketua', 'wakil ketua', 'sekretaris', 'bendahara'].some((k) =>
+                        m.jabatan.toLowerCase().includes(k)
+                      );
+                      return (
+                        <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="py-3.5 px-3 text-center font-bold text-slate-400">{globalIdx}</td>
+                          <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
+                            {m.nama}
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                            {m.nik || '-'}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${
+                                isLeader
+                                  ? 'bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                              }`}
+                            >
+                              {m.jabatan}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-center font-medium">
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                                m.jk === 'Perempuan'
+                                  ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300'
+                                  : 'bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300'
+                              }`}
+                            >
+                              {m.jk === 'Perempuan' ? 'P' : 'L'}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-medium text-slate-800 dark:text-slate-200">
+                              {m.tempatLahir || '-'}
+                            </div>
+                            <div className="text-[11px] font-mono text-slate-400">
+                              {m.tanggalLahir || '-'}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 max-w-[200px] truncate" title={m.alamatDomisili}>
+                            {m.alamatDomisili || '-'}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="text-slate-800 dark:text-slate-200 font-medium">
+                              {m.nomorHp || '-'}
+                            </div>
+                            <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                              <span>{m.pekerjaan || '-'}</span>
+                              {m.golDarah && m.golDarah !== '-' && (
+                                <span className="px-1.5 py-0.2 bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 rounded font-bold text-[10px]">
+                                  {m.golDarah}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMember(m.id)}
+                              className="px-2.5 py-1 text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-800 transition-colors"
+                            >
+                              Hapus
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination Controls */}
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
-              <span>Menampilkan {members.length} dari {members.length} anggota</span>
-              <div className="flex items-center gap-1.5">
-                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2">
+                <span>
+                  Menampilkan {paginatedMembers.length > 0 ? (memberPage - 1) * membersPerPage + 1 : 0} -{' '}
+                  {Math.min(memberPage * membersPerPage, sortedMembers.length)} dari {sortedMembers.length} anggota
+                </span>
+                <span className="text-slate-300 dark:text-slate-700">|</span>
+                <div className="flex items-center gap-1">
+                  <span>Per hal:</span>
+                  <select
+                    value={membersPerPage}
+                    onChange={(e) => {
+                      setMembersPerPage(Number(e.target.value));
+                      setMemberPage(1);
+                    }}
+                    className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-0.5 font-bold text-slate-800 dark:text-slate-200"
+                  >
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <button
+                  type="button"
+                  disabled={memberPage === 1}
+                  onClick={() => setMemberPage(1)}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                >
                   Pertama
                 </button>
-                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
+                <button
+                  type="button"
+                  disabled={memberPage === 1}
+                  onClick={() => setMemberPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                >
                   Sebelumnya
                 </button>
                 <span className="px-3 py-1.5 font-bold text-slate-900 dark:text-white bg-slate-200/70 dark:bg-slate-700 rounded-lg">
-                  1 / 1 halaman
+                  {memberPage} / {totalMemberPages}
                 </span>
-                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
+                <button
+                  type="button"
+                  disabled={memberPage >= totalMemberPages}
+                  onClick={() => setMemberPage((p) => Math.min(totalMemberPages, p + 1))}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                >
                   Selanjutnya
                 </button>
-                <button type="button" className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg font-bold text-slate-700 dark:text-slate-300">
+                <button
+                  type="button"
+                  disabled={memberPage >= totalMemberPages}
+                  onClick={() => setMemberPage(totalMemberPages)}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                >
                   Terakhir
                 </button>
               </div>
