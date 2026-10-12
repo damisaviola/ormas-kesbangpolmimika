@@ -294,19 +294,11 @@ export default function DatabasePenggunaPage() {
       {/* Header & Primary Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
-              Database Master
-            </span>
-            <span className="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded border border-sky-200 dark:border-sky-800">
-              Sinkronisasi Real-Time
-            </span>
-          </div>
-          <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Database Pengguna Terdaftar
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Daftar seluruh akun pengguna dan administrator yang terdaftar dalam sistem.
+            Daftar seluruh akun pengguna dan administrator yang terdaftar dalam sistem SI-ORMAS.
           </p>
         </div>
 

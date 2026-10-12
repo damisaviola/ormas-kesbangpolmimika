@@ -175,7 +175,7 @@ export default function DashboardSidebar() {
                 isCollapsed ? 'justify-center py-2' : 'justify-between px-3.5 py-2.5'
               } rounded-xl text-xs font-bold transition-all group ${
                 active
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 dark:shadow-blue-900/50'
+                  ? 'bg-blue-600 text-white shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
               }`}
             >
@@ -195,8 +195,8 @@ export default function DashboardSidebar() {
                 <span
                   className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
                     active
-                      ? 'bg-white text-blue-900 shadow-2xs'
-                      : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                   }`}
                 >
                   {item.badge}
@@ -214,7 +214,7 @@ export default function DashboardSidebar() {
               className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl transition-all group"
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-blue-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <ellipse cx="12" cy="5" rx="8" ry="2.5" strokeWidth={2} />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5v14c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5V5" />
@@ -236,8 +236,8 @@ export default function DashboardSidebar() {
             <div className="flex flex-col items-center py-2 space-y-2">
               <div className="w-10 border-t border-slate-200 dark:border-slate-800" />
               <div
-                title="Database Master"
-                className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-amber-950/70 text-blue-600 dark:text-amber-400 flex items-center justify-center border border-blue-200/80 dark:border-amber-800/80 shadow-2xs"
+                title="Database"
+                className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-700"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <ellipse cx="12" cy="5" rx="8" ry="2.5" strokeWidth={2} />
@@ -262,11 +262,11 @@ export default function DashboardSidebar() {
                       isCollapsed ? 'justify-center w-10 h-10' : 'gap-2.5 px-3 py-2'
                     } rounded-xl text-xs font-bold transition-all ${
                       subActive
-                        ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-500/40 shadow-2xs'
-                        : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                        ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold border border-blue-200/80 dark:border-blue-800'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     }`}
                   >
-                    <span className={subActive ? 'text-amber-700 dark:text-amber-300' : 'text-slate-600 dark:text-slate-400'}>{sub.icon}</span>
+                    <span className={subActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}>{sub.icon}</span>
                     {!isCollapsed && <span>{sub.label}</span>}
                   </Link>
                 );

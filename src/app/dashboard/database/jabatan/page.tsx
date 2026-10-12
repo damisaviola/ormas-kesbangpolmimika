@@ -71,12 +71,7 @@ export default function DatabaseJabatanPage() {
       {/* Header & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
-              Database Master
-            </span>
-          </div>
-          <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Master Data Jabatan Organisasi
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">

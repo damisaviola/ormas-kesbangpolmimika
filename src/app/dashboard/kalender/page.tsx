@@ -215,126 +215,127 @@ export default function KalenderPage() {
       )}
 
       {/* 4 Summary Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Terpantau */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 transition-colors flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Terpantau</span>
-            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Terpantau</span>
+            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-3xl font-black text-slate-900">{metrics.total}</div>
-            <p className="text-xs text-slate-500 mt-0.5">Organisasi dalam basis data</p>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{metrics.total}</div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Organisasi dalam basis data</p>
           </div>
         </div>
 
         {/* Masih Aktif */}
         <div
           onClick={() => setStatusFilter(statusFilter === 'aktif' ? 'all' : 'aktif')}
-          className={`bg-white p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs hover:shadow-xs flex flex-col justify-between ${
-            statusFilter === 'aktif' ? 'ring-2 ring-emerald-500 border-emerald-300' : 'border-slate-200'
+          className={`bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+            statusFilter === 'aktif' ? 'ring-2 ring-emerald-500 border-emerald-400' : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Masih Aktif</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Masih Aktif</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-3xl font-black text-emerald-600">{metrics.aktif}</div>
-            <p className="text-xs text-slate-500 mt-0.5">Masa berlaku &gt; 90 hari</p>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">{metrics.aktif}</div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Masa berlaku &gt; 90 hari</p>
           </div>
         </div>
 
         {/* Segera Berakhir */}
         <div
           onClick={() => setStatusFilter(statusFilter === 'segera_berakhir' ? 'all' : 'segera_berakhir')}
-          className={`bg-white p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs hover:shadow-xs flex flex-col justify-between ${
-            statusFilter === 'segera_berakhir' ? 'ring-2 ring-amber-500 border-amber-300' : 'border-slate-200'
+          className={`bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+            statusFilter === 'segera_berakhir' ? 'ring-2 ring-amber-500 border-amber-400' : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Segera Berakhir</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200/60">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Segera Berakhir</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex items-center justify-center border border-amber-200/60 dark:border-amber-800">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-3xl font-black text-amber-600">{metrics.segeraBerakhir}</div>
-            <p className="text-xs text-amber-700 font-medium mt-0.5">Jatuh tempo dlm ≤ 90 hari</p>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 tracking-tight">{metrics.segeraBerakhir}</div>
+            <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">Jatuh tempo dlm ≤ 90 hari</p>
           </div>
         </div>
 
         {/* Sudah Kadaluarsa */}
         <div
           onClick={() => setStatusFilter(statusFilter === 'kadaluarsa' ? 'all' : 'kadaluarsa')}
-          className={`bg-white p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs hover:shadow-xs flex flex-col justify-between ${
-            statusFilter === 'kadaluarsa' ? 'ring-2 ring-rose-500 border-rose-300' : 'border-slate-200'
+          className={`bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+            statusFilter === 'kadaluarsa' ? 'ring-2 ring-rose-500 border-rose-400' : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-rose-800 uppercase tracking-wider">Sudah Kadaluarsa</span>
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200/60">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xs font-medium text-rose-700 dark:text-rose-400">Sudah Kadaluarsa</span>
+            <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 flex items-center justify-center border border-rose-200/60 dark:border-rose-800">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-3xl font-black text-rose-600">{metrics.kadaluarsa}</div>
-            <p className="text-xs text-rose-700 font-medium mt-0.5">Wajib perpanjangan SKT</p>
+            <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 tracking-tight">{metrics.kadaluarsa}</div>
+            <p className="text-xs text-rose-600 dark:text-rose-500 mt-0.5">Wajib perpanjangan SKT</p>
           </div>
         </div>
       </div>
 
       {/* Main Calendar View Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5 sm:p-6 space-y-5">
+      {/* Main Calendar View Section */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 space-y-5 transition-colors">
         {/* Calendar Header Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-black text-slate-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               {monthNames[month]} {year}
             </h2>
             <button
               onClick={handleToday}
-              className="px-2.5 py-1 text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+              className="px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors"
             >
               Bulan Sekarang
             </button>
             {selectedDay !== null && (
               <button
                 onClick={() => setSelectedDay(null)}
-                className="px-2.5 py-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                className="px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
-                Hapus Filter Tanggal ({selectedDay} {monthNames[month]}) ✕
+                Hapus Filter ({selectedDay} {monthNames[month]}) ✕
               </button>
             )}
           </div>
 
           {/* Month Stepper Buttons & Legend */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-3 text-xs">
-              <span className="inline-flex items-center gap-1.5 text-slate-600">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Tanggal Mulai Terbit
+              <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-blue-600"></span> Tanggal Mulai
               </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Tanggal Kadaluarsa
+              <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span> Tanggal Kadaluarsa
               </span>
             </div>
 
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
               <button
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:shadow-xs transition-all"
+                className="p-1.5 rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
                 title="Bulan Sebelumnya"
                 aria-label="Previous Month"
               >
@@ -344,7 +345,7 @@ export default function KalenderPage() {
               </button>
               <button
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:shadow-xs transition-all"
+                className="p-1.5 rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
                 title="Bulan Berikutnya"
                 aria-label="Next Month"
               >
@@ -357,7 +358,7 @@ export default function KalenderPage() {
         </div>
 
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
           {daysOfWeek.map((day) => (
             <div key={day} className="py-1">
               {day}
@@ -369,7 +370,7 @@ export default function KalenderPage() {
         <div className="grid grid-cols-7 gap-1 sm:gap-2">
           {/* Empty spacer cells before month starts */}
           {Array.from({ length: startingDayIndex }).map((_, index) => (
-            <div key={`empty-${index}`} className="min-h-[75px] sm:min-h-[90px] rounded-xl bg-slate-50/40 border border-transparent"></div>
+            <div key={`empty-${index}`} className="min-h-[70px] sm:min-h-[90px] rounded-lg bg-slate-50/40 dark:bg-slate-800/20 border border-transparent"></div>
           ))}
 
           {/* Days in Month */}
@@ -385,28 +386,28 @@ export default function KalenderPage() {
               <div
                 key={dayNum}
                 onClick={() => setSelectedDay(selectedDay === dayNum ? null : dayNum)}
-                className={`min-h-[75px] sm:min-h-[95px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                className={`min-h-[70px] sm:min-h-[90px] p-2 rounded-lg border transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'ring-2 ring-blue-600 bg-blue-50/50 border-blue-400 shadow-xs'
+                    ? 'ring-2 ring-blue-600 bg-blue-50/50 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600'
                     : isToday
-                    ? 'bg-amber-50/40 border-amber-300'
-                    : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/60'
+                    ? 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700'
+                    : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className={`text-xs font-bold rounded-md w-6 h-6 flex items-center justify-center ${
+                    className={`text-xs font-semibold rounded-md w-6 h-6 flex items-center justify-center ${
                       isToday
-                        ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+                        ? 'bg-amber-500 text-slate-950 font-bold'
                         : isSelected
-                        ? 'bg-blue-900 text-white font-black'
-                        : 'text-slate-800'
+                        ? 'bg-blue-600 text-white font-bold'
+                        : 'text-slate-800 dark:text-slate-200'
                     }`}
                   >
                     {dayNum}
                   </span>
                   {isToday && (
-                    <span className="hidden sm:inline-block text-[9px] font-extrabold uppercase text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                    <span className="hidden sm:inline-block text-[9px] font-bold uppercase text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/80 px-1 py-0.2 rounded">
                       Hari Ini
                     </span>
                   )}
@@ -416,7 +417,7 @@ export default function KalenderPage() {
                 <div className="space-y-1 mt-1">
                   {hasMulai && (
                     <div
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200 truncate flex items-center gap-1"
+                      className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800 truncate flex items-center gap-1"
                       title={`${dayEvents.mulai.length} Ormas Terbit SKT`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
@@ -428,10 +429,10 @@ export default function KalenderPage() {
 
                   {hasKadaluarsa && (
                     <div
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-200 truncate flex items-center gap-1"
+                      className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-800 truncate flex items-center gap-1"
                       title={`${dayEvents.kadaluarsa.length} Ormas Jatuh Tempo/Kadaluarsa`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0 animate-pulse"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
                       <span className="truncate">
                         {dayEvents.kadaluarsa[0].singkatan || dayEvents.kadaluarsa[0].namaOrmas}
                       </span>
@@ -445,13 +446,13 @@ export default function KalenderPage() {
       </div>
 
       {/* Filter and Detection Table Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5 sm:p-6 space-y-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 space-y-4 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
               Tabel Deteksi Tanggal Mulai &amp; Kadaluarsa
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {selectedDay !== null
                 ? `Menampilkan agenda khusus pada tanggal ${selectedDay} ${monthNames[month]} ${year}`
                 : `Daftar seluruh ormas dengan status masa berlaku terhitung`}
@@ -459,18 +460,18 @@ export default function KalenderPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">
-              Total <strong>{filteredOrmas.length}</strong> ormas ditemukan
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Total <strong className="text-slate-800 dark:text-slate-200">{filteredOrmas.length}</strong> ormas ditemukan
             </span>
           </div>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           {/* Search */}
           <div className="sm:col-span-5 relative">
             <svg
-              className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none"
+              className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -482,7 +483,7 @@ export default function KalenderPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama ormas, nomor SKT, atau ketua..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-900 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
             />
           </div>
 
@@ -491,7 +492,7 @@ export default function KalenderPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-900 font-medium"
+              className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
             >
               <option value="all">Semua Status Masa Berlaku</option>
               <option value="aktif">Masih Aktif (&gt; 90 Hari)</option>
@@ -505,7 +506,7 @@ export default function KalenderPage() {
             <select
               value={eventTypeFilter}
               onChange={(e) => setEventTypeFilter(e.target.value as any)}
-              className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-900 font-medium"
+              className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
             >
               <option value="all">Semua Tanggal</option>
               <option value="mulai">Tanggal Mulai Bulan Ini</option>
@@ -515,10 +516,10 @@ export default function KalenderPage() {
         </div>
 
         {/* Table View */}
-        <div className="overflow-x-auto border border-slate-200 rounded-xl">
+        <div className="overflow-x-auto border border-slate-200/80 dark:border-slate-800 rounded-lg">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-700 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+              <tr className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
                 <th className="py-3 px-4 text-center w-12">No</th>
                 <th className="py-3 px-4">Nama Organisasi &amp; SKT</th>
                 <th className="py-3 px-4">Tanggal Mulai (Terbit)</th>
@@ -543,24 +544,24 @@ export default function KalenderPage() {
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
                       onClick={() => setSelectedOrmas(item)}
                     >
-                      <td className="py-3 px-4 text-center font-mono text-slate-400">{idx + 1}</td>
+                      <td className="py-3 px-4 text-center font-mono text-slate-400 dark:text-slate-500">{idx + 1}</td>
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 group-hover:text-blue-900 leading-snug">
+                        <div className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-snug">
                           {item.namaOrmas}
                         </div>
                         {item.singkatan && (
-                          <span className="inline-block mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">
+                          <span className="inline-block mt-0.5 text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-100 dark:border-blue-900/60">
                             {item.singkatan}
                           </span>
                         )}
-                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                           {item.nomorSk}
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-medium text-slate-800">
+                      <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
                         <span className="inline-flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
                           {new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
@@ -570,7 +571,7 @@ export default function KalenderPage() {
                           })}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-medium text-slate-800">
+                      <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
                         <span className="inline-flex items-center gap-1.5">
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
@@ -592,31 +593,31 @@ export default function KalenderPage() {
                         <span
                           className={`font-semibold ${
                             calc.status === 'kadaluarsa'
-                              ? 'text-rose-700'
+                              ? 'text-rose-600 dark:text-rose-400'
                               : calc.status === 'segera_berakhir'
-                              ? 'text-amber-700'
-                              : 'text-emerald-700'
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-emerald-600 dark:text-emerald-400'
                           }`}
                         >
                           {calc.message}
                         </span>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                           Masa berlaku {item.masaBerlakuTahun} tahun
                         </div>
                       </td>
                       <td className="py-3 px-4 text-center whitespace-nowrap">
                         {calc.status === 'aktif' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                             Masih Aktif
                           </span>
                         ) : calc.status === 'segera_berakhir' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                             Segera Berakhir
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
                             Kadaluarsa
                           </span>
@@ -629,7 +630,7 @@ export default function KalenderPage() {
                               e.stopPropagation();
                               setSelectedOrmas(item);
                             }}
-                            className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                            className="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                           >
                             Detail
                           </button>
@@ -639,7 +640,7 @@ export default function KalenderPage() {
                                 e.stopPropagation();
                                 handleSendReminder(item);
                               }}
-                              className="px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors shadow-2xs"
+                              className="px-2.5 py-1 rounded-md text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900 border border-amber-200 dark:border-amber-800 transition-colors"
                               title="Kirim surat pengingat perpanjangan ke pengurus"
                             >
                               Kirim Peringatan
@@ -663,12 +664,12 @@ export default function KalenderPage() {
           onClick={() => setSelectedOrmas(null)}
         >
           <div
-            className="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-7 shadow-2xl border border-slate-200 relative my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card"
+            className="bg-white dark:bg-slate-900 rounded-xl max-w-xl w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 relative my-auto max-h-[calc(100dvh-1rem)] sm:max-h-[90vh] flex flex-col overflow-hidden modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedOrmas(null)}
-              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors font-bold text-sm z-10 shrink-0"
+              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-xs z-10 shrink-0"
             >
               ✕
             </button>
@@ -678,12 +679,12 @@ export default function KalenderPage() {
               {/* Header Modal */}
               <div className="pr-8">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-900 px-2 py-0.5 rounded border border-blue-100">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800">
                     {selectedOrmas.jenisOrmas}
                   </span>
-                  <span className="text-xs text-slate-400 font-mono">{selectedOrmas.id}</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{selectedOrmas.id}</span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">
                   {selectedOrmas.namaOrmas}
                 </h3>
                 {selectedOrmas.singkatan && (
