@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🚀 Mulai proses seeding database Kesbangpol Mimika...');
 
-  // 1. Seed Users (Hanya Administrator Utama)
-  console.log('1. Menyiapkan data Pengguna Admin...');
+  // 1. Seed Users (Administrator Utama & Akun Contoh Ormas)
+  console.log('1. Menyiapkan data Pengguna Admin & Akun Ormas...');
   const users = [
     {
       id: 'USR-001',
@@ -19,16 +19,52 @@ async function main() {
       instansi: 'Badan Kesbangpol Kabupaten Mimika',
       telepon: '0811-480-1234',
     },
+    {
+      id: 'USR-ORMAS-001',
+      nama: 'Ketua Ormas Pemuda Mimika',
+      email: 'ormas@mimika.go.id',
+      password: 'password123',
+      nip: null,
+      role: 'admin_ormas',
+      status: 'aktif',
+      instansi: 'Forum Pemuda Peduli Mimika',
+      telepon: '0812-3456-7890',
+    },
   ];
 
   for (const u of users) {
     await prisma.user.upsert({
       where: { email: u.email },
       update: {
-        role: 'superadmin',
+        role: u.role,
         status: 'aktif',
+        password: u.password,
       },
       create: u,
+    });
+  }
+
+  // Buat data Ormas contoh untuk akun ormas@mimika.go.id jika belum ada
+  const existingOrmas = await prisma.ormas.findFirst({
+    where: { userId: 'USR-ORMAS-001' },
+  });
+
+  if (!existingOrmas) {
+    await prisma.ormas.create({
+      data: {
+        userId: 'USR-ORMAS-001',
+        namaOrmas: 'Forum Pemuda Peduli Mimika',
+        singkatan: 'FPPM',
+        jenisOrmas: 'Kepemudaan',
+        kategori: 'Organisasi Kepemudaan',
+        alamatSekretariat: 'Jl. Cenderawasih No. 45, SP2, Timika',
+        distrik: 'Mimika Baru',
+        kabupaten: 'Kabupaten Mimika',
+        provinsi: 'Papua Tengah',
+        teleponKantor: '0812-3456-7890',
+        emailResmi: 'ormas@mimika.go.id',
+        statusSkt: 'Menunggu Verifikasi',
+      },
     });
   }
 

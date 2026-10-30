@@ -55,6 +55,18 @@ export const INITIAL_USERS: UserAccount[] = [
     tanggalDaftar: '01 Jan 2024, 08:00 WIT',
     telepon: '0811-480-1234',
   },
+  {
+    id: 'USR-ORMAS-001',
+    nama: 'Ketua Ormas Pemuda Mimika',
+    email: 'ormas@mimika.go.id',
+    nip: '-',
+    role: 'pengguna',
+    status: 'aktif',
+    instansi: 'Forum Pemuda Peduli Mimika',
+    terakhirLogin: 'Baru saja',
+    tanggalDaftar: '01 Agt 2026, 10:00 WIT',
+    telepon: '0812-3456-7890',
+  },
 ];
 
 export const INITIAL_JENIS_ORMAS: JenisOrmasItem[] = [

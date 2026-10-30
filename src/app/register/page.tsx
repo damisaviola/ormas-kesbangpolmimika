@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { registerUserAction } from "@/actions/auth";
 
-import { registerAccountFromForm } from "@/utils/userStorage";
-
 export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
+  const [namaOrmas, setNamaOrmas] = useState("");
+  const [telepon, setTelepon] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,8 +24,18 @@ export default function RegisterPage() {
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!fullName || !email || !password || !confirmPassword) {
-      setErrorMessage("Silakan lengkapi seluruh kolom pendaftaran.");
+    if (!fullName.trim()) {
+      setErrorMessage("Nama lengkap penanggung jawab wajib diisi.");
+      return;
+    }
+
+    if (!email.trim()) {
+      setErrorMessage("Alamat email wajib diisi.");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      setErrorMessage("Silakan masukkan kata sandi dan konfirmasi kata sandi.");
       return;
     }
 
@@ -42,10 +52,12 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Memanggil Server Action untuk menyimpan langsung ke database MySQL via Prisma
+      // Menyimpan langsung ke database MySQL via Prisma Server Action
       const result = await registerUserAction({
-        fullName,
-        email,
+        fullName: fullName.trim(),
+        namaOrmas: namaOrmas.trim() || undefined,
+        telepon: telepon.trim() || undefined,
+        email: email.trim().toLowerCase(),
         password,
       });
 
@@ -55,13 +67,12 @@ export default function RegisterPage() {
         return;
       }
 
-      // Simpan juga ke userStorage agar data pengguna di mock admin tersinkronisasi
-      registerAccountFromForm(fullName, email, password);
-
       setSuccessMessage(
-        "Pendaftaran berhasil! Akun Anda telah tersimpan di database sistem SI-ORMAS. Mengalihkan ke halaman login..."
+        "Pendaftaran berhasil! Akun dan data ormas Anda telah resmi tersimpan langsung di database MySQL SI-ORMAS. Mengalihkan ke halaman login..."
       );
       setFullName("");
+      setNamaOrmas("");
+      setTelepon("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
@@ -71,8 +82,8 @@ export default function RegisterPage() {
         router.push("/login");
       }, 1500);
     } catch (err) {
-      console.error("Kesalahan saat registrasi:", err);
-      setErrorMessage("Gagal menghubungkan ke database MySQL. Pastikan server lokal aktif.");
+      console.error("Kesalahan saat registrasi ke database:", err);
+      setErrorMessage("Gagal menghubungkan ke database MySQL. Pastikan koneksi server aktif.");
     } finally {
       setIsLoading(false);
     }
@@ -81,31 +92,41 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-3 sm:p-6 bg-slate-100 font-sans text-slate-900">
       {/* Responsive Centered Card */}
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg border border-slate-200/80 overflow-hidden grid grid-cols-1 md:grid-cols-2">
+      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden grid grid-cols-1 md:grid-cols-5">
         
         {/* Left Side: Branding Panel */}
-        <div className="bg-sky-500 text-white p-6 sm:p-8 md:p-10 flex flex-col items-center justify-between text-center space-y-6">
+        <div className="md:col-span-2 bg-gradient-to-br from-sky-600 via-blue-600 to-indigo-700 text-white p-6 sm:p-8 flex flex-col items-center justify-between text-center space-y-6">
           <div className="space-y-4 flex flex-col items-center pt-2">
             {/* Logo Badge */}
-            <div className="bg-white p-2.5 rounded-2xl shadow-xs inline-block">
+            <div className="bg-white p-3 rounded-2xl shadow-xs inline-block">
               <Image
                 src="/assets/pic/Lambang_Kabupaten_Mimika.jpg"
                 alt="Lambang Kabupaten Mimika"
-                width={60}
-                height={60}
+                width={64}
+                height={64}
                 priority
-                className="h-14 sm:h-16 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </div>
 
             {/* Title & Subtitle */}
             <div className="space-y-1.5">
-              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight leading-snug">
-                Pendaftaran Akun <br className="hidden sm:inline" /> Kesbangpol Mimika
+              <h1 className="text-xl font-black tracking-tight leading-snug">
+                Pendaftaran Akun Ormas
               </h1>
-              <p className="text-[11px] sm:text-xs text-sky-100 font-medium">
+              <p className="text-xs text-sky-100 font-medium leading-relaxed">
                 Badan Kesatuan Bangsa dan Politik <br />
                 Kabupaten Mimika, Papua Tengah
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/10 border border-white/20 text-left text-xs space-y-1.5">
+              <p className="font-bold text-sky-100 flex items-center gap-1.5">
+                <span>🛡️</span>
+                <span>Terhubung Langsung ke Database</span>
+              </p>
+              <p className="text-[11px] text-sky-200/90 leading-relaxed">
+                Akun yang didaftarkan langsung tersimpan secara permanen ke server database MySQL SI-ORMAS Kesbangpol.
               </p>
             </div>
           </div>
@@ -114,7 +135,7 @@ export default function RegisterPage() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all border border-white/20"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all border border-white/20"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -124,22 +145,22 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side: Form Registrasi Sederhana */}
-        <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-white space-y-5">
+        {/* Right Side: Form Registrasi */}
+        <div className="md:col-span-3 p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-white space-y-5">
           <div className="space-y-4">
             {/* Header */}
             <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-sky-500 tracking-tight">
-                Formulir Pendaftaran
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Buat Akun Ormas Baru
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5 sm:mt-1">
-                Lengkapi formulir di bawah ini untuk membuat akun baru
+              <p className="text-xs text-slate-500 mt-0.5">
+                Lengkapi formulir berikut untuk mendaftarkan organisasi Anda ke sistem
               </p>
             </div>
 
             {/* Notifikasi Pesan Error */}
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-medium text-red-600 flex items-start gap-2">
+              <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs font-semibold text-red-600 flex items-start gap-2.5">
                 <svg className="w-4 h-4 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -149,7 +170,7 @@ export default function RegisterPage() {
 
             {/* Notifikasi Pesan Sukses */}
             {successMessage && (
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700 flex items-start gap-2">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700 flex items-start gap-2.5">
                 <svg className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -159,10 +180,10 @@ export default function RegisterPage() {
 
             {/* Input Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
-              {/* Field 1: Nama Lengkap */}
+              {/* Field 1: Nama Lengkap Penanggung Jawab */}
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Nama Lengkap Penanggung Jawab <span className="text-red-500">*</span>
+                <label className="block text-xs font-bold text-slate-700">
+                  Nama Lengkap Penanggung Jawab / Ketua <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -170,62 +191,92 @@ export default function RegisterPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Contoh: Yohanes Maturbongs"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
                 />
               </div>
 
-              {/* Field 2: Alamat E-Mail */}
+              {/* Field 2: Nama Ormas */}
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Alamat E-Mail <span className="text-red-500">*</span>
+                <label className="block text-xs font-bold text-slate-700">
+                  Nama Organisasi Kemasyarakatan (Ormas)
                 </label>
                 <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@email.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                  type="text"
+                  value={namaOrmas}
+                  onChange={(e) => setNamaOrmas(e.target.value)}
+                  placeholder="Contoh: Forum Pemuda Peduli Mimika"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
                 />
               </div>
 
-              {/* Field 3: Password */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold text-slate-700">
-                    Password <span className="text-red-500">*</span>
+              {/* Field 3: Kontak WhatsApp & Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Nomor WhatsApp / HP
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-[10px] font-medium text-sky-600 hover:underline cursor-pointer"
-                  >
-                    {showPassword ? "Sembunyikan" : "Lihat"}
-                  </button>
+                  <input
+                    type="tel"
+                    value={telepon}
+                    onChange={(e) => setTelepon(e.target.value)}
+                    placeholder="Contoh: 0812-4099-8877"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  />
                 </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimal 6 karakter"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
-                />
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Alamat E-Mail Resmi <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nama@email.com"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  />
+                </div>
               </div>
 
-              {/* Field 4: Konfirmasi Password */}
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Ulangi Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Ketik ulang password"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
-                />
+              {/* Field 4: Password & Konfirmasi */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                    >
+                      {showPassword ? "Sembunyikan" : "Lihat"}
+                    </button>
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimal 6 karakter"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Ulangi Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Ketik ulang password"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  />
+                </div>
               </div>
 
               {/* Tombol Submit */}
@@ -233,7 +284,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all active:scale-[0.99] disabled:opacity-60 min-h-[44px] flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all active:scale-[0.99] disabled:opacity-60 min-h-[44px] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? (
                     <>
@@ -241,10 +292,10 @@ export default function RegisterPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                       </svg>
-                      <span>Mendaftarkan Akun...</span>
+                      <span>Mendaftarkan ke Database...</span>
                     </>
                   ) : (
-                    <span>Daftar Akun Sekarang</span>
+                    <span>Daftarkan Akun ke Database</span>
                   )}
                 </button>
               </div>
@@ -254,7 +305,7 @@ export default function RegisterPage() {
           {/* Footer Login Link */}
           <div className="pt-3 border-t border-slate-100 text-center text-xs text-slate-500">
             <span>Sudah memiliki akun? </span>
-            <Link href="/login" className="font-bold text-sky-600 hover:underline">
+            <Link href="/login" className="font-bold text-blue-600 hover:underline">
               Login ke Sistem
             </Link>
           </div>

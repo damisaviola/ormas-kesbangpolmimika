@@ -6,8 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginUserAction } from "@/actions/auth";
 
-import { getRegisteredUsers, updateRegisteredUser } from "@/utils/userStorage";
-
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -37,38 +35,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Simpan informasi sesi login ke localStorage
+      // Simpan informasi sesi login pengguna yang aktif
       if (typeof window !== "undefined") {
         localStorage.setItem("kesbangpol_user", JSON.stringify(result.user));
-      }
-
-      // Sinkronisasi status terakhir login ke userStorage jika ada di mock
-      const users = getRegisteredUsers();
-      const matched = users.find(
-        (u) =>
-          u.email.toLowerCase() === username.trim().toLowerCase() ||
-          u.nama.toLowerCase() === username.trim().toLowerCase()
-      );
-
-      if (matched) {
-        const now = new Date();
-        const formattedDate =
-          now.toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          }) +
-          ', ' +
-          now.toLocaleTimeString('id-ID', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }) +
-          ' WIT';
-
-        updateRegisteredUser({
-          ...matched,
-          terakhirLogin: formattedDate,
-        });
       }
 
       // Pembeda otomatis berdasarkan Role di Database:

@@ -4,14 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TableBadge from '@/components/dashboard/TableBadge';
 import PenggunaLoading from '@/app/dashboard/database/pengguna/loading';
 import { UserAccount, UserRole } from '@/types/dashboard';
-import {
-  getRegisteredUsers,
-  addRegisteredUser,
-  updateRegisteredUser,
-  deleteRegisteredUser,
-  toggleUserStatus,
-  resetRegisteredUsersToDefault,
-} from '@/utils/userStorage';
 import { exportToCsv, printReportPdf } from '@/utils/exportUtils';
 
 export default function DatabasePenggunaPage() {
@@ -56,28 +48,41 @@ export default function DatabasePenggunaPage() {
     }, 3500);
   };
 
-  const loadUsers = useCallback(() => {
-    const list = getRegisteredUsers();
-    setUsers(list);
+  const loadUsers = useCallback(async () => {
+    try {
+      const res = await fetch('/api/pengguna', { cache: 'no-store' });
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        setUsers(json.data);
+      }
+    } catch (err) {
+      console.warn('Gagal memuat pengguna dari database:', err);
+    }
   }, []);
 
   useEffect(() => {
-    loadUsers();
-    const timer = setTimeout(() => setIsLoading(false), 300);
+    let isMounted = true;
 
-    const handleStorageUpdate = () => {
-      loadUsers();
-    };
+    async function fetchInitialUsers() {
+      try {
+        const res = await fetch('/api/pengguna', { cache: 'no-store' });
+        const json = await res.json();
+        if (isMounted && json.success && Array.isArray(json.data)) {
+          setUsers(json.data);
+        }
+      } catch (err) {
+        console.warn('Gagal memuat pengguna dari database:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
 
-    window.addEventListener('siormas_users_updated', handleStorageUpdate);
-    window.addEventListener('storage', handleStorageUpdate);
+    fetchInitialUsers();
 
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener('siormas_users_updated', handleStorageUpdate);
-      window.removeEventListener('storage', handleStorageUpdate);
+      isMounted = false;
     };
-  }, [loadUsers]);
+  }, []);
 
   if (isLoading) {
     return <PenggunaLoading />;
@@ -172,7 +177,7 @@ export default function DatabasePenggunaPage() {
   };
 
   // Action handlers
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
@@ -204,69 +209,109 @@ export default function DatabasePenggunaPage() {
     const defaultInstansi =
       newUser.role === 'admin'
         ? 'Badan Kesbangpol Kabupaten Mimika'
-        : 'Pengguna Sistem SI-ORMAS';
+        : 'Organisasi Kemasyarakatan';
 
-    addRegisteredUser({
-      nama: newUser.nama.trim(),
-      email: newUser.email.trim().toLowerCase(),
-      nip: '-',
-      telepon: '-',
-      role: newUser.role as UserRole,
-      status: 'aktif',
-      instansi: defaultInstansi,
-      terakhirLogin: 'Belum pernah login',
-      password: newUser.password,
-    });
+    try {
+      const res = await fetch('/api/pengguna', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nama: newUser.nama.trim(),
+          email: newUser.email.trim().toLowerCase(),
+          role: newUser.role,
+          instansi: defaultInstansi,
+          password: newUser.password,
+        }),
+      });
 
-    loadUsers();
-    setNewUser({
-      nama: '',
-      email: '',
-      role: '',
-      password: '',
-      confirmPassword: '',
-    });
-    setFormError(null);
-    setShowAddModal(false);
-    showToast(`Pengguna "${newUser.nama}" berhasil ditambahkan.`);
+      const json = await res.json();
+      if (!json.success) {
+        setFormError(json.message || 'Gagal menyimpan pengguna ke database.');
+        return;
+      }
+
+      await loadUsers();
+      setNewUser({
+        nama: '',
+        email: '',
+        role: '',
+        password: '',
+        confirmPassword: '',
+      });
+      setFormError(null);
+      setShowAddModal(false);
+      showToast(`Pengguna "${newUser.nama}" berhasil disimpan langsung ke database.`);
+    } catch {
+      setFormError('Gagal menghubungkan ke server database MySQL.');
+    }
   };
 
-  const handleEditUser = (e: React.FormEvent) => {
+  const handleEditUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUserForEdit) return;
 
-    updateRegisteredUser(selectedUserForEdit);
-    loadUsers();
-    showToast(`Data akun "${selectedUserForEdit.nama}" berhasil diperbarui.`);
+    try {
+      const res = await fetch('/api/pengguna', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectedUserForEdit),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(`Data akun "${selectedUserForEdit.nama}" berhasil diperbarui di database.`);
+      }
+    } catch {
+      showToast('Gagal memperbarui pengguna di database.');
+    }
+
+    await loadUsers();
     setSelectedUserForEdit(null);
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (!selectedUserForDelete) return;
-    deleteRegisteredUser(selectedUserForDelete.id);
-    loadUsers();
-    showToast(`Akun "${selectedUserForDelete.nama}" berhasil dihapus dari database.`);
+
+    try {
+      const res = await fetch(`/api/pengguna?id=${encodeURIComponent(selectedUserForDelete.id)}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (!json.success) {
+        showToast(json.message || 'Gagal menghapus pengguna.');
+        setSelectedUserForDelete(null);
+        return;
+      }
+      showToast(`Akun "${selectedUserForDelete.nama}" berhasil dihapus dari database.`);
+    } catch {
+      showToast('Gagal menghapus pengguna dari database.');
+    }
+
+    await loadUsers();
     setSelectedUserForDelete(null);
   };
 
-  const handleToggleStatus = (u: UserAccount) => {
-    const updated = toggleUserStatus(u.id);
-    loadUsers();
-    if (updated) {
+  const handleToggleStatus = async (u: UserAccount) => {
+    const nextStatus = u.status === 'aktif' ? 'nonaktif' : 'aktif';
+    try {
+      await fetch('/api/pengguna', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: u.id, status: nextStatus }),
+      });
       showToast(
         `Status akun "${u.nama}" berhasil diubah menjadi ${
-          updated.status === 'aktif' ? 'Aktif' : 'Nonaktif'
-        }.`
+          nextStatus === 'aktif' ? 'Aktif' : 'Nonaktif'
+        } di database.`
       );
+    } catch {
+      showToast('Gagal memperbarui status pengguna di database.');
     }
+    await loadUsers();
   };
 
-  const handleResetToDefault = () => {
-    if (confirm('Apakah Anda yakin ingin memulihkan database pengguna ke data awal (default)?')) {
-      resetRegisteredUsersToDefault();
-      loadUsers();
-      showToast('Database pengguna telah dipulihkan ke data awal.');
-    }
+  const handleResetToDefault = async () => {
+    await loadUsers();
+    showToast('Data pengguna telah disinkronkan langsung dari database.');
   };
 
   // Metric stats
