@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { OrmasItem } from "@/types/ormas";
 import { INITIAL_ORMAS_DATA } from "@/data/ormas-data";
 import OrmasDetailModal from "@/components/OrmasDetailModal";
+import RevealOnScroll from "@/components/animations/RevealOnScroll";
 
 interface OrmasDirectoryProps {
   onSelectOrmas?: (ormas: OrmasItem) => void;
@@ -51,7 +52,8 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
     <section id="daftar-ormas" className="py-16 bg-slate-50 flex-1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header & Controls Bar */}
-        <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        <RevealOnScroll animation="fade-up" duration={500}>
+          <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight font-heading">
@@ -159,6 +161,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             </div>
           </div>
         </div>
+      </RevealOnScroll>
 
         {/* Results Summary Counter */}
         <div className="flex items-center justify-between text-sm text-slate-600 px-2 font-medium">
@@ -179,8 +182,9 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
           )}
         </div>
 
-        {/* Table View Component */}
-        {viewMode === "table" ? (
+        {/* Table / Grid View Component */}
+        <RevealOnScroll animation="fade-up" delay={120} duration={550}>
+          {viewMode === "table" ? (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm border-collapse">
@@ -326,6 +330,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             ))}
           </div>
         )}
+        </RevealOnScroll>
 
         {/* Fallback Internal Modal if onSelectOrmas was not provided externally */}
         {!onSelectOrmas && (

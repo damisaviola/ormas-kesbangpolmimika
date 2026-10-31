@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import RevealOnScroll from "@/components/animations/RevealOnScroll";
 
 export default function Footer() {
   return (
     <footer id="kontak" className="bg-slate-950 text-slate-300 pt-20 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Main Grid Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
+        <RevealOnScroll animation="fade-up" duration={550}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* Column 1: Institutional Identity (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
@@ -130,6 +132,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
+      </RevealOnScroll>
 
         {/* Bottom Copyright Bar */}
         <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row md:items-center md:justify-between text-xs sm:text-sm text-slate-500 gap-3">
