@@ -48,26 +48,26 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
   }, [searchQuery, selectedStatus, selectedCategory]);
 
   return (
-    <section id="daftar-ormas" className="py-12 bg-slate-50 flex-1">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <section id="daftar-ormas" className="py-16 bg-slate-50 flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header & Controls Bar */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+        <div className="bg-white p-7 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Daftar Organisasi Kemasyarakatan (ORMAS)
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight font-heading">
+                Direktori Organisasi Kemasyarakatan
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Pencarian publik dan direktori legalitas ORMAS terdaftar di Kabupaten Mimika.
+              <p className="text-sm sm:text-base text-slate-600 mt-1.5">
+                Pencarian publik dan basis data legalitas ORMAS terdaftar resmi di Kabupaten Mimika.
               </p>
             </div>
 
             {/* View Switcher Tabs */}
-            <div className="flex items-center gap-2 self-start md:self-auto bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="flex items-center gap-1.5 self-start md:self-auto bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
               <button
                 onClick={() => setViewMode("table")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "table"
-                  ? "bg-white text-blue-900 shadow-2xs"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${viewMode === "table"
+                  ? "bg-white text-blue-900 shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
                   }`}
               >
@@ -78,8 +78,8 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === "grid"
-                  ? "bg-white text-blue-900 shadow-2xs"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${viewMode === "grid"
+                  ? "bg-white text-blue-900 shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
                   }`}
               >
@@ -92,11 +92,11 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
           </div>
 
           {/* Search and Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-4 border-t border-slate-100">
             {/* Live Search Bar */}
             <div className="sm:col-span-6 relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -104,13 +104,13 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari nama organisasi, alamat, atau nomor SKT..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all"
+                placeholder="Cari nama organisasi, singkatan, alamat, atau nomor SKT..."
+                className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all font-medium"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-700"
                 >
                   Clear
                 </button>
@@ -118,24 +118,24 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="sm:col-span-3 flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="sm:col-span-3 flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
               <button
                 onClick={() => setSelectedStatus("semua")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "semua" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                className={`flex-1 py-2 text-center text-xs sm:text-sm font-bold rounded-xl transition-all ${selectedStatus === "semua" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 Semua
               </button>
               <button
                 onClick={() => setSelectedStatus("resmi")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "resmi" ? "bg-emerald-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                className={`flex-1 py-2 text-center text-xs sm:text-sm font-bold rounded-xl transition-all ${selectedStatus === "resmi" ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 Resmi
               </button>
               <button
                 onClick={() => setSelectedStatus("proses")}
-                className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${selectedStatus === "proses" ? "bg-amber-500 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                className={`flex-1 py-2 text-center text-xs sm:text-sm font-bold rounded-xl transition-all ${selectedStatus === "proses" ? "bg-amber-500 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 Proses
@@ -147,7 +147,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800"
+                className="w-full py-3 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800"
               >
                 <option value="semua">Semua Kategori</option>
                 <option value="Adat & Kesukuan">Adat &amp; Kesukuan</option>
@@ -161,7 +161,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
         </div>
 
         {/* Results Summary Counter */}
-        <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+        <div className="flex items-center justify-between text-sm text-slate-600 px-2 font-medium">
           <span>
             Menampilkan <strong className="text-slate-900 font-bold">{filteredOrmas.length}</strong> organisasi terdaftar
           </span>
@@ -172,7 +172,7 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
                 setSelectedStatus("semua");
                 setSelectedCategory("semua");
               }}
-              className="text-blue-800 font-semibold hover:underline"
+              className="text-blue-800 font-bold hover:underline"
             >
               Reset Filter
             </button>
@@ -181,81 +181,81 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
 
         {/* Table View Component */}
         {viewMode === "table" ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="bg-slate-900 text-white font-semibold uppercase tracking-wider text-[11px] border-b border-slate-800">
-                    <th className="py-3.5 px-4 text-center w-12">No</th>
-                    <th className="py-3.5 px-4">Nama Organisasi</th>
-                    <th className="py-3.5 px-4">Jenis / Kategori</th>
-                    <th className="py-3.5 px-4 text-center">Status</th>
-                    <th className="py-3.5 px-4">Alamat Domisili</th>
-                    <th className="py-3.5 px-4 text-right">Aksi</th>
+                  <tr className="bg-slate-900 text-white font-bold uppercase tracking-wider text-xs border-b border-slate-800">
+                    <th className="py-4 px-5 text-center w-14">No</th>
+                    <th className="py-4 px-5">Nama Organisasi</th>
+                    <th className="py-4 px-5">Jenis / Kategori</th>
+                    <th className="py-4 px-5 text-center">Status Legalitas</th>
+                    <th className="py-4 px-5">Alamat Domisili</th>
+                    <th className="py-4 px-5 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredOrmas.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
-                        <svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <td colSpan={6} className="py-14 text-center text-slate-400">
+                        <svg className="w-14 h-14 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="font-semibold text-slate-600">Tidak ada organisasi yang cocok dengan pencarian.</p>
-                        <p className="text-[11px] text-slate-400 mt-1">Coba ubah kata kunci atau reset filter pencarian Anda.</p>
+                        <p className="text-base font-bold text-slate-700">Tidak ada organisasi yang cocok dengan pencarian.</p>
+                        <p className="text-sm text-slate-400 mt-1">Coba ubah kata kunci atau klik reset filter pencarian Anda.</p>
                       </td>
                     </tr>
                   ) : (
                     filteredOrmas.map((item, idx) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50 transition-colors group cursor-pointer"
                         onClick={() => handleSelectOrmas(item)}
                       >
-                        <td className="py-4 px-4 text-center font-medium text-slate-400">{idx + 1}</td>
-                        <td className="py-4 px-4">
-                          <div className="font-bold text-slate-900 group-hover:text-blue-900 transition-colors">
+                        <td className="py-4.5 px-5 text-center font-bold text-slate-400 text-sm">{idx + 1}</td>
+                        <td className="py-4.5 px-5">
+                          <div className="text-base font-bold text-slate-900 font-heading group-hover:text-blue-900 transition-colors">
                             {item.nama}
                           </div>
                           {item.singkatan && (
-                            <span className="inline-block mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">
+                            <span className="inline-block mt-1 text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
                               {item.singkatan}
                             </span>
                           )}
-                          <div className="text-[11px] text-slate-400 mt-1">
-                            No. SKT: <span className="font-mono text-slate-600">{item.noSkt}</span>
+                          <div className="text-xs text-slate-500 mt-1">
+                            No. SKT: <span className="font-mono font-medium text-slate-700">{item.noSkt}</span>
                           </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="font-medium text-slate-700">{item.jenis}</span>
-                          <div className="text-[11px] text-slate-400">{item.kategori}</div>
+                        <td className="py-4.5 px-5">
+                          <span className="font-semibold text-slate-800 text-sm">{item.jenis}</span>
+                          <div className="text-xs text-slate-500 mt-0.5">{item.kategori}</div>
                         </td>
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-4.5 px-5 text-center">
                           {item.status === "Resmi" ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                               Resmi
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                               Dalam Proses
                             </span>
                           )}
                         </td>
-                        <td className="py-4 px-4 text-slate-600 max-w-xs truncate">
+                        <td className="py-4.5 px-5 text-slate-600 max-w-xs truncate text-sm">
                           {item.alamat}
                         </td>
-                        <td className="py-4 px-4 text-right">
+                        <td className="py-4.5 px-5 text-right">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSelectOrmas(item);
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-800 hover:text-blue-950 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-all shadow-2xs hover:shadow-xs"
+                            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-900 hover:text-white bg-blue-50 hover:bg-blue-900 px-3.5 py-2 rounded-lg border border-blue-200 hover:border-blue-900 transition-colors"
                             title="Lihat Detail Organisasi"
                           >
-                            <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 text-blue-600 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
@@ -271,52 +271,52 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
           </div>
         ) : (
           /* Grid Card View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {filteredOrmas.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleSelectOrmas(item)}
-                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between group"
+                className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 hover:border-slate-300 shadow-xs transition-colors cursor-pointer flex flex-col justify-between group space-y-4"
               >
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
                       {item.jenis}
                     </span>
                     {item.status === "Resmi" ? (
-                      <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                         Resmi
                       </span>
                     ) : (
-                      <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                      <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
                         Proses
                       </span>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug line-clamp-2">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading group-hover:text-blue-900 transition-colors leading-snug line-clamp-2">
                       {item.nama}
                     </h3>
                     {item.singkatan && (
-                      <span className="text-xs font-semibold text-blue-800">({item.singkatan})</span>
+                      <span className="text-xs font-bold text-blue-800 mt-0.5 inline-block">({item.singkatan})</span>
                     )}
                   </div>
 
-                  <div className="text-xs text-slate-500 space-y-1 pt-1 border-t border-slate-100">
-                    <p><strong className="text-slate-700">Kategori:</strong> {item.kategori}</p>
-                    <p className="line-clamp-2"><strong className="text-slate-700">Alamat:</strong> {item.alamat}</p>
+                  <div className="text-sm text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <p><strong className="text-slate-800 font-semibold">Kategori:</strong> {item.kategori}</p>
+                    <p className="line-clamp-2"><strong className="text-slate-800 font-semibold">Alamat:</strong> {item.alamat}</p>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-mono text-[11px] text-slate-600 font-semibold">{item.noSkt}</span>
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span className="font-mono text-xs text-slate-700 font-bold">{item.noSkt}</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSelectOrmas(item);
                     }}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-blue-800 group-hover:text-blue-950 group-hover:translate-x-0.5 transition-all"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-900 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all"
                   >
                     <span>Lihat Detail</span>
                     <span>&rarr;</span>

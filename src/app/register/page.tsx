@@ -9,7 +9,6 @@ import { registerUserAction } from "@/actions/auth";
 export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
-  const [namaOrmas, setNamaOrmas] = useState("");
   const [telepon, setTelepon] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,10 +51,9 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Menyimpan langsung ke database MySQL via Prisma Server Action
+      // Menyimpan langsung ke tabel user_pengajuan di MySQL via Prisma Server Action
       const result = await registerUserAction({
         fullName: fullName.trim(),
-        namaOrmas: namaOrmas.trim() || undefined,
         telepon: telepon.trim() || undefined,
         email: email.trim().toLowerCase(),
         password,
@@ -68,10 +66,9 @@ export default function RegisterPage() {
       }
 
       setSuccessMessage(
-        "Pendaftaran berhasil! Akun dan data ormas Anda telah resmi tersimpan langsung di database MySQL SI-ORMAS. Mengalihkan ke halaman login..."
+        "Pendaftaran akun berhasil! Akun Anda telah resmi tersimpan di database. Silakan login untuk melengkapi profil organisasi kemasyarakatan Anda..."
       );
       setFullName("");
-      setNamaOrmas("");
       setTelepon("");
       setEmail("");
       setPassword("");
@@ -112,21 +109,11 @@ export default function RegisterPage() {
             {/* Title & Subtitle */}
             <div className="space-y-1.5">
               <h1 className="text-xl font-black tracking-tight leading-snug">
-                Pendaftaran Akun Ormas
+                Pendaftaran Akun Pemohon
               </h1>
               <p className="text-xs text-sky-100 font-medium leading-relaxed">
-                Badan Kesatuan Bangsa dan Politik <br />
-                Kabupaten Mimika, Papua Tengah
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-white/10 border border-white/20 text-left text-xs space-y-1.5">
-              <p className="font-bold text-sky-100 flex items-center gap-1.5">
-                <span>🛡️</span>
-                <span>Terhubung Langsung ke Database</span>
-              </p>
-              <p className="text-[11px] text-sky-200/90 leading-relaxed">
-                Akun yang didaftarkan langsung tersimpan secara permanen ke server database MySQL SI-ORMAS Kesbangpol.
+                Portal Pelayanan Mandiri Ormas <br />
+                Badan Kesbangpol Kabupaten Mimika
               </p>
             </div>
           </div>
@@ -151,10 +138,10 @@ export default function RegisterPage() {
             {/* Header */}
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Buat Akun Ormas Baru
+                Buat Akun Pemohon Baru
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Lengkapi formulir berikut untuk mendaftarkan organisasi Anda ke sistem
+                Lengkapi data pemohon di bawah ini. Profil nama ormas dan berkas legalitas dapat Anda lengkapi setelah berhasil login.
               </p>
             </div>
 
@@ -183,7 +170,7 @@ export default function RegisterPage() {
               {/* Field 1: Nama Lengkap Penanggung Jawab */}
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-slate-700">
-                  Nama Lengkap Penanggung Jawab / Ketua <span className="text-red-500">*</span>
+                  Nama Lengkap Pemohon / Penanggung Jawab <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -195,21 +182,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Field 2: Nama Ormas */}
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  Nama Organisasi Kemasyarakatan (Ormas)
-                </label>
-                <input
-                  type="text"
-                  value={namaOrmas}
-                  onChange={(e) => setNamaOrmas(e.target.value)}
-                  placeholder="Contoh: Forum Pemuda Peduli Mimika"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
-                />
-              </div>
-
-              {/* Field 3: Kontak WhatsApp & Email */}
+              {/* Field 2: Kontak WhatsApp & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-700">
@@ -239,7 +212,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Field 4: Password & Konfirmasi */}
+              {/* Field 3: Password & Konfirmasi */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
@@ -292,10 +265,10 @@ export default function RegisterPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                       </svg>
-                      <span>Mendaftarkan ke Database...</span>
+                      <span>Mendaftarkan Akun ke Database...</span>
                     </>
                   ) : (
-                    <span>Daftarkan Akun ke Database</span>
+                    <span>Daftarkan Akun Pemohon</span>
                   )}
                 </button>
               </div>

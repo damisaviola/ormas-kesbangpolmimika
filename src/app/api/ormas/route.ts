@@ -1,9 +1,41 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    const email = searchParams.get('email');
+
+    let whereClause: any = {};
+    if (userId && email) {
+      const cleanEmail = email.toLowerCase().trim();
+      whereClause = {
+        OR: [
+          { userId: userId },
+          { emailResmi: cleanEmail },
+          { user: { email: cleanEmail } },
+        ],
+      };
+    } else if (userId) {
+      whereClause = {
+        OR: [
+          { userId: userId },
+          { user: { id: userId } },
+        ],
+      };
+    } else if (email) {
+      const cleanEmail = email.toLowerCase().trim();
+      whereClause = {
+        OR: [
+          { emailResmi: cleanEmail },
+          { user: { email: cleanEmail } },
+        ],
+      };
+    }
+
     const list = await prisma.ormas.findMany({
+      where: whereClause,
       include: {
         pengurus: true,
         pengajuan: {
@@ -31,11 +63,16 @@ export async function GET() {
 
       return {
         id: item.id,
+        userId: item.userId,
         namaOrmas: item.namaOrmas,
         singkatan: item.singkatan || '',
         jenisOrmas: item.jenisOrmas,
+        kategori: item.kategori,
         ketuaUmum: ketua,
         alamat: fullAddress,
+        alamatSekretariat: item.alamatSekretariat,
+        distrik: cleanDistrik,
+        kodePos: item.kodePos || '99910',
         telepon: item.teleponKantor || '-',
         email: item.emailResmi || '-',
         statusSk: statusSk as any,

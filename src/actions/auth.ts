@@ -32,20 +32,23 @@ export async function registerUserAction(payload: {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // 1. Cek apakah email sudah terdaftar di database MySQL
-    const existing = await prisma.user.findUnique({
+    // 1. Cek apakah email sudah terdaftar di database MySQL (di kedua tabel)
+    const existingAdmin = await prisma.adminKesbangpol.findUnique({
+      where: { email: cleanEmail },
+    });
+    const existingPengajuan = await prisma.userPengajuan.findUnique({
       where: { email: cleanEmail },
     });
 
-    if (existing) {
+    if (existingAdmin || existingPengajuan) {
       return {
         success: false,
         error: 'Email ini sudah terdaftar di sistem. Silakan gunakan email lain atau langsung login.',
       };
     }
 
-    // 2. Buat User baru di tabel `users` MySQL
-    const newUser = await prisma.user.create({
+    // 2. Buat User baru di tabel `user_pengajuan` MySQL
+    const newUser = await prisma.userPengajuan.create({
       data: {
         nama: fullName.trim(),
         email: cleanEmail,
@@ -53,7 +56,7 @@ export async function registerUserAction(payload: {
         role: 'admin_ormas',
         status: 'aktif',
         telepon: telepon && telepon.trim() ? telepon.trim() : null,
-        instansi: namaOrmas && namaOrmas.trim() ? namaOrmas.trim() : null,
+        namaOrmas: namaOrmas && namaOrmas.trim() ? namaOrmas.trim() : null,
       },
     });
 
@@ -77,7 +80,7 @@ export async function registerUserAction(payload: {
 
     return {
       success: true,
-      message: 'Pendaftaran berhasil! Akun Anda telah resmi tersimpan di database MySQL.',
+      message: 'Pendaftaran akun pemohon berhasil! Akun Anda telah tersimpan di database. Silakan login untuk melengkapi profil organisasi kemasyarakatan Anda.',
       userId: newUser.id,
       ormasId: newOrmasId,
     };
@@ -106,8 +109,55 @@ export async function loginUserAction(payload: {
 
     const cleanEmail = username.toLowerCase().trim();
 
-    // Cari akun di database MySQL beserta relasi ormas & pengajuan
-    const user = await prisma.user.findUnique({
+    // 1. Cek di tabel `admin_kesbangpol` (Aparatur / Tim Verifikator)
+    const adminUser = await prisma.adminKesbangpol.findUnique({
+      where: { email: cleanEmail },
+    });
+
+    if (adminUser) {
+      if (adminUser.status !== 'aktif') {
+        return {
+          success: false,
+          error: 'Akun Administrator Anda sedang dinonaktifkan.',
+        };
+      }
+
+      if (adminUser.password !== password) {
+        return {
+          success: false,
+          error: 'Kata sandi yang Anda masukkan salah. Silakan coba lagi.',
+        };
+      }
+
+      // Update waktu login terakhir
+      await prisma.adminKesbangpol.update({
+        where: { id: adminUser.id },
+        data: { terakhirLogin: new Date() },
+      });
+
+      return {
+        success: true,
+        user: {
+          id: adminUser.id,
+          nama: adminUser.nama,
+          email: adminUser.email,
+          role: adminUser.role, // 'superadmin' | 'verifikator'
+          nip: adminUser.nip,
+          instansi: adminUser.instansi || 'Badan Kesbangpol Kabupaten Mimika',
+          telepon: adminUser.telepon,
+          ormasId: null,
+          ormasNama: null,
+          singkatan: null,
+          jenisOrmas: null,
+          alamat: null,
+          nomorTiket: null,
+          statusSkt: null,
+        },
+      };
+    }
+
+    // 2. Jika bukan admin, cek di tabel `user_pengajuan` (Ormas / Pemohon SKT)
+    const ormasUser = await prisma.userPengajuan.findUnique({
       where: { email: cleanEmail },
       include: {
         ormas: {
@@ -120,53 +170,53 @@ export async function loginUserAction(payload: {
       },
     });
 
-    if (!user) {
+    if (ormasUser) {
+      if (ormasUser.status !== 'aktif') {
+        return {
+          success: false,
+          error: 'Akun Anda sedang dinonaktifkan oleh administrator Kesbangpol.',
+        };
+      }
+
+      if (ormasUser.password !== password) {
+        return {
+          success: false,
+          error: 'Kata sandi yang Anda masukkan salah. Silakan coba lagi.',
+        };
+      }
+
+      // Update waktu login terakhir
+      await prisma.userPengajuan.update({
+        where: { id: ormasUser.id },
+        data: { terakhirLogin: new Date() },
+      });
+
+      const userOrmas = ormasUser.ormas?.[0];
+      const latestPengajuan = userOrmas?.pengajuan?.[0];
+
       return {
-        success: false,
-        error: 'Akun dengan alamat email tersebut tidak ditemukan di database.',
+        success: true,
+        user: {
+          id: ormasUser.id,
+          nama: ormasUser.nama,
+          email: ormasUser.email,
+          role: ormasUser.role, // 'admin_ormas'
+          instansi: ormasUser.namaOrmas || userOrmas?.namaOrmas || null,
+          telepon: ormasUser.telepon,
+          ormasId: userOrmas?.id || null,
+          ormasNama: userOrmas?.namaOrmas || ormasUser.namaOrmas || '',
+          singkatan: userOrmas?.singkatan || '',
+          jenisOrmas: userOrmas?.jenisOrmas || '',
+          alamat: userOrmas?.alamatSekretariat || '',
+          nomorTiket: latestPengajuan?.nomorTiket || null,
+          statusSkt: latestPengajuan?.status || userOrmas?.statusSkt || null,
+        },
       };
     }
-
-    if (user.status !== 'aktif') {
-      return {
-        success: false,
-        error: 'Akun Anda sedang dinonaktifkan oleh administrator Kesbangpol.',
-      };
-    }
-
-    if (user.password !== password) {
-      return {
-        success: false,
-        error: 'Kata sandi yang Anda masukkan salah. Silakan coba lagi.',
-      };
-    }
-
-    // Update waktu login terakhir
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { terakhirLogin: new Date() },
-    });
-
-    const userOrmas = user.ormas?.[0];
-    const latestPengajuan = userOrmas?.pengajuan?.[0];
 
     return {
-      success: true,
-      user: {
-        id: user.id,
-        nama: user.nama,
-        email: user.email,
-        role: user.role, // 'superadmin' | 'verifikator' | 'admin_ormas'
-        instansi: user.instansi && user.instansi !== 'Organisasi Baru' ? user.instansi : null,
-        telepon: user.telepon,
-        ormasId: userOrmas?.id || null,
-        ormasNama: userOrmas?.namaOrmas || (user.instansi && user.instansi !== 'Organisasi Baru' ? user.instansi : ''),
-        singkatan: userOrmas?.singkatan || '',
-        jenisOrmas: userOrmas?.jenisOrmas || '',
-        alamat: userOrmas?.alamatSekretariat || '',
-        nomorTiket: latestPengajuan?.nomorTiket || null,
-        statusSkt: latestPengajuan?.status || userOrmas?.statusSkt || null,
-      },
+      success: false,
+      error: 'Akun dengan alamat email tersebut tidak ditemukan di database.',
     };
   } catch (error) {
     console.error('Kesalahan saat login ke database:', error);

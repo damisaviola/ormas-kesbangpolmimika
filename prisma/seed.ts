@@ -5,10 +5,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🚀 Mulai proses seeding database Kesbangpol Mimika...');
 
-  // 1. Seed Users (Administrator Utama & Akun Contoh Ormas)
-  console.log('1. Menyiapkan data Pengguna Admin & Akun Ormas...');
-  const users = [
-    {
+  // 1. Seed Admin Kesbangpol & Akun Contoh Ormas ke tabel masing-masing
+  console.log('1. Menyiapkan data Petugas Admin Kesbangpol & User Pengajuan...');
+  await prisma.adminKesbangpol.upsert({
+    where: { email: 'admin.kesbangpol@mimikakab.go.id' },
+    update: {
+      role: 'superadmin',
+      status: 'aktif',
+      password: 'password123',
+    },
+    create: {
       id: 'USR-001',
       nama: 'Administrator Utama',
       email: 'admin.kesbangpol@mimikakab.go.id',
@@ -19,30 +25,26 @@ async function main() {
       instansi: 'Badan Kesbangpol Kabupaten Mimika',
       telepon: '0811-480-1234',
     },
-    {
+  });
+
+  await prisma.userPengajuan.upsert({
+    where: { email: 'ormas@mimika.go.id' },
+    update: {
+      role: 'admin_ormas',
+      status: 'aktif',
+      password: 'password123',
+    },
+    create: {
       id: 'USR-ORMAS-001',
       nama: 'Ketua Ormas Pemuda Mimika',
       email: 'ormas@mimika.go.id',
       password: 'password123',
-      nip: null,
       role: 'admin_ormas',
       status: 'aktif',
-      instansi: 'Forum Pemuda Peduli Mimika',
+      namaOrmas: 'Forum Pemuda Peduli Mimika',
       telepon: '0812-3456-7890',
     },
-  ];
-
-  for (const u of users) {
-    await prisma.user.upsert({
-      where: { email: u.email },
-      update: {
-        role: u.role,
-        status: 'aktif',
-        password: u.password,
-      },
-      create: u,
-    });
-  }
+  });
 
   // Buat data Ormas contoh untuk akun ormas@mimika.go.id jika belum ada
   const existingOrmas = await prisma.ormas.findFirst({

@@ -30,6 +30,7 @@ export default function OrmasHeader() {
     email: string;
     role: string;
     ormasNama?: string;
+    instansi?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function OrmasHeader() {
     let isMounted = true;
     const loadNotifs = async () => {
       try {
-        const ormasName = currentUser?.ormasNama || 'ORMS 1';
+        const ormasName = currentUser?.ormasNama || currentUser?.instansi || 'Ormas';
         const data = await fetchNotifications('ormas', ormasName);
         if (isMounted) setNotifications(data);
       } catch (err) {

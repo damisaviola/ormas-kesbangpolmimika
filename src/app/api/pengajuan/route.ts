@@ -9,7 +9,17 @@ export async function GET(req: NextRequest) {
     const userIdParam = searchParams.get('userId');
 
     let whereClause: any = {};
-    if (emailParam) {
+    if (userIdParam && emailParam) {
+      const cleanEmail = emailParam.toLowerCase().trim();
+      whereClause = {
+        OR: [
+          { ormas: { userId: userIdParam } },
+          { ormas: { emailResmi: cleanEmail } },
+          { ormas: { user: { email: cleanEmail } } },
+          { ormas: { user: { id: userIdParam } } },
+        ],
+      };
+    } else if (emailParam) {
       const cleanEmail = emailParam.toLowerCase().trim();
       whereClause = {
         OR: [
@@ -19,7 +29,10 @@ export async function GET(req: NextRequest) {
       };
     } else if (userIdParam) {
       whereClause = {
-        ormas: { userId: userIdParam },
+        OR: [
+          { ormas: { userId: userIdParam } },
+          { ormas: { user: { id: userIdParam } } },
+        ],
       };
     }
 
@@ -126,28 +139,28 @@ export async function POST(req: NextRequest) {
     const tiket = body.nomorTiket || `TIKET/SKT/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`;
 
     // Transaksi database: Simpan Ormas, Pengurus, Pengajuan, & Riwayat Verifikasi
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // 0. Hubungkan ke User berdasarkan email pemohon yang sedang login
       let targetUserId: string | null = body.userId || null;
       let targetUser = null;
       const cleanEmail = (body.email || body.emailResmi || '').toLowerCase().trim();
 
       if (cleanEmail) {
-        targetUser = await tx.user.findUnique({
+        targetUser = await tx.userPengajuan.findUnique({
           where: { email: cleanEmail },
         });
         if (targetUser) {
           targetUserId = targetUser.id;
-          // Perbarui instansi jika masih default
-          if (!targetUser.instansi || targetUser.instansi === 'Organisasi Baru') {
-            await tx.user.update({
+          // Perbarui namaOrmas jika masih default
+          if (!targetUser.namaOrmas || targetUser.namaOrmas === 'Organisasi Baru') {
+            await tx.userPengajuan.update({
               where: { id: targetUser.id },
-              data: { instansi: body.namaOrganisasi.trim() },
+              data: { namaOrmas: body.namaOrganisasi.trim() },
             });
           }
         }
       } else if (targetUserId) {
-        targetUser = await tx.user.findUnique({
+        targetUser = await tx.userPengajuan.findUnique({
           where: { id: targetUserId },
         });
       }

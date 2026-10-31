@@ -11,33 +11,56 @@ datasource db {
 }
 
 // -------------------------------------------------------------
-// 1. Akun Pengguna & Autentikasi
+// 1. Akun Administrator & Petugas Kesbangpol
 // -------------------------------------------------------------
-model User {
+model AdminKesbangpol {
   id            String    @id @default(uuid())
   nama          String
+  nip           String?   @db.VarChar(30)
   email         String    @unique
   password      String
-  nip           String?   @db.VarChar(30)
-  nik           String?   @db.VarChar(20)
-  role          String    @default("admin_ormas") // "superadmin" | "verifikator" | "admin_ormas"
-  status        String    @default("aktif")       // "aktif" | "nonaktif"
+  role          String    @default("superadmin") // "superadmin" | "verifikator"
+  jabatan       String?
   instansi      String?   @default("Badan Kesbangpol Kabupaten Mimika")
   telepon       String?   @db.VarChar(25)
+  status        String    @default("aktif")       // "aktif" | "nonaktif"
   avatarUrl     String?   @map("avatar_url") @db.Text
   terakhirLogin DateTime? @map("terakhir_login")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // Relasi
-  ormas               Ormas[]
-  riwayatVerifikasi   RiwayatVerifikasi[]
+  riwayatVerifikasi RiwayatVerifikasi[]
 
-  @@map("users")
+  @@map("admin_kesbangpol")
 }
 
 // -------------------------------------------------------------
-// 2. Data Organisasi Kemasyarakatan (Ormas)
+// 2. Akun Pengguna / User Pengajuan (Ormas / Pemohon SKT)
+// -------------------------------------------------------------
+model UserPengajuan {
+  id            String    @id @default(uuid())
+  nama          String    // Nama penanggung jawab / pemohon
+  email         String    @unique
+  password      String
+  telepon       String?   @db.VarChar(25)
+  namaOrmas     String?   @map("nama_ormas")
+  nik           String?   @db.VarChar(20)
+  role          String    @default("admin_ormas")
+  status        String    @default("aktif")       // "aktif" | "nonaktif"
+  avatarUrl     String?   @map("avatar_url") @db.Text
+  terakhirLogin DateTime? @map("terakhir_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relasi
+  ormas         Ormas[]
+
+  @@map("user_pengajuan")
+}
+
+// -------------------------------------------------------------
+// 3. Data Organisasi Kemasyarakatan (Ormas)
 // -------------------------------------------------------------
 model Ormas {
   id                String    @id @default(uuid())
@@ -72,7 +95,7 @@ model Ormas {
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
   // Relasi
-  user              User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user              UserPengajuan?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   pengurus          Pengurus[]
   dokumen           DokumenPersyaratan[]
   pengajuan         Pengajuan[]
@@ -166,8 +189,8 @@ model RiwayatVerifikasi {
   createdAt     DateTime  @default(now()) @map("created_at")
 
   // Relasi
-  pengajuan     Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
-  verifikator   User?     @relation(fields: [verifikatorId], references: [id], onDelete: SetNull)
+  pengajuan     Pengajuan        @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  verifikator   AdminKesbangpol? @relation(fields: [verifikatorId], references: [id], onDelete: SetNull)
 
   @@map("riwayat_verifikasi")
 }

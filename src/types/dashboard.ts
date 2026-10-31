@@ -58,13 +58,22 @@ export interface UserAccount {
   nama: string;
   email: string;
   nip: string;
+  nik?: string;
   role: UserRole;
+  rawRole?: string;
+  userType?: 'admin' | 'pengajuan';
   status: 'aktif' | 'nonaktif';
   instansi: string;
   terakhirLogin: string;
   tanggalDaftar?: string;
   telepon?: string;
   password?: string;
+  ormasId?: string | null;
+  ormasNama?: string | null;
+  singkatan?: string | null;
+  statusSkt?: string | null;
+  nomorTiket?: string | null;
+  jumlahPengajuan?: number;
 }
 
 export interface JenisOrmasItem {

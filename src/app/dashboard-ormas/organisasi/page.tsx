@@ -99,8 +99,14 @@ export default function OrmasOrganisasiPage() {
         }
 
         const emailToSearch = activeUser?.email;
-        if (emailToSearch) {
-          const res = await fetch(`/api/pengajuan?email=${encodeURIComponent(emailToSearch)}`, { cache: 'no-store' });
+        const userIdToSearch = activeUser?.id;
+
+        if (emailToSearch || userIdToSearch) {
+          const params = new URLSearchParams();
+          if (userIdToSearch) params.append('userId', userIdToSearch);
+          if (emailToSearch) params.append('email', emailToSearch);
+
+          const res = await fetch(`/api/pengajuan?${params.toString()}`, { cache: 'no-store' });
           const json = await res.json();
           if (json.success && Array.isArray(json.data) && json.data.length > 0) {
             const latest = json.data[0];
@@ -120,7 +126,7 @@ export default function OrmasOrganisasiPage() {
 
             // Muat riwayat aktivitas tersimpan dari database
             try {
-              const resAkt = await fetch(`/api/aktivitas?namaOrmas=${encodeURIComponent(latest.namaOrmas)}&userEmail=${encodeURIComponent(emailToSearch)}`, { cache: 'no-store' });
+              const resAkt = await fetch(`/api/aktivitas?namaOrmas=${encodeURIComponent(latest.namaOrmas)}&userEmail=${encodeURIComponent(emailToSearch || '')}`, { cache: 'no-store' });
               const jsonAkt = await resAkt.json();
               if (jsonAkt.success && Array.isArray(jsonAkt.data) && jsonAkt.data.length > 0) {
                 setLogs(jsonAkt.data);
@@ -151,6 +157,29 @@ export default function OrmasOrganisasiPage() {
               ]);
             }
             return;
+          }
+
+          // Jika belum ada pengajuan, cek profil Ormas yang telah didaftarkan user ini
+          try {
+            const oRes = await fetch(`/api/ormas?${params.toString()}`, { cache: 'no-store' });
+            const oJson = await oRes.json();
+            if (oJson.success && Array.isArray(oJson.data) && oJson.data.length > 0) {
+              const myOrmas = oJson.data[0];
+              setHasSubmitted(false);
+              setMetadata({
+                namaOrmas: myOrmas.namaOrmas || activeUser?.ormasNama || '',
+                namaSingkat: myOrmas.singkatan || activeUser?.singkatan || '',
+                jenisOrganisasi: myOrmas.jenisOrmas || 'Organisasi Kemasyarakatan',
+                alamat: myOrmas.alamatSekretariat || '',
+                kodePos: myOrmas.kodePos || '99910',
+                telepon: myOrmas.telepon || activeUser?.telepon || '',
+              });
+              setCurrentStatus('belum_diajukan');
+              setLogs([]);
+              return;
+            }
+          } catch {
+            // Abaikan
           }
         }
 

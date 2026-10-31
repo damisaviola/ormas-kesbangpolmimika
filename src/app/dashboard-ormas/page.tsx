@@ -213,11 +213,17 @@ export default function OrmasBerandaPage() {
         }
 
         const emailToSearch = activeUser?.email;
+        const userIdToSearch = activeUser?.id;
         let targetSubmission: SubmissionResponseItem | null = null;
 
-        if (emailToSearch) {
+        // Cari strictly pengajuan milik user pengajuan yang sedang login
+        if (emailToSearch || userIdToSearch) {
           try {
-            const res = await fetch(`/api/pengajuan?email=${encodeURIComponent(emailToSearch)}`, { cache: 'no-store' });
+            const params = new URLSearchParams();
+            if (userIdToSearch) params.append('userId', userIdToSearch);
+            if (emailToSearch) params.append('email', emailToSearch);
+
+            const res = await fetch(`/api/pengajuan?${params.toString()}`, { cache: 'no-store' });
             const json = await res.json();
             if (json.success && Array.isArray(json.data) && json.data.length > 0) {
               targetSubmission = json.data[0];
@@ -227,24 +233,27 @@ export default function OrmasBerandaPage() {
           }
         }
 
-        // Fallback jika email pendaftar tidak cocok persis tapi ada submission di database
-        if (!targetSubmission) {
+        // Jika belum ada pengajuan, cek profil Ormas milik user ini sendiri
+        if (!targetSubmission && (emailToSearch || userIdToSearch)) {
           try {
-            const fallbackRes = await fetch(`/api/pengajuan`, { cache: 'no-store' });
-            const fallbackJson = await fallbackRes.json();
-            if (fallbackJson.success && Array.isArray(fallbackJson.data) && fallbackJson.data.length > 0) {
-              if (activeUser?.ormasNama || activeUser?.instansi) {
-                targetSubmission = fallbackJson.data.find(
-                  (item: SubmissionResponseItem) =>
-                    item.namaOrmas?.toLowerCase() === (activeUser.ormasNama || activeUser.instansi).toLowerCase()
-                ) || null;
-              }
-              if (!targetSubmission && activeUser?.role === 'admin_ormas') {
-                targetSubmission = fallbackJson.data[0];
+            const oParams = new URLSearchParams();
+            if (userIdToSearch) oParams.append('userId', userIdToSearch);
+            if (emailToSearch) oParams.append('email', emailToSearch);
+
+            const oRes = await fetch(`/api/ormas?${oParams.toString()}`, { cache: 'no-store' });
+            const oJson = await oRes.json();
+            if (oJson.success && Array.isArray(oJson.data) && oJson.data.length > 0) {
+              const myOrmas = oJson.data[0];
+              if (activeUser && (!activeUser.ormasNama || activeUser.ormasNama === '')) {
+                activeUser.ormasNama = myOrmas.namaOrmas;
+                activeUser.singkatan = myOrmas.singkatan;
+                activeUser.jenisOrmas = myOrmas.jenisOrmas;
+                localStorage.setItem('kesbangpol_user', JSON.stringify(activeUser));
+                if (isMounted) setCurrentUser({ ...activeUser });
               }
             }
           } catch {
-            // Abaikan fallback error
+            // Abaikan error
           }
         }
 
