@@ -418,7 +418,12 @@ export default function OrmasHeader() {
               </Link>
               <Link
                 href="/login"
-                onClick={() => setShowProfileMenu(false)}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('kesbangpol_user');
+                  }
+                  setShowProfileMenu(false);
+                }}
                 className="flex items-center gap-2 px-4 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors border-t border-slate-100 dark:border-slate-800"
               >
                 <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

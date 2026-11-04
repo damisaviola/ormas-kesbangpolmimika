@@ -5,7 +5,7 @@ import TableBadge from '@/components/dashboard/TableBadge';
 import OrganisasiLoading from '@/app/dashboard/organisasi/loading';
 import { INITIAL_REGISTERED_ORMAS } from '@/data/dashboard-data';
 import { RegisteredOrmas } from '@/types/dashboard';
-import { exportToCsv, printReportPdf, printOrmasDetailPdf } from '@/utils/exportUtils';
+import { exportToCsv, printReportPdf, printOrmasDetailPdf, exportFullOrmasToExcel } from '@/utils/exportUtils';
 
 export default function OrganisasiPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +19,7 @@ export default function OrganisasiPage() {
   // Detail Modal State
   const [selectedOrmasForDetail, setSelectedOrmasForDetail] = useState<RegisteredOrmas | null>(null);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
     async function loadOrmas() {
@@ -94,7 +95,24 @@ export default function OrganisasiPage() {
     return 0;
   });
 
+  const handleExportExcel = (type: 'all-categories' | 'resmi-only' | 'proses-only' = 'all-categories') => {
+    setShowExportMenu(false);
+    const timestamp = new Date().toISOString().slice(0, 10);
+
+    if (type === 'resmi-only') {
+      const resmiList = ormasData.filter((i: any) => i.status === 'Resmi' || i.statusSk === 'Aktif');
+      exportFullOrmasToExcel(resmiList, `Data_Full_Ormas_Resmi_Mimika_${timestamp}`);
+    } else if (type === 'proses-only') {
+      const prosesList = ormasData.filter((i: any) => i.status !== 'Resmi' && i.statusSk !== 'Aktif');
+      exportFullOrmasToExcel(prosesList, `Data_Full_Ormas_Dalam_Proses_Mimika_${timestamp}`);
+    } else {
+      // 2 Kategori Lengkap (Resmi & Dalam Proses) + Master Sheet
+      exportFullOrmasToExcel(ormasData, `Data_Full_Organisasi_Mimika_2_Kategori_${timestamp}`);
+    }
+  };
+
   const handleExportCsv = () => {
+    setShowExportMenu(false);
     const headers = [
       'Nama Organisasi',
       'Singkatan',
@@ -164,16 +182,100 @@ export default function OrganisasiPage() {
 
         {/* Tombol Ekspor & Cetak */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            onClick={handleExportCsv}
-            title="Unduh seluruh data tabel yang aktif ke format file Excel / CSV"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 rounded-lg transition-colors cursor-pointer"
-          >
-            <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Ekspor CSV</span>
-          </button>
+          {/* Dropdown Ekspor Excel Full Data (2 Kategori) */}
+          <div className="relative inline-flex items-center">
+            <div className="inline-flex rounded-lg overflow-hidden border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 shadow-xs">
+              <button
+                onClick={() => handleExportExcel('all-categories')}
+                title="Ekspor Full Data Organisasi ke Excel (Otomatis 2 Kategori: Resmi & Dalam Proses)"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
+                  <path d="M8.5 12h2.2l1.3 2.5 1.3-2.5h2.2l-2.4 4 2.5 4h-2.2l-1.4-2.6-1.4 2.6H8.5l2.5-4-2.5-4z" />
+                </svg>
+                <span>Ekspor Excel</span>
+              </button>
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-2 py-2 bg-emerald-100/70 dark:bg-emerald-900/60 hover:bg-emerald-200 dark:hover:bg-emerald-800 text-emerald-800 dark:text-emerald-300 border-l border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
+                title="Pilihan Format Ekspor Excel"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Dropdown Menu Pilihan Ekspor */}
+            {showExportMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowExportMenu(false)}
+                />
+                <div className="absolute right-0 top-full mt-1.5 w-68 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 text-xs text-slate-700 dark:text-slate-200 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-3.5 py-1 text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    Opsi Ekspor Excel &amp; Data
+                  </div>
+                  
+                  {/* Opsi 1: Rekap 2 Kategori Lengkap */}
+                  <button
+                    onClick={() => handleExportExcel('all-categories')}
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center justify-between text-emerald-950 dark:text-emerald-300 font-bold cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span>📗 Ekspor Full Data (2 Kategori)</span>
+                      </div>
+                      <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-normal mt-0.5">
+                        Sheet Resmi &amp; Sheet Proses terpisah
+                      </p>
+                    </div>
+                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold">
+                      XLS
+                    </span>
+                  </button>
+
+                  {/* Opsi 2: Kategori Resmi Saja */}
+                  <button
+                    onClick={() => handleExportExcel('resmi-only')}
+                    className="w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <span>✓ Kategori Resmi Saja</span>
+                    <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">
+                      XLS
+                    </span>
+                  </button>
+
+                  {/* Opsi 3: Kategori Proses Saja */}
+                  <button
+                    onClick={() => handleExportExcel('proses-only')}
+                    className="w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <span>⏳ Kategori Dalam Proses Saja</span>
+                    <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">
+                      XLS
+                    </span>
+                  </button>
+
+                  <div className="border-t border-slate-100 dark:border-slate-800 my-1"></div>
+
+                  {/* Opsi 4: CSV Sederhana */}
+                  <button
+                    onClick={handleExportCsv}
+                    className="w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-slate-600 dark:text-slate-400 cursor-pointer"
+                  >
+                    <span>📄 Format CSV Sederhana</span>
+                    <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-mono">
+                      CSV
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
           <button
             onClick={handlePrintPdf}
             title="Cetak atau simpan sebagai PDF ber-KOP resmi Kesbangpol"

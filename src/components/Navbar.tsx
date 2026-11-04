@@ -8,6 +8,37 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("beranda");
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Periksa status sesi login pengguna yang tersimpan di localStorage
+    const checkUser = () => {
+      try {
+        const stored = typeof window !== "undefined" ? localStorage.getItem("kesbangpol_user") : null;
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setCurrentUser(parsed);
+        } else {
+          setCurrentUser(null);
+        }
+      } catch (e) {
+        console.error("Gagal membaca sesi pengguna di Navbar:", e);
+        setCurrentUser(null);
+      }
+    };
+
+    checkUser();
+
+    // Deteksi perubahan storage secara real-time (saat user login / logout)
+    window.addEventListener("storage", checkUser);
+    return () => window.removeEventListener("storage", checkUser);
+  }, []);
+
+  const isUserLoggedIn = Boolean(currentUser);
+  const dashboardHref =
+    currentUser?.role === "superadmin" || currentUser?.role === "verifikator"
+      ? "/dashboard"
+      : "/dashboard-ormas";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,18 +145,36 @@ export default function Navbar() {
           >
             Cek Syarat
           </a>
-          <Link
-            href="/login"
-            className={`inline-flex items-center gap-2 text-sm font-bold text-white px-5 py-2.5 rounded-lg transition-colors active:scale-98 ${isScrolled
-              ? "bg-blue-900 hover:bg-blue-800"
-              : "bg-blue-600 hover:bg-blue-700"
+          {isUserLoggedIn ? (
+            <Link
+              href={dashboardHref}
+              title={`Masuk ke Dashboard (${currentUser?.role === 'superadmin' || currentUser?.role === 'verifikator' ? 'Admin Kesbangpol' : 'Ormas'})`}
+              className={`inline-flex items-center gap-2 text-sm font-bold text-white px-5 py-2.5 rounded-lg transition-colors active:scale-98 shadow-sm ${
+                isScrolled
+                  ? "bg-blue-900 hover:bg-blue-800"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
-          >
-            <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
-            Portal Login
-          </Link>
+            >
+              <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              <span>Dashboard</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className={`inline-flex items-center gap-2 text-sm font-bold text-white px-5 py-2.5 rounded-lg transition-colors active:scale-98 ${
+                isScrolled
+                  ? "bg-blue-900 hover:bg-blue-800"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              <span>Portal Login</span>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -171,12 +220,29 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-3 flex flex-col gap-2.5 border-t border-slate-200/40">
-            <Link
-              href="/login"
-              className="w-full text-center text-sm font-bold text-white bg-blue-900 hover:bg-blue-800 py-3 rounded-xl shadow-md"
-            >
-              Portal Login Petugas &amp; Ormas
-            </Link>
+            {isUserLoggedIn ? (
+              <Link
+                href={dashboardHref}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full text-center text-sm font-bold text-white bg-blue-900 hover:bg-blue-800 py-3 rounded-xl shadow-md flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span>Dashboard ({currentUser?.role === 'superadmin' || currentUser?.role === 'verifikator' ? 'Admin' : 'Ormas'})</span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full text-center text-sm font-bold text-white bg-blue-900 hover:bg-blue-800 py-3 rounded-xl shadow-md flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                <span>Portal Login Petugas &amp; Ormas</span>
+              </Link>
+            )}
           </div>
         </div>
       )}

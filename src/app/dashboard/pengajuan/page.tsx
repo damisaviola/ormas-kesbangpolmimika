@@ -10,7 +10,7 @@ import {
   syncSubmissionsFromApi,
   subscribeToSubmissions,
 } from '@/services/submissionStorage';
-import { exportToCsv, printReportPdf } from '@/utils/exportUtils';
+import { exportToCsv, printReportPdf, printBuktiTandaTerimaPdf } from '@/utils/exportUtils';
 
 export default function PengajuanPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -28,6 +28,8 @@ export default function PengajuanPage() {
   const [showGuide, setShowGuide] = useState(true);
   const [copiedTicket, setCopiedTicket] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeActionMenuId, setActiveActionMenuId] = useState<string | null>(null);
+  const [previewSubmission, setPreviewSubmission] = useState<OrmasSubmission | null>(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +70,20 @@ export default function PengajuanPage() {
     setCopiedTicket(ticket);
     showToast(`Nomor Tiket ${ticket} berhasil disalin ke clipboard!`);
     setTimeout(() => setCopiedTicket(null), 2500);
+  };
+
+  const handlePrintTandaTerima = (submission: OrmasSubmission) => {
+    printBuktiTandaTerimaPdf({
+      nomorTiket: submission.nomorRegistrasi || submission.id,
+      namaOrmas: submission.namaOrmas,
+      singkatan: submission.singkatan,
+      jenisOrmas: submission.jenisOrmas,
+      tanggalPengajuan: submission.tanggalPengajuan,
+      status: submission.status,
+      alamat: submission.alamat,
+      kontak: submission.telepon,
+      email: submission.email || submission.pendaftarEmail,
+    });
   };
 
   // Muat data awal dan sinkronkan dengan database
@@ -851,16 +867,37 @@ export default function PengajuanPage() {
                   </div>
 
                   {/* Tombol Aksi Utama yang Sangat Jelas & Ramah */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
                     <Link
                       href={`/dashboard/pengajuan/${item.id}`}
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl transition-all shadow-xs hover:shadow group-hover:bg-blue-600"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl transition-all shadow-xs hover:shadow group-hover:bg-blue-600"
                     >
-                      <span>Tinjau &amp; Verifikasi Berkas</span>
+                      <span>Verifikasi Berkas</span>
                       <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSubmission(item)}
+                      title="Pratinjau Ringkas Identitas &amp; Dokumen"
+                      className="p-2.5 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePrintTandaTerima(item)}
+                      title="Cetak Bukti Tanda Terima (PDF)"
+                      className="p-2.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-800 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               );
@@ -881,7 +918,7 @@ export default function PengajuanPage() {
                     <th className="py-4 px-4">Ketua Umum &amp; Kontak</th>
                     <th className="py-4 px-4">Lokasi &amp; Distrik</th>
                     <th className="py-4 px-4">Status Pengajuan</th>
-                    <th className="py-4 px-4 text-center">Aksi</th>
+                    <th className="py-4 px-4 text-center min-w-[150px]">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -959,16 +996,128 @@ export default function PengajuanPage() {
                           <TableBadge status={item.status} />
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <Link
-                            href={`/dashboard/pengajuan/${item.id}`}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-xl transition-all border border-blue-200/80 dark:border-blue-800 shadow-2xs"
-                          >
-                            <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span>Tinjau</span>
-                          </Link>
+                          <div className="flex items-center justify-center gap-1.5 relative">
+                            {/* Tombol Utama: Verifikasi */}
+                            <Link
+                              href={`/dashboard/pengajuan/${item.id}`}
+                              title="Buka halaman tinjau &amp; verifikasi dokumen berkas"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-lg transition-all shadow-xs hover:shadow"
+                            >
+                              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>Verifikasi</span>
+                            </Link>
+
+                            {/* Tombol Pratinjau Cepat */}
+                            <button
+                              type="button"
+                              onClick={() => setPreviewSubmission(item)}
+                              title="Pratinjau Ringkas Identitas &amp; Berkas"
+                              className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            </button>
+
+                            {/* Tombol Opsi Dropdown (3 Titik) */}
+                            <div className="relative">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveActionMenuId(activeActionMenuId === item.id ? null : item.id);
+                                }}
+                                title="Pilihan Aksi Lainnya"
+                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v.01M12 12v.01M12 19v.01" />
+                                </svg>
+                              </button>
+
+                              {/* Dropdown Menu */}
+                              {activeActionMenuId === item.id && (
+                                <>
+                                  <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setActiveActionMenuId(null)}
+                                  />
+                                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-xs text-left animate-in fade-in zoom-in-95 duration-100">
+                                    <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                                      Pilihan Aksi
+                                    </div>
+                                    <Link
+                                      href={`/dashboard/pengajuan/${item.id}`}
+                                      onClick={() => setActiveActionMenuId(null)}
+                                      className="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium"
+                                    >
+                                      <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                      <span>Verifikasi Dokumen</span>
+                                    </Link>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveActionMenuId(null);
+                                        setPreviewSubmission(item);
+                                      }}
+                                      className="w-full text-left flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium cursor-pointer"
+                                    >
+                                      <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      </svg>
+                                      <span>Pratinjau Ringkas</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveActionMenuId(null);
+                                        handlePrintTandaTerima(item);
+                                      }}
+                                      className="w-full text-left flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium cursor-pointer"
+                                    >
+                                      <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                      </svg>
+                                      <span>Cetak Tanda Terima</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveActionMenuId(null);
+                                        handleCopyTicket(ticket);
+                                      }}
+                                      className="w-full text-left flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium cursor-pointer"
+                                    >
+                                      <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                      </svg>
+                                      <span>Salin No. Tiket</span>
+                                    </button>
+                                    {item.telepon && (
+                                      <a
+                                        href={`https://wa.me/${item.telepon.replace(/\D/g, '')}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={() => setActiveActionMenuId(null)}
+                                        className="flex items-center gap-2 px-3 py-2 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-medium"
+                                      >
+                                        <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
+                                        </svg>
+                                        <span>Hubungi Pemohon</span>
+                                      </a>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1062,6 +1211,119 @@ export default function PengajuanPage() {
             >
               Selanjutnya &rarr;
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pratinjau Cepat Berkas & Identitas Pengajuan */}
+      {previewSubmission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div
+            className="fixed inset-0"
+            onClick={() => setPreviewSubmission(null)}
+          />
+          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 z-10 space-y-5 animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-sky-300 px-2 py-0.5 rounded">
+                    Pratinjau Pengajuan
+                  </span>
+                  <TableBadge status={previewSubmission.status} />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
+                  {previewSubmission.namaOrmas}
+                </h3>
+                {previewSubmission.singkatan && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    Singkatan: <span className="font-bold text-slate-700 dark:text-slate-300">{previewSubmission.singkatan}</span>
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewSubmission(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Ticket Info Card */}
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Nomor Registrasi / Tiket</span>
+                <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
+                  {previewSubmission.nomorRegistrasi || previewSubmission.id}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopyTicket(previewSubmission.nomorRegistrasi || previewSubmission.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-sky-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Salin</span>
+              </button>
+            </div>
+
+            {/* Detail Grid */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Jenis / Bidang:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{previewSubmission.jenisOrmas || 'Sosial Kemasyarakatan'}</span>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Tanggal Pengajuan:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{previewSubmission.tanggalPengajuan || '-'}</span>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Ketua Umum:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{previewSubmission.ketuaUmum || previewSubmission.pendaftar || '-'}</span>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Kontak / Telepon:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{previewSubmission.telepon || '-'}</span>
+              </div>
+              <div className="col-span-2 space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Email Pemohon:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{previewSubmission.email || previewSubmission.pendaftarEmail || '-'}</span>
+              </div>
+              <div className="col-span-2 space-y-0.5">
+                <span className="text-slate-400 text-[11px] block">Domisili &amp; Alamat Sekretariat:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  {previewSubmission.alamat ? `${previewSubmission.alamat}, Distrik ${previewSubmission.distrik || 'Mimika Baru'}` : `Distrik ${previewSubmission.distrik || 'Mimika Baru'}`}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => handlePrintTandaTerima(previewSubmission)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Cetak Tanda Terima</span>
+              </button>
+              <Link
+                href={`/dashboard/pengajuan/${previewSubmission.id}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-xs"
+              >
+                <span>Halaman Verifikasi Lengkap</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       )}

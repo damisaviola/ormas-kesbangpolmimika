@@ -174,9 +174,12 @@ export default function DashboardBerandaPage() {
                     <td className="py-3.5 px-4 text-right">
                       <Link
                         href={`/dashboard/pengajuan/${item.id}`}
-                        className="inline-flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg border border-blue-200/80 dark:border-blue-800 transition-colors shadow-2xs"
                       >
-                        Periksa →
+                        <span>Verifikasi</span>
+                        <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </Link>
                     </td>
                   </tr>
