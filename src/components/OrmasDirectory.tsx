@@ -16,7 +16,6 @@ type SortDirection = "asc" | "desc";
 export default function OrmasDirectory({ initialData = [], onSelectOrmas }: OrmasDirectoryProps) {
   const [internalSelectedOrmas, setInternalSelectedOrmas] = useState<OrmasItem | null>(null);
   const [ormasData, setOrmasData] = useState<OrmasItem[]>(initialData);
-  const [isSyncing, setIsSyncing] = useState<boolean>(initialData.length === 0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("semua");
   const [selectedCategory, setSelectedCategory] = useState<string>("semua");
@@ -31,7 +30,6 @@ export default function OrmasDirectory({ initialData = [], onSelectOrmas }: Orma
   useEffect(() => {
     if (initialData && initialData.length > 0) {
       setOrmasData(initialData);
-      setIsSyncing(false);
     }
   }, [initialData]);
 
@@ -78,8 +76,6 @@ export default function OrmasDirectory({ initialData = [], onSelectOrmas }: Orma
         }
       } catch (err) {
         console.error("Gagal memuat ormas dari database:", err);
-      } finally {
-        if (isMounted) setIsSyncing(false);
       }
     }
 
@@ -270,12 +266,6 @@ export default function OrmasDirectory({ initialData = [], onSelectOrmas }: Orma
         {/* Header Bersih & Ringkas */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                <span className={`w-1.5 h-1.5 rounded-full ${isSyncing ? "bg-amber-500 animate-pulse" : "bg-emerald-600"}`}></span>
-                {isSyncing ? "Menyinkronkan Database..." : "Sinkron Database MySQL"}
-              </span>
-            </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading">
               Direktori Organisasi Kemasyarakatan
             </h2>
