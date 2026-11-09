@@ -1,7 +1,57 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import RevealOnScroll from "@/components/animations/RevealOnScroll";
 import CountUpNumber from "@/components/animations/CountUpNumber";
 
-export default function StatsDashboard() {
+interface StatsDashboardProps {
+  initialStats?: {
+    total: number;
+    resmi: number;
+    proses: number;
+  };
+}
+
+export default function StatsDashboard({ initialStats }: StatsDashboardProps) {
+  const [stats, setStats] = useState(
+    initialStats || {
+      total: 16,
+      proses: 5,
+      resmi: 11,
+    }
+  );
+
+  useEffect(() => {
+    if (initialStats) {
+      setStats(initialStats);
+    }
+  }, [initialStats]);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadStatsFromDb() {
+      try {
+        const res = await fetch("/api/ormas", { cache: "no-store" });
+        const json = await res.json();
+        if (isMounted && json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const total = json.data.length;
+          const resmi = json.data.filter(
+            (item: any) => item.status === "Resmi" || item.statusSk === "Aktif"
+          ).length;
+          const proses = total - resmi;
+          setStats({ total, resmi, proses });
+        }
+      } catch (err) {
+        console.error("Gagal sinkron statistik dari database:", err);
+      }
+    }
+
+    loadStatsFromDb();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section id="statistik" className="py-20 bg-white border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,7 +76,7 @@ export default function StatsDashboard() {
                 <div>
                   <p className="text-sm font-bold uppercase tracking-wider text-slate-600">Jumlah Organisasi</p>
                   <p className="text-5xl sm:text-6xl font-black text-slate-900 mt-3 font-heading group-hover:text-blue-900 transition-colors">
-                    <CountUpNumber end={121} />
+                    <CountUpNumber end={stats.total} />
                   </p>
                 </div>
                 <div className="w-16 h-16 rounded-xl bg-blue-100 text-blue-900 flex items-center justify-center transition-colors duration-200 shrink-0">
@@ -49,7 +99,7 @@ export default function StatsDashboard() {
                 <div>
                   <p className="text-sm font-bold uppercase tracking-wider text-amber-800">Dalam Proses Verifikasi</p>
                   <p className="text-5xl sm:text-6xl font-black text-amber-600 mt-3 font-heading">
-                    <CountUpNumber end={14} />
+                    <CountUpNumber end={stats.proses} />
                   </p>
                 </div>
                 <div className="w-16 h-16 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center transition-colors duration-200 shrink-0">
@@ -72,7 +122,7 @@ export default function StatsDashboard() {
                 <div>
                   <p className="text-sm font-bold uppercase tracking-wider text-emerald-800">Organisasi Resmi Aktif</p>
                   <p className="text-5xl sm:text-6xl font-black text-emerald-600 mt-3 font-heading">
-                    <CountUpNumber end={107} />
+                    <CountUpNumber end={stats.resmi} />
                   </p>
                 </div>
                 <div className="w-16 h-16 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center transition-colors duration-200 shrink-0">
