@@ -231,57 +231,57 @@ export default function DatabaseJenisOrmasPage() {
       </div>
 
       {/* Table: No, Nama, Jumlah Organisasi, Aksi */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6 w-16 text-center">No</th>
-                <th className="py-3.5 px-4">Nama</th>
-                <th className="py-3.5 px-4">Jumlah Organisasi</th>
-                <th className="py-3.5 px-4 text-right">Aksi</th>
+                <th className="py-3 px-4 sm:px-6 w-16 text-center">No</th>
+                <th className="py-3 px-4">Nama Jenis Organisasi</th>
+                <th className="py-3 px-4">Jumlah Terdaftar</th>
+                <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {paginatedData.length > 0 ? (
                 paginatedData.map((item, idx) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
                   >
-                    <td className="py-4 px-4 sm:px-6 text-center font-bold text-slate-500 dark:text-slate-400">
+                    <td className="py-3.5 px-4 sm:px-6 text-center font-medium text-slate-400">
                       {startIndex + idx + 1}
                     </td>
-                    <td className="py-4 px-4 font-black text-slate-900 dark:text-white tracking-wide">
+                    <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-black text-blue-900 dark:text-blue-400">
+                        <span className="font-medium text-slate-900 dark:text-white">
                           {item.namaJenis}
                         </span>
                         {item.deskripsi && (
-                          <span className="text-[11px] font-normal text-slate-400 dark:text-slate-500 hidden md:inline">
-                            • {item.deskripsi}
+                          <span className="text-xs text-slate-400 dark:text-slate-500 hidden md:inline">
+                            — {item.deskripsi}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800">
-                        {item.jumlahOrmas}
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {item.jumlahOrmas} Organisasi
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-right">
-                      <div className="inline-flex items-center gap-1.5">
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="inline-flex items-center gap-1">
                         {/* Edit Button */}
                         <button
                           onClick={() => setSelectedForEdit(item)}
-                          className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
                           title="Edit Jenis Organisasi"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth={2}
+                              strokeWidth={1.75}
                               d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                             />
                           </svg>
@@ -290,14 +290,14 @@ export default function DatabaseJenisOrmasPage() {
                         {/* Delete Button */}
                         <button
                           onClick={() => setSelectedForDelete(item)}
-                          className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
                           title="Hapus Jenis Organisasi"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth={2}
+                              strokeWidth={1.75}
                               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                             />
                           </svg>

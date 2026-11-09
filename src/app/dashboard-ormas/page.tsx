@@ -507,57 +507,57 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       {hasSubmission ? (
         /* KONDISI A: ORMAS SUDAH TERDAFTAR */
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs relative overflow-hidden transition-colors">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 transition-colors shadow-xs">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
             {/* Bagian Kiri: Identitas Organisasi & Nomor Tiket */}
-            <div className="space-y-3 max-w-2xl">
+            <div className="space-y-2.5 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                  Portal Resmi Ormas Kesbangpol Mimika
+                <span className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                  Portal Ormas Kesbangpol Mimika
                 </span>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                   {submission.jenisOrmas}
                 </span>
                 {currentUser?.email && (
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                    Masuk: {currentUser.email}
+                  <span className="text-[11px] text-slate-400">
+                    Akun: {currentUser.email}
                   </span>
                 )}
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {submission.namaOrmas || 'Organisasi Anda'}
                 </h1>
                 {submission.singkatan && (
-                  <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-                    Dikenal sebagai: <strong className="text-slate-700 dark:text-slate-200">({submission.singkatan})</strong>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Singkatan: <span className="font-medium text-slate-700 dark:text-slate-200">({submission.singkatan})</span>
                   </p>
                 )}
               </div>
 
-              {/* Status Badge Menonjol & Nomor Tiket */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs sm:text-sm font-extrabold shadow-2xs ${statusConfig.bg}`}>
-                  <span className={`w-2.5 h-2.5 rounded-full ${statusConfig.dot}`} />
+              {/* Status Badge & Nomor Tiket */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${statusConfig.bg}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
                   <span>{statusConfig.text}</span>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
-                  <span className="text-slate-400 font-bold uppercase text-[10px]">No. Tiket:</span>
-                  <span className="font-mono font-black text-slate-900 dark:text-white">{submission.nomorTiket}</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs">
+                  <span className="text-slate-400 text-[11px]">No. Tiket:</span>
+                  <span className="font-mono font-medium text-slate-900 dark:text-white">{submission.nomorTiket}</span>
                   <button
                     type="button"
                     onClick={() => handleCopyTicket(submission.nomorTiket)}
-                    className="ml-1 p-1 text-slate-500 hover:text-blue-600 rounded transition-colors"
+                    className="ml-1 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded transition-colors"
                     title="Salin nomor tiket ini"
                   >
                     {copiedTicket ? (
-                      <span className="text-[10px] text-emerald-600 font-bold">Tersalin!</span>
+                      <span className="text-[10px] text-emerald-600 font-medium">Tersalin!</span>
                     ) : (
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     )}
                   </button>
@@ -566,24 +566,24 @@ export default function OrmasBerandaPage() {
             </div>
 
             {/* Bagian Kanan: Aksi Cepat & Cetak Bukti */}
-            <div className="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch gap-2.5 shrink-0 min-w-[220px]">
+            <div className="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch gap-2 shrink-0 min-w-[200px]">
               <button
                 type="button"
                 onClick={() => setIsReceiptModalOpen(true)}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-sm transition-all hover:shadow cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
                 <span>Cetak Tanda Terima</span>
               </button>
 
               <Link
                 href="/dashboard-ormas/organisasi"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 transition-colors"
               >
-                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <span>Kelola Berkas ({submission.totalDokumen}/8)</span>
               </Link>
@@ -592,42 +592,65 @@ export default function OrmasBerandaPage() {
         </div>
       ) : (
         /* KONDISI B: BELUM MEMILIKI PENGAJUAN (Sambutan Ramah untuk Ormas Baru) */
-        <div className="bg-gradient-to-br from-blue-900 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 shadow-lg border border-slate-800 relative overflow-hidden">
-          <div className="max-w-3xl space-y-4 relative z-10">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-sky-300 border border-blue-400/30">
-              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-              Selamat Datang di SI-ORMAS Kabupaten Mimika
-            </span>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 transition-colors shadow-xs">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                Selamat Datang di SI-ORMAS Kabupaten Mimika
+              </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-              Daftarkan Organisasi Kemasyarakatan Anda Secara Mandiri &amp; Online
-            </h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
+                Daftarkan Organisasi Kemasyarakatan Anda Secara Mandiri &amp; Online
+              </h1>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-              Layanan permohonan Surat Keterangan Terdaftar (SKT) resmi dari Badan Kesatuan Bangsa dan Politik Kabupaten Mimika. Proses mudah, transparan, dan dapat dipantau langsung dari gawai Anda.
-            </p>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
+                Layanan permohonan Surat Keterangan Terdaftar (SKT) resmi dari Badan Kesatuan Bangsa dan Politik Kabupaten Mimika. Proses mudah, transparan, dan dapat dipantau langsung dari gawai Anda.
+              </p>
 
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-all hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Daftarkan Ormas Baru Sekarang</span>
-              </button>
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-xs"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Daftarkan Ormas Baru Sekarang</span>
+                </button>
 
-              <Link
-                href="/dashboard-ormas/panduan"
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors"
-              >
-                <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Lihat Panduan &amp; Syarat SKT</span>
-              </Link>
+                <Link
+                  href="/dashboard-ormas/panduan"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Lihat Panduan &amp; Syarat SKT</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Sidecard: Ketentuan Layanan SKT yang Bersih & Netral */}
+            <div className="lg:w-72 p-4 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-slate-800/80 space-y-2 shrink-0">
+              <p className="font-semibold text-slate-900 dark:text-slate-200 text-xs">
+                Ketentuan Layanan SKT
+              </p>
+              <div className="space-y-1.5 text-slate-600 dark:text-slate-400 text-[11px]">
+                <div className="flex items-start gap-2">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                  <span>Bebas biaya retribusi (Gratis)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                  <span>Verifikasi berkas transparan</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                  <span>Penerbitan SKT resmi Kesbangpol</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -638,68 +661,68 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Kartu 1: Tahap Saat Ini */}
-        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 transition-colors">
+        <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-3 transition-colors shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Tahap Permohonan</span>
-            <span className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Tahap Permohonan</span>
+            <span className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
           </div>
           <div>
-            <div className="text-xl font-black text-slate-900 dark:text-white leading-tight">
+            <div className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-tight">
               {submission.status}
             </div>
-            <p className="text-xs text-blue-600 dark:text-sky-400 font-semibold mt-1">
+            <p className="text-xs text-blue-600 dark:text-sky-400 font-medium mt-1">
               {!hasSubmission
                 ? 'Belum ada pengajuan aktif'
                 : `Tahap ${submission.stepNumber || 1} dari 4 Alur Pelayanan`}
             </p>
           </div>
           <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
-            {hasSubmission ? 'Dipantau berkala oleh Bakesbangpol' : 'Daftar untuk memulai proses verifikasi'}
+            {hasSubmission ? 'Dipantau berkala oleh Kesbangpol' : 'Daftar untuk memulai verifikasi'}
           </div>
         </div>
 
         {/* Kartu 2: Kelengkapan Dokumen Legalitas */}
-        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 transition-colors">
+        <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-3 transition-colors shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Dokumen Persyaratan</span>
-            <span className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-bold">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Dokumen Persyaratan</span>
+            <span className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </span>
           </div>
           <div>
-            <div className="text-xl font-black text-slate-900 dark:text-white leading-tight">
+            <div className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-tight">
               {submission.totalDokumen} / 8 Berkas
             </div>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">
               {submission.totalDokumen >= 8 ? '✓ 100% Persyaratan Terpenuhi' : `${Math.round((submission.totalDokumen / 8) * 100)}% Kelengkapan Berkas`}
             </p>
           </div>
           <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 truncate">
-            {submission.totalDokumen >= 8 ? 'Akta, NPWP, Domisili & AD/ART siap' : `${Math.max(0, 8 - submission.totalDokumen)} dokumen belum dilengkapi`}
+            {submission.totalDokumen >= 8 ? 'Akta, NPWP, Domisili & AD/ART siap' : `${Math.max(0, 8 - submission.totalDokumen)} dokumen belum diunggah`}
           </div>
         </div>
 
         {/* Kartu 3: Pengurus & Anggota */}
-        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 transition-colors">
+        <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-3 transition-colors shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Pengurus &amp; Anggota</span>
-            <span className="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Pengurus &amp; Anggota</span>
+            <span className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </span>
           </div>
           <div>
-            <div className="text-xl font-black text-slate-900 dark:text-white leading-tight">
+            <div className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-tight">
               {totalAnggota > 0 ? `${totalAnggota} Orang` : 'Pengurus Inti'}
             </div>
-            <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">
+            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
               Ketua, Sekretaris, Bendahara
             </p>
           </div>
@@ -711,20 +734,20 @@ export default function OrmasBerandaPage() {
         </div>
 
         {/* Kartu 4: Estimasi Selesai */}
-        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 transition-colors">
+        <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-3 transition-colors shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Estimasi Terbit SKT</span>
-            <span className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 flex items-center justify-center font-bold">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Estimasi Terbit SKT</span>
+            <span className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 flex items-center justify-center font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
           </div>
           <div>
-            <div className="text-xl font-black text-slate-900 dark:text-white leading-tight truncate">
+            <div className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-tight truncate">
               {submission.estimasiTerbit}
             </div>
-            <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">
+            <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-1">
               {submission.estimasiHariLagi}
             </p>
           </div>
@@ -737,10 +760,10 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       {/* 3. ALUR TAHAPAN VERIFIKASI (Visual Stepper yang Bersih & Mudah Dipahami) */}
       {/* ========================================================================= */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-5 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
               Alur &amp; Progres Penerbitan SKT Ormas
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -753,10 +776,10 @@ export default function OrmasBerandaPage() {
               <button
                 type="button"
                 onClick={handlePrintSubmissionPdf}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 rounded-xl transition-colors border border-blue-200 dark:border-blue-800"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200/80 dark:border-slate-700"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
                 <span>Unduh PDF</span>
               </button>
@@ -823,55 +846,55 @@ export default function OrmasBerandaPage() {
             return (
               <div
                 key={step.stepNumber}
-                className={`p-5 rounded-2xl border transition-all ${
+                className={`p-4 rounded-xl border transition-all ${
                   isDone
-                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/80'
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800/60'
                     : isAlert
-                    ? 'bg-rose-50/70 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800'
+                    ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800'
                     : isCurrent
-                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 ring-2 ring-blue-500/20 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-800 opacity-60'
+                    ? 'bg-blue-50/60 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'
+                    : 'bg-slate-50/60 dark:bg-slate-800/20 border-slate-200/60 dark:border-slate-800/60 opacity-70'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2.5">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${
                       isDone
                         ? 'bg-emerald-600 text-white'
                         : isAlert
                         ? 'bg-rose-600 text-white'
                         : isCurrent
-                        ? 'bg-blue-600 text-white animate-pulse'
-                        : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {isDone ? '✓' : isAlert ? '!' : step.stepNumber}
                   </div>
 
                   <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                       isDone
-                        ? 'bg-emerald-200 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300'
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                         : isAlert
-                        ? 'bg-rose-200 text-rose-800 dark:bg-rose-900 dark:text-rose-300'
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
                         : isCurrent
-                        ? 'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     {statusText}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
                   {step.title}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                   {step.description}
                 </p>
 
                 {dateText && (
-                  <div className="mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700 text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+                  <div className="mt-2.5 pt-2 border-t border-slate-200/50 dark:border-slate-700/50 text-[11px] font-medium text-slate-500 flex items-center gap-1.5">
                     <span>📅</span>
                     <span>{dateText}</span>
                   </div>
@@ -882,16 +905,16 @@ export default function OrmasBerandaPage() {
         </div>
 
         {/* Kotak Catatan Verifikator & Bantuan Langsung */}
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs text-lg">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0 text-sm">
               💬
             </div>
-            <div className="space-y-1">
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                Catatan Petugas Verifikator Kesbangpol:
+            <div className="space-y-0.5">
+              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
+                Catatan Petugas Verifikator:
               </h4>
-              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed italic">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
                 {submission.catatan && submission.catatan.trim()
                   ? `"${submission.catatan}"`
                   : submission.status === 'Disetujui'
@@ -900,8 +923,8 @@ export default function OrmasBerandaPage() {
                   ? '"Berkas pendaftaran Anda telah diterima secara online. Tim verifikator sedang memeriksa keabsahan 8 dokumen persyaratan."'
                   : '"Silakan isi formulir pendaftaran ormas dan lengkapi 8 berkas persyaratan untuk diproses oleh verifikator."'}
               </p>
-              <p className="text-[11px] text-slate-400 font-medium">
-                Petugas Verifikator: <strong>{submission.petugasVerifikator || 'Yance Murib, S.STP (Subbid Ormas)'}</strong>
+              <p className="text-[11px] text-slate-400">
+                Verifikator: <span className="font-medium text-slate-600 dark:text-slate-300">{submission.petugasVerifikator || 'Yance Murib, S.STP (Subbid Ormas)'}</span>
               </p>
             </div>
           </div>
@@ -910,11 +933,11 @@ export default function OrmasBerandaPage() {
             href="https://wa.me/6281240998877"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shrink-0"
           >
             <span>Hubungi Petugas (WhatsApp)</span>
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
         </div>
@@ -923,13 +946,13 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       {/* 4. PUSAT LAYANAN CEPAT (4 Menu Utama Beranda yang Sangat Rapi & Jelas) */}
       {/* ========================================================================= */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div>
-          <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-            Menu Utama &amp; Pelayanan Mandiri Ormas
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
+            Menu Utama Pelayanan Ormas
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Pilih menu di bawah ini untuk mengelola berkas, susunan pengurus, atau membaca panduan
+            Akses cepat kelola berkas, susunan pengurus, kalender masa aktif, atau panduan
           </p>
         </div>
 
@@ -937,88 +960,88 @@ export default function OrmasBerandaPage() {
           {/* Card 1: Kelola Dokumen Legalitas */}
           <Link
             href="/dashboard-ormas/organisasi"
-            className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between space-y-4 group"
+            className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex flex-col justify-between space-y-3 group shadow-xs"
           >
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center text-lg">
               📂
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+              <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 Kelola Dokumen Persyaratan
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                 Unggah dan periksa 8 berkas legalitas seperti Akta Notaris, NPWP, AD/ART, dan Domisili.
               </p>
             </div>
-            <div className="text-xs font-bold text-blue-600 dark:text-sky-400 flex items-center gap-1">
+            <div className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
               <span>Buka Dokumen</span>
-              <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+              <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
             </div>
           </Link>
 
           {/* Card 2: Susunan Pengurus & Anggota */}
           <Link
             href="/dashboard-ormas/organisasi?tab=pengurus"
-            className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between space-y-4 group"
+            className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex flex-col justify-between space-y-3 group shadow-xs"
           >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-lg">
               👥
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
-                Pengurus &amp; Data Anggota
+              <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                Pengurus &amp; Anggota
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Kelola nama Ketua Umum, Sekretaris, Bendahara, serta rincian daftar anggota aktif.
+                Kelola Ketua Umum, Sekretaris, Bendahara, serta rincian daftar anggota aktif.
               </p>
             </div>
-            <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
               <span>Buka Pengurus</span>
-              <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+              <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
             </div>
           </Link>
 
           {/* Card 3: Kalender & Masa Aktif SKT */}
           <Link
             href="/dashboard-ormas/kalender"
-            className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between space-y-4 group"
+            className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex flex-col justify-between space-y-3 group shadow-xs"
           >
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 flex items-center justify-center text-lg">
               📅
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600 transition-colors">
-                Kalender SKT &amp; Kegiatan
+              <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                Kalender SKT &amp; Masa Berlaku
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                 Pantau tanggal jatuh tempo masa berlaku SKT dan agenda verifikasi lapangan Kesbangpol.
               </p>
             </div>
-            <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+            <div className="text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
               <span>Buka Kalender</span>
-              <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+              <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
             </div>
           </Link>
 
           {/* Card 4: Panduan Pendaftaran & SOP */}
           <Link
             href="/dashboard-ormas/panduan"
-            className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between space-y-4 group"
+            className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex flex-col justify-between space-y-3 group shadow-xs"
           >
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center text-lg">
               📖
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors">
+              <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                 Panduan &amp; Standar Layanan
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                 Panduan lengkap tata cara pendaftaran, syarat berkas, dan ketentuan hukum Ormas.
               </p>
             </div>
-            <div className="text-xs font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
+            <div className="text-xs font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1">
               <span>Baca Panduan</span>
-              <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+              <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
             </div>
           </Link>
         </div>
@@ -1027,10 +1050,10 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       {/* 5. CHECKLIST RINGKAS 8 PERSYARATAN WAJIB SKT */}
       {/* ========================================================================= */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-5 transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-4 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
               Daftar Checklist 8 Berkas Wajib SKT
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1039,9 +1062,9 @@ export default function OrmasBerandaPage() {
           </div>
           <Link
             href="/dashboard-ormas/organisasi"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-colors shrink-0 self-start sm:self-auto"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
           >
-            <span>Unggah / Lengkapi Berkas</span>
+            <span>Unggah Berkas</span>
             <span>&rarr;</span>
           </Link>
         </div>
@@ -1053,11 +1076,11 @@ export default function OrmasBerandaPage() {
             return (
               <div
                 key={doc.id}
-                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
+                className="p-3 rounded-lg bg-slate-50/80 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-3 text-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                    className={`w-6 h-6 rounded-md flex items-center justify-center font-medium text-xs shrink-0 ${
                       isUploaded
                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
                         : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
@@ -1066,7 +1089,7 @@ export default function OrmasBerandaPage() {
                     {isUploaded ? '✓' : idx + 1}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 dark:text-white truncate">
+                    <p className="font-medium text-slate-900 dark:text-white truncate">
                       {doc.namaDokumen}
                     </p>
                     <p className="text-[10px] text-slate-400 truncate">
@@ -1095,24 +1118,24 @@ export default function OrmasBerandaPage() {
       {/* ========================================================================= */}
       {isReceiptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/80 backdrop-blur-xs animate-in fade-in overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col my-auto max-h-[92vh]">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col my-auto max-h-[92vh]">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold">Bukti Tanda Terima Pendaftaran SKT</h3>
+                  <h3 className="text-sm sm:text-base font-semibold">Bukti Tanda Terima Pendaftaran SKT</h3>
                   <p className="text-xs text-slate-500">Badan Kesatuan Bangsa dan Politik Kabupaten Mimika</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsReceiptModalOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors text-lg"
+                className="w-8 h-8 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors text-lg"
               >
                 &times;
               </button>
@@ -1120,9 +1143,9 @@ export default function OrmasBerandaPage() {
 
             {/* Modal Content / Printable Box */}
             <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
-              <div className="border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 bg-slate-50/50 dark:bg-slate-950/40 space-y-4">
+              <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:p-6 bg-slate-50/50 dark:bg-slate-950/40 space-y-4">
                 {/* Kop Surat */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3.5 border-b-2 border-slate-300 dark:border-slate-700 pb-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3.5 border-b border-slate-300 dark:border-slate-700 pb-4">
                   <Image
                     src="/assets/pic/logo_kabupatenmimika_removebg.png"
                     alt="Lambang Mimika"
@@ -1131,10 +1154,10 @@ export default function OrmasBerandaPage() {
                     className="h-12 w-auto sm:h-14 object-contain shrink-0"
                   />
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                       Pemerintah Kabupaten Mimika
                     </p>
-                    <h2 className="text-sm sm:text-base font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                    <h2 className="text-sm sm:text-base font-bold uppercase tracking-wide text-slate-900 dark:text-white">
                       Badan Kesatuan Bangsa dan Politik
                     </h2>
                     <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
@@ -1144,37 +1167,37 @@ export default function OrmasBerandaPage() {
                 </div>
 
                 <div className="text-center py-1">
-                  <h1 className="text-sm sm:text-base font-black tracking-tight uppercase text-slate-900 dark:text-white">
+                  <h1 className="text-sm sm:text-base font-bold tracking-tight uppercase text-slate-900 dark:text-white">
                     Tanda Terima Pendaftaran SKT Ormas
                   </h1>
-                  <p className="text-xs font-mono font-bold text-blue-600 dark:text-sky-400 mt-0.5">
+                  <p className="text-xs font-mono font-medium text-blue-600 dark:text-sky-400 mt-0.5">
                     Nomor Tiket: {submission.nomorTiket || 'TIKET/SKT/2026/001'}
                   </p>
                 </div>
 
                 {/* Grid Detail */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Organisasi</span>
-                    <p className="font-black text-slate-900 dark:text-white">
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                    <span className="text-[10px] text-slate-400 font-medium uppercase block">Nama Organisasi</span>
+                    <p className="font-semibold text-slate-900 dark:text-white">
                       {submission.namaOrmas || 'Organisasi Kemasyarakatan'}
                     </p>
                     {submission.singkatan && <p className="text-[11px] text-slate-500">Singkatan: {submission.singkatan}</p>}
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Jenis Ormas</span>
-                    <p className="font-bold text-slate-900 dark:text-white">{submission.jenisOrmas}</p>
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                    <span className="text-[10px] text-slate-400 font-medium uppercase block">Jenis Ormas</span>
+                    <p className="font-semibold text-slate-900 dark:text-white">{submission.jenisOrmas}</p>
                     <p className="text-[11px] text-slate-500">Pendaftaran Mandiri Online</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Tanggal Pengajuan</span>
-                    <p className="font-bold text-slate-900 dark:text-white">{submission.tanggalPengajuan}</p>
-                    <p className="text-[11px] text-emerald-600 font-semibold">Tercatat di Database SI-ORMAS</p>
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                    <span className="text-[10px] text-slate-400 font-medium uppercase block">Tanggal Pengajuan</span>
+                    <p className="font-semibold text-slate-900 dark:text-white">{submission.tanggalPengajuan}</p>
+                    <p className="text-[11px] text-emerald-600 font-medium">Tercatat di Database SI-ORMAS</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Status Verifikasi</span>
                     <p className="font-bold text-blue-600 dark:text-sky-400">{submission.status}</p>
                     <p className="text-[11px] text-slate-500">Tahap {submission.stepNumber || 1} dari 4 Alur Pelayanan</p>

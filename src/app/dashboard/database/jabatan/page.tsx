@@ -91,14 +91,14 @@ export default function DatabaseJabatanPage() {
       </div>
 
       {/* Jabatan Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
                 <th
                   onClick={() => handleSort('kode')}
-                  className="py-3.5 px-4 sm:px-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 sm:px-6 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                 >
                   <div className="flex items-center gap-1">
                     <span>Kode</span>
@@ -109,7 +109,7 @@ export default function DatabaseJabatanPage() {
                 </th>
                 <th
                   onClick={() => handleSort('namaJabatan')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                 >
                   <div className="flex items-center gap-1">
                     <span>Nama Jabatan</span>
@@ -120,7 +120,7 @@ export default function DatabaseJabatanPage() {
                 </th>
                 <th
                   onClick={() => handleSort('tingkat')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                 >
                   <div className="flex items-center gap-1">
                     <span>Tingkat Struktur</span>
@@ -131,7 +131,7 @@ export default function DatabaseJabatanPage() {
                 </th>
                 <th
                   onClick={() => handleSort('deskripsi')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                 >
                   <div className="flex items-center gap-1">
                     <span>Deskripsi Tugas</span>
@@ -140,23 +140,23 @@ export default function DatabaseJabatanPage() {
                     </span>
                   </div>
                 </th>
-                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3 px-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {sorted.map((j) => (
-                <tr key={j.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-bold text-slate-900 dark:text-amber-400">
+                <tr key={j.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                  <td className="py-3.5 px-4 sm:px-6 font-mono text-xs font-medium text-slate-600 dark:text-slate-400">
                     {j.kode}
                   </td>
-                  <td className="py-4 px-4 font-bold text-slate-900 dark:text-white">{j.namaJabatan}</td>
-                  <td className="py-4 px-4 font-semibold">
-                    <span className="px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-white">{j.namaJabatan}</td>
+                  <td className="py-3.5 px-4">
+                    <span className="px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md">
                       {j.tingkat}
                     </span>
                   </td>
-                  <td className="py-4 px-4 text-slate-500 dark:text-slate-400 max-w-xs">{j.deskripsi}</td>
-                  <td className="py-4 px-4">
+                  <td className="py-3.5 px-4 text-xs text-slate-500 dark:text-slate-400 max-w-xs">{j.deskripsi}</td>
+                  <td className="py-3.5 px-4">
                     <TableBadge status={j.status} />
                   </td>
                 </tr>

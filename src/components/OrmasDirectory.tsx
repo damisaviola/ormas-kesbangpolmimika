@@ -185,83 +185,85 @@ export default function OrmasDirectory({ onSelectOrmas }: OrmasDirectoryProps) {
         {/* Table / Grid View Component */}
         <RevealOnScroll animation="fade-up" delay={120} duration={550}>
           {viewMode === "table" ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-900 text-white font-bold uppercase tracking-wider text-xs border-b border-slate-800">
-                    <th className="py-4 px-5 text-center w-14">No</th>
-                    <th className="py-4 px-5">Nama Organisasi</th>
-                    <th className="py-4 px-5">Jenis / Kategori</th>
-                    <th className="py-4 px-5 text-center">Status Legalitas</th>
-                    <th className="py-4 px-5">Alamat Domisili</th>
-                    <th className="py-4 px-5 text-right">Aksi</th>
+                  <tr className="bg-slate-50/80 text-slate-500 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 select-none">
+                    <th className="py-3 px-4 text-center w-12">No</th>
+                    <th className="py-3 px-4">Nama Organisasi</th>
+                    <th className="py-3 px-4">Jenis & Bidang</th>
+                    <th className="py-3 px-4 text-center">Status Legalitas</th>
+                    <th className="py-3 px-4">Alamat Domisili</th>
+                    <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredOrmas.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-14 text-center text-slate-400">
-                        <svg className="w-14 h-14 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                        <svg className="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="text-base font-bold text-slate-700">Tidak ada organisasi yang cocok dengan pencarian.</p>
-                        <p className="text-sm text-slate-400 mt-1">Coba ubah kata kunci atau klik reset filter pencarian Anda.</p>
+                        <p className="text-sm font-medium text-slate-700">Tidak ada organisasi yang cocok dengan pencarian.</p>
+                        <p className="text-xs text-slate-400 mt-0.5">Coba ubah kata kunci atau klik reset filter pencarian Anda.</p>
                       </td>
                     </tr>
                   ) : (
                     filteredOrmas.map((item, idx) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-slate-50 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                         onClick={() => handleSelectOrmas(item)}
                       >
-                        <td className="py-4.5 px-5 text-center font-bold text-slate-400 text-sm">{idx + 1}</td>
-                        <td className="py-4.5 px-5">
-                          <div className="text-base font-bold text-slate-900 font-heading group-hover:text-blue-900 transition-colors">
+                        <td className="py-3.5 px-4 text-center font-medium text-slate-400">{idx + 1}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="text-sm font-medium text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
                             {item.nama}
                           </div>
-                          {item.singkatan && (
-                            <span className="inline-block mt-1 text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                              {item.singkatan}
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {item.singkatan && (
+                              <span className="inline-block text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200/60">
+                                {item.singkatan}
+                              </span>
+                            )}
+                            <span className="text-xs text-slate-500 font-mono">
+                              SKT: {item.noSkt}
                             </span>
-                          )}
-                          <div className="text-xs text-slate-500 mt-1">
-                            No. SKT: <span className="font-mono font-medium text-slate-700">{item.noSkt}</span>
                           </div>
                         </td>
-                        <td className="py-4.5 px-5">
-                          <span className="font-semibold text-slate-800 text-sm">{item.jenis}</span>
-                          <div className="text-xs text-slate-500 mt-0.5">{item.kategori}</div>
+                        <td className="py-3.5 px-4">
+                          <span className="font-medium text-slate-800 text-xs">{item.jenis}</span>
+                          <div className="text-[11px] text-slate-500 mt-0.5">{item.kategori}</div>
                         </td>
-                        <td className="py-4.5 px-5 text-center">
+                        <td className="py-3.5 px-4 text-center">
                           {item.status === "Resmi" ? (
-                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/50">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                               Resmi
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/50">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                               Dalam Proses
                             </span>
                           )}
                         </td>
-                        <td className="py-4.5 px-5 text-slate-600 max-w-xs truncate text-sm">
+                        <td className="py-3.5 px-4 text-slate-500 max-w-xs truncate text-xs">
                           {item.alamat}
                         </td>
-                        <td className="py-4.5 px-5 text-right">
+                        <td className="py-3.5 px-4 text-right">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSelectOrmas(item);
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-900 hover:text-white bg-blue-50 hover:bg-blue-900 px-3.5 py-2 rounded-lg border border-blue-200 hover:border-blue-900 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-slate-700 hover:text-blue-600 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition-colors"
                             title="Lihat Detail Organisasi"
                           >
-                            <svg className="w-4 h-4 text-blue-600 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             Detail
                           </button>

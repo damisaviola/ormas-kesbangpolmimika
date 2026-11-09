@@ -1181,20 +1181,20 @@ export default function OrmasOrganisasiPage() {
               </svg>
             </div>
             <div>
-              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider">
                 Log Aktivitas
               </h2>
-              <p className="text-[11px] text-slate-400">Riwayat jejak permohonan pendaftaran organisasi</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Riwayat jejak permohonan pendaftaran organisasi</p>
             </div>
           </div>
-          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
             Semua ({logs.length})
           </span>
         </div>
 
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[500px]">
-            <thead className="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200/80 dark:border-slate-800">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
                 <th className="py-2.5 px-4 w-40">Timestamp</th>
                 <th className="py-2.5 px-4">Aktivitas</th>
@@ -1202,14 +1202,14 @@ export default function OrmasOrganisasiPage() {
                 <th className="py-2.5 px-4">Oleh</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {logs.map((log, i) => (
-                <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={i} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="py-2.5 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400">{log.timestamp}</td>
-                  <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{log.aktivitas}</td>
+                  <td className="py-2.5 px-4 font-medium text-slate-800 dark:text-slate-200">{log.aktivitas}</td>
                   <td className="py-2.5 px-4 text-slate-500 dark:text-slate-400">{log.pesan}</td>
                   <td className="py-2.5 px-4 font-medium">
-                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       {log.oleh}
                     </span>
                   </td>
@@ -2628,14 +2628,14 @@ export default function OrmasOrganisasiPage() {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto scrollbar-thin border border-slate-100 dark:border-slate-800 rounded-xl">
+            <div className="overflow-x-auto scrollbar-thin border border-slate-200/80 dark:border-slate-800 rounded-xl">
               <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[850px]">
-                <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
+                <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
                     <th className="py-3 px-3 w-12 text-center">No</th>
                     <th
                       onClick={() => handleMemberSort('nama')}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                     >
                       <div className="flex items-center gap-1">
                         <span>Nama Lengkap</span>
@@ -2646,7 +2646,7 @@ export default function OrmasOrganisasiPage() {
                     </th>
                     <th
                       onClick={() => handleMemberSort('nik')}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                     >
                       <div className="flex items-center gap-1">
                         <span>NIK</span>
@@ -2657,7 +2657,7 @@ export default function OrmasOrganisasiPage() {
                     </th>
                     <th
                       onClick={() => handleMemberSort('jabatan')}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                      className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group"
                     >
                       <div className="flex items-center gap-1">
                         <span>Jabatan</span>
@@ -2668,7 +2668,7 @@ export default function OrmasOrganisasiPage() {
                     </th>
                     <th
                       onClick={() => handleMemberSort('jk')}
-                      className="py-3 px-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group text-center"
+                      className="py-3 px-3 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors group text-center"
                     >
                       <div className="flex items-center justify-center gap-1">
                         <span>JK</span>
@@ -2683,7 +2683,7 @@ export default function OrmasOrganisasiPage() {
                     <th className="py-3 px-4 text-center">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {paginatedMembers.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-10 text-center text-slate-400">
@@ -2691,7 +2691,7 @@ export default function OrmasOrganisasiPage() {
                           <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
-                          <p className="font-semibold text-slate-600 dark:text-slate-300">Belum ada anggota yang terdaftar</p>
+                          <p className="font-medium text-slate-600 dark:text-slate-300">Belum ada anggota yang terdaftar</p>
                           <p className="text-[11px] text-slate-400">Gunakan formulir di atas untuk menambahkan anggota Ormas pertama Anda.</p>
                         </div>
                       </td>
@@ -2703,9 +2703,9 @@ export default function OrmasOrganisasiPage() {
                         m.jabatan.toLowerCase().includes(k)
                       );
                       return (
-                        <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="py-3.5 px-3 text-center font-bold text-slate-400">{globalIdx}</td>
-                          <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
+                        <tr key={m.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-3.5 px-3 text-center font-medium text-slate-400">{globalIdx}</td>
+                          <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-white">
                             {m.nama}
                           </td>
                           <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">
@@ -2713,10 +2713,10 @@ export default function OrmasOrganisasiPage() {
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                 isLeader
-                                  ? 'bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                               }`}
                             >
                               {m.jabatan}
@@ -2724,10 +2724,10 @@ export default function OrmasOrganisasiPage() {
                           </td>
                           <td className="py-3.5 px-3 text-center font-medium">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                              className={`inline-block px-1.5 py-0.2 rounded text-[11px] font-medium ${
                                 m.jk === 'Perempuan'
                                   ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300'
-                                  : 'bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300'
+                                  : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                               }`}
                             >
                               {m.jk === 'Perempuan' ? 'P' : 'L'}
@@ -2741,7 +2741,7 @@ export default function OrmasOrganisasiPage() {
                               {m.tanggalLahir || '-'}
                             </div>
                           </td>
-                          <td className="py-3.5 px-4 max-w-[200px] truncate" title={m.alamatDomisili}>
+                          <td className="py-3.5 px-4 max-w-[200px] truncate text-slate-600 dark:text-slate-300" title={m.alamatDomisili}>
                             {m.alamatDomisili || '-'}
                           </td>
                           <td className="py-3.5 px-4">
@@ -2751,25 +2751,25 @@ export default function OrmasOrganisasiPage() {
                             <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
                               <span>{m.pekerjaan || '-'}</span>
                               {m.golDarah && m.golDarah !== '-' && (
-                                <span className="px-1.5 py-0.2 bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 rounded font-bold text-[10px]">
+                                <span className="px-1.5 py-0.2 bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 rounded font-medium text-[10px]">
                                   {m.golDarah}
                                 </span>
                               )}
                             </div>
                           </td>
                           <td className="py-3.5 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
+                            <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
                                 onClick={() => setEditingMember(m)}
-                                className="px-2.5 py-1 text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors"
+                                className="px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors"
                               >
                                 Edit
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteMember(m.id)}
-                                className="px-2.5 py-1 text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-800 transition-colors"
+                                className="px-2 py-1 text-xs font-medium text-rose-600 hover:text-rose-800 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition-colors"
                               >
                                 Hapus
                               </button>

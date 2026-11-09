@@ -87,6 +87,15 @@ export default function DatabasePenggunaPage() {
 
     fetchInitialUsers();
 
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('search') || params.get('q');
+      if (q) {
+        setSearchTerm(q);
+        setActiveTab('semua');
+      }
+    }
+
     return () => {
       isMounted = false;
     };
@@ -719,36 +728,35 @@ export default function DatabasePenggunaPage() {
       {(activeTab === 'admin' || activeTab === 'semua') && (
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-600 shrink-0" />
-              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-                Tabel Administrator & Tim Verifikator Kesbangpol
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Administrator & Petugas Verifikator
               </h2>
-              <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
-                {filteredAdminUsers.length} Akun
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                {filteredAdminUsers.length}
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
+            <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
               Aparatur Sipil Negara & Pengelola Sistem SI-ORMAS
             </p>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 shadow-2xs overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                <thead className="bg-blue-50/70 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 font-bold uppercase tracking-wider text-[11px] border-b border-blue-100 dark:border-blue-900/60 select-none">
+                <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
-                    <th className="py-3.5 px-4 w-12 text-center">No</th>
-                    <th className="py-3.5 px-4">Nama Petugas & NIP</th>
-                    <th className="py-3.5 px-4">Email Kedinasan</th>
-                    <th className="py-3.5 px-4">Kewenangan / Peran</th>
-                    <th className="py-3.5 px-4">Satuan Kerja / Instansi</th>
-                    <th className="py-3.5 px-4">Terakhir Aktif</th>
-                    <th className="py-3.5 px-4 text-center">Status</th>
-                    <th className="py-3.5 px-4 text-right">Aksi</th>
+                    <th className="py-3 px-4 w-12 text-center">No</th>
+                    <th className="py-3 px-4">Nama Petugas & NIP</th>
+                    <th className="py-3 px-4">Email</th>
+                    <th className="py-3 px-4">Peran</th>
+                    <th className="py-3 px-4">Instansi</th>
+                    <th className="py-3 px-4">Terakhir Aktif</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredAdminUsers.length > 0 ? (
                     filteredAdminUsers.map((u, idx) => {
                       const isSuper = u.rawRole === 'superadmin' || u.role === 'admin';
@@ -760,84 +768,81 @@ export default function DatabasePenggunaPage() {
                         .toUpperCase();
 
                       return (
-                        <tr key={u.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-colors">
-                          <td className="py-4 px-4 text-center text-slate-400 font-bold">{idx + 1}</td>
-                          <td className="py-4 px-4">
+                        <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-3.5 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
+                          <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/80 dark:text-blue-200 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-blue-300/60 dark:ring-blue-700">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 flex items-center justify-center font-medium text-xs shrink-0 border border-slate-200/60 dark:border-slate-700">
                                 {initials || 'AD'}
                               </div>
                               <div>
-                                <p className="font-bold text-slate-900 dark:text-white leading-tight">
+                                <p className="font-medium text-slate-900 dark:text-white leading-tight">
                                   {u.nama}
                                 </p>
-                                <p className="text-[11px] text-blue-600 dark:text-blue-400 font-mono mt-0.5 font-semibold">
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                                   {u.nip ? `NIP. ${u.nip}` : 'NIP. Aparatur Dinas'}
                                 </p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 px-4 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+                          <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600 dark:text-slate-400">
                             {u.email}
                           </td>
-                          <td className="py-4 px-4">
+                          <td className="py-3.5 px-4">
                             <span
-                              className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase tracking-wider inline-flex items-center gap-1.5 ${
+                              className={`px-2 py-0.5 text-[11px] font-medium rounded-full inline-flex items-center gap-1.5 ${
                                 isSuper
-                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                                  : 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800'
+                                  : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800'
                               }`}
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                              {isSuper ? 'Superadmin Kesbangpol' : 'Verifikator Berkas'}
+                              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+                              {isSuper ? 'Superadmin' : 'Verifikator'}
                             </span>
                           </td>
-                          <td className="py-4 px-4 font-medium text-slate-700 dark:text-slate-300 max-w-xs truncate">
+                          <td className="py-3.5 px-4 font-normal text-slate-600 dark:text-slate-300 max-w-xs truncate">
                             {u.instansi || 'Badan Kesbangpol Kabupaten Mimika'}
                           </td>
-                          <td className="py-4 px-4 text-slate-500 dark:text-slate-400 text-[11px]">
-                            <p className="font-semibold text-slate-700 dark:text-slate-300">{u.terakhirLogin || '-'}</p>
-                            <p className="text-[10px] text-slate-400">Daftar: {u.tanggalDaftar || '-'}</p>
+                          <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">
+                            <p className="font-medium text-slate-700 dark:text-slate-300">{u.terakhirLogin || '-'}</p>
+                            <p className="text-[11px] text-slate-400">Daftar: {u.tanggalDaftar || '-'}</p>
                           </td>
-                          <td className="py-4 px-4 text-center">
+                          <td className="py-3.5 px-4 text-center">
                             <div className="flex flex-col items-center gap-1">
                               <TableBadge status={u.status} />
                               <button
                                 onClick={() => handleToggleStatus(u)}
                                 title={u.status === 'aktif' ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}
-                                className={`text-[10px] font-bold underline cursor-pointer ${
-                                  u.status === 'aktif'
-                                    ? 'text-rose-500 hover:text-rose-700'
-                                    : 'text-emerald-600 hover:text-emerald-800'
-                                }`}
+                                className="text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                               >
-                                {u.status === 'aktif' ? 'Matikan' : 'Aktifkan'}
+                                {u.status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'}
                               </button>
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-right">
-                            <div className="inline-flex items-center gap-1.5">
+                          <td className="py-3.5 px-4 text-right">
+                            <div className="inline-flex items-center gap-1">
                               {/* Detail */}
                               <button
                                 onClick={() => setSelectedUserForDetail(u)}
-                                className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                                 title="Lihat Detail Profil Petugas"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                               </button>
                               {/* Edit */}
                               <button
                                 onClick={() => setSelectedUserForEdit(u)}
-                                className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                                 title="Edit Akun Petugas"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </button>
+                              {/* Delete */}
                               {/* Delete */}
                               <button
                                 onClick={() => setSelectedUserForDelete(u)}
@@ -883,36 +888,35 @@ export default function DatabasePenggunaPage() {
       {(activeTab === 'ormas' || activeTab === 'semua') && (
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-600 shrink-0" />
-              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-                Tabel User Pengajuan Ormas (Pemohon SKT)
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Akun Pengurus Ormas (Pemohon SKT)
               </h2>
-              <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                {filteredOrmasUsers.length} Akun
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                {filteredOrmasUsers.length}
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
-              Akun Pengurus Organisasi Kemasyarakatan Pemohon Surat Keterangan Terdaftar
+            <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+              Organisasi Kemasyarakatan Terdaftar & Pemohon SKT
             </p>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-emerald-200 dark:border-emerald-900/60 shadow-2xs overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                <thead className="bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 font-bold uppercase tracking-wider text-[11px] border-b border-emerald-100 dark:border-emerald-900/60 select-none">
+                <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
-                    <th className="py-3.5 px-4 w-12 text-center">No</th>
-                    <th className="py-3.5 px-4">Penanggung Jawab / Pemohon</th>
-                    <th className="py-3.5 px-4">Organisasi Kemasyarakatan</th>
-                    <th className="py-3.5 px-4">Email & Kontak Akun</th>
-                    <th className="py-3.5 px-4">Status SKT & No. Tiket</th>
-                    <th className="py-3.5 px-4">Terakhir Login</th>
-                    <th className="py-3.5 px-4 text-center">Status</th>
-                    <th className="py-3.5 px-4 text-right">Aksi</th>
+                    <th className="py-3 px-4 w-12 text-center">No</th>
+                    <th className="py-3 px-4">Penanggung Jawab</th>
+                    <th className="py-3 px-4">Organisasi</th>
+                    <th className="py-3 px-4">Kontak Akun</th>
+                    <th className="py-3 px-4">Status Permohonan</th>
+                    <th className="py-3 px-4">Terakhir Login</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredOrmasUsers.length > 0 ? (
                     filteredOrmasUsers.map((u, idx) => {
                       const ormasTitle = u.ormasNama || u.instansi || 'Organisasi Baru';
@@ -924,52 +928,53 @@ export default function DatabasePenggunaPage() {
                         .toUpperCase();
 
                       return (
-                        <tr key={u.id} className="hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-colors">
-                          <td className="py-4 px-4 text-center text-slate-400 font-bold">{idx + 1}</td>
-                          <td className="py-4 px-4">
+                        <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-3.5 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
+                          <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/80 dark:text-emerald-200 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-emerald-300/60 dark:ring-emerald-700">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 flex items-center justify-center font-medium text-xs shrink-0 border border-slate-200/60 dark:border-slate-700">
                                 {initials || 'OR'}
                               </div>
                               <div>
-                                <p className="font-bold text-slate-900 dark:text-white leading-tight">
+                                <p className="font-medium text-slate-900 dark:text-white leading-tight">
                                   {u.nama}
                                 </p>
-                                <p className="text-[11px] text-slate-400 font-medium">
-                                  Penanggung Jawab Ormas
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                  Penanggung Jawab
                                 </p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 px-4">
+                          <td className="py-3.5 px-4">
                             <div>
-                              <p className="font-bold text-slate-900 dark:text-slate-100">
+                              <p className="font-medium text-slate-900 dark:text-slate-100">
                                 {ormasTitle}
                               </p>
                               {u.singkatan && (
-                                <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
                                   {u.singkatan}
                                 </span>
                               )}
                             </div>
                           </td>
-                          <td className="py-4 px-4">
-                            <p className="font-mono text-[11px] text-slate-700 dark:text-slate-300">{u.email}</p>
+                          <td className="py-3.5 px-4">
+                            <p className="font-mono text-[11px] text-slate-600 dark:text-slate-400">{u.email}</p>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                              📞 {u.telepon || 'Belum diisi'}
+                              {u.telepon || '-'}
                             </p>
                           </td>
-                          <td className="py-4 px-4">
-                            <div className="space-y-1">
+                          <td className="py-3.5 px-4">
+                            <div className="space-y-0.5">
                               <span
-                                className={`px-2 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider inline-block ${
+                                className={`px-2 py-0.5 text-[11px] font-medium rounded-full inline-flex items-center gap-1.5 ${
                                   u.statusSkt === 'resmi' || u.statusSkt === 'Aktif'
-                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
+                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800'
                                     : u.statusSkt === 'menunggu' || u.statusSkt === 'diajukan'
-                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300'
+                                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800'
                                     : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                                 }`}
                               >
+                                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                                 {u.statusSkt === 'resmi' || u.statusSkt === 'Aktif'
                                   ? 'SKT Resmi Terbit'
                                   : u.statusSkt === 'menunggu' || u.statusSkt === 'diajukan'
@@ -977,59 +982,55 @@ export default function DatabasePenggunaPage() {
                                   : u.statusSkt || 'Belum Mengajukan'}
                               </span>
                               {u.nomorTiket && (
-                                <p className="font-mono text-[10px] text-slate-500 font-semibold">
+                                <p className="font-mono text-[10px] text-slate-500 dark:text-slate-400 pl-0.5">
                                   {u.nomorTiket}
                                 </p>
                               )}
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-slate-500 dark:text-slate-400 text-[11px]">
-                            <p className="font-semibold text-slate-700 dark:text-slate-300">{u.terakhirLogin || '-'}</p>
-                            <p className="text-[10px] text-slate-400">Daftar: {u.tanggalDaftar || '-'}</p>
+                          <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">
+                            <p className="font-medium text-slate-700 dark:text-slate-300">{u.terakhirLogin || '-'}</p>
+                            <p className="text-[11px] text-slate-400">Daftar: {u.tanggalDaftar || '-'}</p>
                           </td>
-                          <td className="py-4 px-4 text-center">
+                          <td className="py-3.5 px-4 text-center">
                             <div className="flex flex-col items-center gap-1">
                               <TableBadge status={u.status} />
                               <button
                                 onClick={() => handleToggleStatus(u)}
                                 title={u.status === 'aktif' ? 'Nonaktifkan Akun Ormas' : 'Aktifkan Akun Ormas'}
-                                className={`text-[10px] font-bold underline cursor-pointer ${
-                                  u.status === 'aktif'
-                                    ? 'text-rose-500 hover:text-rose-700'
-                                    : 'text-emerald-600 hover:text-emerald-800'
-                                }`}
+                                className="text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                               >
-                                {u.status === 'aktif' ? 'Matikan' : 'Aktifkan'}
+                                {u.status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'}
                               </button>
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-right">
-                            <div className="inline-flex items-center gap-1.5">
+                          <td className="py-3.5 px-4 text-right">
+                            <div className="inline-flex items-center gap-1">
                               {/* Detail */}
                               <button
                                 onClick={() => setSelectedUserForDetail(u)}
-                                className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                                 title="Lihat Profil Ormas & Akun"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                               </button>
                               {/* Edit */}
                               <button
                                 onClick={() => setSelectedUserForEdit(u)}
-                                className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                                 title="Edit Akun Ormas"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </button>
                               {/* Delete */}
                               <button
                                 onClick={() => setSelectedUserForDelete(u)}
-                                className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                                 title="Hapus Akun Ormas"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

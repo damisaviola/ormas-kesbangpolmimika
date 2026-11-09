@@ -35,6 +35,12 @@ export default function OrganisasiPage() {
       }
     }
     loadOrmas();
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('search') || params.get('q');
+      if (q) setSearchTerm(q);
+    }
   }, []);
 
   // Keyboard shortcut (Escape) to close detail modal
@@ -77,10 +83,16 @@ export default function OrganisasiPage() {
 
   const filtered = ormasData.filter((item) => {
     const matchesCategory = categoryFilter === 'all' || item.jenisOrmas === categoryFilter;
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return matchesCategory;
+
     const matchesSearch =
-      item.namaOrmas.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.ketuaUmum.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.nomorSk.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.namaOrmas && item.namaOrmas.toLowerCase().includes(q)) ||
+      (item.singkatan && item.singkatan.toLowerCase().includes(q)) ||
+      (item.ketuaUmum && item.ketuaUmum.toLowerCase().includes(q)) ||
+      (item.nomorSk && item.nomorSk.toLowerCase().includes(q)) ||
+      (item.alamat && item.alamat.toLowerCase().includes(q)) ||
+      ((item as any).distrik && (item as any).distrik.toLowerCase().includes(q));
     return matchesCategory && matchesSearch;
   });
 
@@ -213,75 +225,85 @@ export default function OrganisasiPage() {
             placeholder="Cari nama Ormas, SKT, Ketua..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-medium"
+            className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 font-medium placeholder-slate-400"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold"
+              title="Hapus pencarian"
+            >
+              &times;
+            </button>
+          )}
         </div>
       </div>
 
       {/* Directory Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
               <tr>
                 <th
                   onClick={() => handleSort('namaOrmas')}
-                  className="py-3.5 px-4 sm:px-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 sm:px-6 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/40 transition-colors group font-medium"
                 >
                   <div className="flex items-center gap-1">
                     <span>Nama Ormas</span>
-                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">
                       {sortField === 'namaOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                     </span>
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort('jenisOrmas')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/40 transition-colors group font-medium"
                 >
                   <div className="flex items-center gap-1">
                     <span>Jenis</span>
-                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">
                       {sortField === 'jenisOrmas' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                     </span>
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort('ketuaUmum')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/40 transition-colors group font-medium"
                 >
                   <div className="flex items-center gap-1">
                     <span>Ketua Umum</span>
-                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">
                       {sortField === 'ketuaUmum' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                     </span>
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort('nomorSk')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/40 transition-colors group font-medium"
                 >
                   <div className="flex items-center gap-1">
                     <span>No. SKT / SK</span>
-                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">
                       {sortField === 'nomorSk' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                     </span>
                   </div>
                 </th>
-                <th className="py-3.5 px-4">Masa Berlaku</th>
+                <th className="py-3 px-4 font-medium">Masa Berlaku</th>
                 <th
                   onClick={() => handleSort('statusSk')}
-                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                  className="py-3 px-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/40 transition-colors group font-medium"
                 >
                   <div className="flex items-center gap-1">
-                    <span>Status Legal</span>
-                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+                    <span>Status</span>
+                    <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">
                       {sortField === 'statusSk' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                     </span>
                   </div>
                 </th>
-                <th className="py-3.5 px-4">Kontak</th>
-                <th className="py-3.5 px-4 text-right">Aksi</th>
+                <th className="py-3 px-4 font-medium">Kontak</th>
+                <th className="py-3 px-4 text-right font-medium">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -290,44 +312,45 @@ export default function OrganisasiPage() {
                   <tr
                     key={item.id}
                     onClick={() => setSelectedOrmasForDetail(item)}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors cursor-pointer group"
                   >
-                    <td className="py-4 px-4 sm:px-6">
-                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {item.namaOrmas}
-                      </p>
-                      {item.singkatan && (
-                        <span className="inline-block text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-900 mt-0.5">
-                          {item.singkatan}
+                    <td className="py-3.5 px-4 sm:px-6">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-medium text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 text-xs sm:text-sm transition-colors">
+                          {item.namaOrmas}
                         </span>
-                      )}
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5 truncate max-w-xs">{item.alamat}</p>
+                        {item.singkatan && (
+                          <span className="text-xs text-slate-400 dark:text-slate-500 font-normal">
+                            ({item.singkatan})
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-xs">{item.alamat}</p>
                     </td>
-                    <td className="py-4 px-4 font-semibold text-slate-700 dark:text-slate-300">{item.jenisOrmas}</td>
-                    <td className="py-4 px-4 font-medium text-slate-800 dark:text-slate-200">{item.ketuaUmum}</td>
-                    <td className="py-4 px-4 font-mono text-slate-700 dark:text-amber-400 text-[11px] font-bold">{item.nomorSk}</td>
-                    <td className="py-4 px-4 text-slate-500 dark:text-slate-400">{item.tanggalBerlaku}</td>
-                    <td className="py-4 px-4">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">{item.jenisOrmas}</td>
+                    <td className="py-3.5 px-4 text-slate-800 dark:text-slate-200">{item.ketuaUmum}</td>
+                    <td className="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-400 text-xs">{item.nomorSk}</td>
+                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{item.tanggalBerlaku}</td>
+                    <td className="py-3.5 px-4">
                       <TableBadge status={item.statusSk} />
                     </td>
-                    <td className="py-4 px-4 text-[11px]">
-                      <p className="font-semibold text-slate-800 dark:text-slate-200">{item.telepon}</p>
-                      <p className="text-slate-400 dark:text-slate-500">{item.email}</p>
+                    <td className="py-3.5 px-4 text-[11px] text-slate-500 dark:text-slate-400">
+                      <p className="text-slate-700 dark:text-slate-300 font-medium">{item.telepon}</p>
+                      <p className="truncate max-w-[140px]">{item.email}</p>
                     </td>
-                    <td className="py-4 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedOrmasForDetail(item);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-200/80 dark:border-blue-800 shadow-2xs"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
                         title="Lihat Detail Profil Organisasi"
                       >
-                        <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <span>Detail</span>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
                         </svg>
-                        Detail
                       </button>
                     </td>
                   </tr>

@@ -14,6 +14,7 @@ import {
   resolveNotificationLink,
 } from '@/services/notificationService';
 import NotificationCenterModal from '@/components/NotificationCenterModal';
+import HeaderSearchBar from '@/components/dashboard/HeaderSearchBar';
 
 export default function DashboardHeader() {
   const pathname = usePathname();
@@ -166,20 +167,8 @@ export default function DashboardHeader() {
 
       {/* Right: Search, Dark Mode Toggle, Notifications & Profile */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Search Bar Input */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs border border-slate-200 dark:border-slate-700/80 transition-colors w-44 lg:w-60">
-          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Cari Ormas, Pengguna..."
-            className="bg-transparent border-none outline-none w-full text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-xs"
-          />
-          <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
-            ⌘K
-          </kbd>
-        </div>
+        {/* Search Bar with Dropdown */}
+        <HeaderSearchBar mode="admin" />
 
         {/* Dark / Light Mode Switcher Toggle Button */}
         <button

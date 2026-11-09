@@ -93,6 +93,15 @@ export default function PengajuanPage() {
   useEffect(() => {
     let isMounted = true;
 
+    // Baca parameter pencarian dari URL jika ada
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('search') || params.get('q');
+      if (q) {
+        setSearchTermRaw(q);
+      }
+    }
+
     // Selaraskan data fresh dari API database
     syncSubmissionsFromApi().then((fresh) => {
       if (isMounted && fresh && fresh.length > 0) {
@@ -870,62 +879,56 @@ export default function PengajuanPage() {
           /* ========================================================== */
           /* 2. TAMPILAN MODE TABEL (Rapi, Bersih, Format Spreadsheet) */
           /* ========================================================== */
-          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                   <tr>
-                    <th className="py-4 px-4 sm:px-6 w-12 text-center">No</th>
-                    <th className="py-4 px-4">Nama Organisasi &amp; Bidang</th>
-                    <th className="py-4 px-4">No. Registrasi / Tiket</th>
-                    <th className="py-4 px-4">Ketua Umum &amp; Kontak</th>
-                    <th className="py-4 px-4">Lokasi &amp; Distrik</th>
-                    <th className="py-4 px-4">Status Pengajuan</th>
-                    <th className="py-4 px-4 text-center">Aksi</th>
+                    <th className="py-3 px-4 w-12 text-center font-medium">No</th>
+                    <th className="py-3 px-4 font-medium">Nama Organisasi &amp; Bidang</th>
+                    <th className="py-3 px-4 font-medium">No. Registrasi / Tiket</th>
+                    <th className="py-3 px-4 font-medium">Ketua Umum &amp; Kontak</th>
+                    <th className="py-3 px-4 font-medium">Lokasi &amp; Distrik</th>
+                    <th className="py-3 px-4 font-medium">Status Pengajuan</th>
+                    <th className="py-3 px-4 text-center font-medium">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {paginatedItems.map((item, idx) => {
                     const ticket = item.nomorRegistrasi || item.id;
-                    const isNewlySubmitted =
-                      item.isCustomSubmission || item.nomorRegistrasi?.startsWith('TIKET/');
 
                     return (
                       <tr
                         key={item.id}
-                        className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors ${
-                          isNewlySubmitted ? 'bg-emerald-50/20 dark:bg-emerald-950/10' : ''
-                        }`}
+                        className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
                       >
-                        <td className="py-4 px-4 sm:px-6 text-center font-bold text-slate-400">
+                        <td className="py-3.5 px-4 text-center text-slate-400">
                           {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-slate-900 dark:text-white text-sm">
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-medium text-slate-900 dark:text-white text-xs sm:text-sm">
                               {item.namaOrmas}
                             </span>
-                            {isNewlySubmitted && (
-                              <span className="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded border border-emerald-200 dark:border-emerald-800">
-                                Baru
+                            {item.singkatan && (
+                              <span className="text-xs text-slate-400 dark:text-slate-500">
+                                ({item.singkatan})
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400">
-                            {item.singkatan && <span className="font-semibold text-slate-600 dark:text-slate-300">({item.singkatan})</span>}
-                            <span>•</span>
-                            <span>{item.jenisOrmas}</span>
-                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            {item.jenisOrmas}
+                          </p>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3.5 px-4">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+                            <span className="font-mono text-xs text-slate-700 dark:text-slate-300">
                               {ticket}
                             </span>
                             <button
                               type="button"
                               onClick={() => handleCopyTicket(ticket)}
-                              className="text-slate-400 hover:text-blue-600 dark:hover:text-sky-400 p-1 rounded"
+                              className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-0.5 rounded transition-colors"
                               title="Salin nomor tiket"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -937,37 +940,36 @@ export default function PengajuanPage() {
                             Tgl: {item.tanggalPengajuan || '-'}
                           </span>
                         </td>
-                        <td className="py-4 px-4">
-                          <div className="font-bold text-slate-900 dark:text-white">
+                        <td className="py-3.5 px-4">
+                          <div className="font-medium text-slate-800 dark:text-slate-200">
                             {item.ketuaUmum || item.pendaftar || '-'}
                           </div>
                           {(item.email || item.pendaftarEmail) && (
-                            <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
+                            <div className="text-[11px] text-slate-400 truncate max-w-[180px]">
                               {item.email || item.pendaftarEmail}
                             </div>
                           )}
                         </td>
-                        <td className="py-4 px-4 max-w-xs">
-                          <span className="font-semibold text-slate-800 dark:text-slate-200 block truncate">
+                        <td className="py-3.5 px-4 max-w-xs">
+                          <span className="text-slate-700 dark:text-slate-300 block truncate">
                             Distrik {item.distrik || 'Mimika Baru'}
                           </span>
                           <span className="text-[11px] text-slate-400 truncate block">
                             {item.alamat || 'Kabupaten Mimika'}
                           </span>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3.5 px-4">
                           <TableBadge status={item.status} />
                         </td>
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-3.5 px-4 text-center">
                           <Link
                             href={`/dashboard/pengajuan/${item.id}`}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-xl transition-all border border-blue-200/80 dark:border-blue-800 shadow-2xs"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-md transition-colors"
                           >
-                            <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
                             <span>Tinjau</span>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
+                            </svg>
                           </Link>
                         </td>
                       </tr>

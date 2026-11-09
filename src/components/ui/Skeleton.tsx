@@ -29,13 +29,13 @@ export function CardSkeleton({ className = '' }: SkeletonProps) {
 
 export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden p-6 shadow-xs space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden p-5 shadow-xs space-y-4">
       {/* Table Header Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800">
-        <Skeleton className="h-9 w-64 rounded-xl" />
+        <Skeleton className="h-9 w-64 rounded-lg" />
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Skeleton className="h-9 w-28 rounded-xl" />
-          <Skeleton className="h-9 w-32 rounded-xl" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+          <Skeleton className="h-9 w-32 rounded-lg" />
         </div>
       </div>
 

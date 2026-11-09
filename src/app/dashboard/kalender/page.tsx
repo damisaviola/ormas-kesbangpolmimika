@@ -516,25 +516,25 @@ export default function KalenderPage() {
         </div>
 
         {/* Table View */}
-        <div className="overflow-x-auto border border-slate-200/80 dark:border-slate-800 rounded-lg">
+        <div className="overflow-x-auto border border-slate-200/80 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800">
+              <tr className="bg-slate-50/80 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800 select-none">
                 <th className="py-3 px-4 text-center w-12">No</th>
-                <th className="py-3 px-4">Nama Organisasi &amp; SKT</th>
-                <th className="py-3 px-4">Tanggal Mulai (Terbit)</th>
+                <th className="py-3 px-4">Nama Organisasi & SKT</th>
+                <th className="py-3 px-4">Tanggal Mulai</th>
                 <th className="py-3 px-4">Tanggal Kadaluarsa</th>
-                <th className="py-3 px-4">Perhitungan Sisa Waktu</th>
+                <th className="py-3 px-4">Masa Berlaku</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {filteredOrmas.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-slate-400">
-                    <p className="font-semibold text-slate-600">Tidak ada ormas yang sesuai dengan filter.</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Coba ubah tanggal atau bersihkan kata kunci pencarian.</p>
+                    <p className="font-medium text-slate-600 dark:text-slate-400">Tidak ada ormas yang sesuai dengan filter.</p>
+                    <p className="text-xs text-slate-400 mt-1">Coba ubah tanggal atau bersihkan kata kunci pencarian.</p>
                   </td>
                 </tr>
               ) : (
@@ -544,105 +544,93 @@ export default function KalenderPage() {
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer"
                       onClick={() => setSelectedOrmas(item)}
                     >
-                      <td className="py-3 px-4 text-center font-mono text-slate-400 dark:text-slate-500">{idx + 1}</td>
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-snug">
+                      <td className="py-3.5 px-4 text-center font-mono text-slate-400 dark:text-slate-500">{idx + 1}</td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-medium text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-snug">
                           {item.namaOrmas}
                         </div>
-                        {item.singkatan && (
-                          <span className="inline-block mt-0.5 text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-100 dark:border-blue-900/60">
-                            {item.singkatan}
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {item.singkatan && (
+                            <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded border border-slate-200/60 dark:border-slate-700">
+                              {item.singkatan}
+                            </span>
+                          )}
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                            {item.nomorSk}
                           </span>
-                        )}
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                          {item.nomorSk}
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                          {new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </span>
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
+                        {new Date(item.tanggalMulai).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
                       </td>
-                      <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
-                        <span className="inline-flex items-center gap-1.5">
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              calc.status === 'kadaluarsa'
-                                ? 'bg-rose-600'
-                                : calc.status === 'segera_berakhir'
-                                ? 'bg-amber-500'
-                                : 'bg-emerald-600'
-                            }`}
-                          ></span>
-                          {new Date(item.tanggalKadaluarsa).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </span>
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
+                        {new Date(item.tanggalKadaluarsa).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <span
-                          className={`font-semibold ${
+                          className={`font-medium text-xs ${
                             calc.status === 'kadaluarsa'
                               ? 'text-rose-600 dark:text-rose-400'
                               : calc.status === 'segera_berakhir'
                               ? 'text-amber-600 dark:text-amber-400'
-                              : 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-slate-700 dark:text-slate-300'
                           }`}
                         >
                           {calc.message}
                         </span>
-                        <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                        <div className="text-[11px] text-slate-400 mt-0.5">
                           Masa berlaku {item.masaBerlakuTahun} tahun
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         {calc.status === 'aktif' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                            Masih Aktif
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200/50 dark:border-emerald-800">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Aktif
                           </span>
                         ) : calc.status === 'segera_berakhir' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200/50 dark:border-amber-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                             Segera Berakhir
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-800">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-200/50 dark:border-rose-800">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                             Kadaluarsa
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedOrmas(item);
                             }}
-                            className="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            className="px-2.5 py-1 rounded-md text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
                           >
                             Detail
                           </button>
                           {(calc.status === 'segera_berakhir' || calc.status === 'kadaluarsa') && (
                             <button
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleSendReminder(item);
-                              }}
-                              className="px-2.5 py-1 rounded-md text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900 border border-amber-200 dark:border-amber-800 transition-colors"
-                              title="Kirim surat pengingat perpanjangan ke pengurus"
-                            >
+                              e.stopPropagation();
+                              handleSendReminder(item);
+                            }}
+                            className="px-2.5 py-1 rounded-md text-xs font-medium text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900 border border-amber-200 dark:border-amber-800 transition-colors"
+                            title="Kirim surat pengingat perpanjangan ke pengurus"
+                          >
                               Kirim Peringatan
                             </button>
                           )}
